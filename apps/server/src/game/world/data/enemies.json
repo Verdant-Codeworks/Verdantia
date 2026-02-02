@@ -1,0 +1,135 @@
+[
+  {
+    "id": "forest_spider",
+    "name": "Forest Spider",
+    "description": "A dog-sized spider with glistening fangs and bristly legs. Its many eyes reflect the dim forest light.",
+    "stats": {
+      "maxHp": 15,
+      "hp": 15,
+      "attack": 4,
+      "defense": 1,
+      "speed": 6
+    },
+    "xpReward": 25,
+    "lootTable": [
+      { "itemId": "healing_herb", "chance": 0.3 }
+    ]
+  },
+  {
+    "id": "giant_spider",
+    "name": "Giant Spider",
+    "description": "A massive arachnid the size of a horse, its body armored with thick chitin plates. Venom drips from its fangs.",
+    "stats": {
+      "maxHp": 35,
+      "hp": 35,
+      "attack": 8,
+      "defense": 4,
+      "speed": 5
+    },
+    "xpReward": 80,
+    "lootTable": [
+      { "itemId": "spider_silk", "chance": 0.5 },
+      { "itemId": "health_potion", "chance": 0.3 }
+    ]
+  },
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "description": "A small, wiry creature with green skin, pointed ears, and a nasty grin. It brandishes a rusty dagger.",
+    "stats": {
+      "maxHp": 20,
+      "hp": 20,
+      "attack": 5,
+      "defense": 2,
+      "speed": 4
+    },
+    "xpReward": 30,
+    "lootTable": [
+      { "itemId": "gold_pouch", "chance": 0.2 },
+      { "itemId": "healing_herb", "chance": 0.4 }
+    ]
+  },
+  {
+    "id": "goblin_chief",
+    "name": "Goblin Chief",
+    "description": "A hulking goblin wearing a crude iron crown. Scars criss-cross its muscular arms, and it wields a heavy mace with practiced ease.",
+    "stats": {
+      "maxHp": 50,
+      "hp": 50,
+      "attack": 10,
+      "defense": 5,
+      "speed": 3
+    },
+    "xpReward": 150,
+    "lootTable": [
+      { "itemId": "health_potion", "chance": 0.6 },
+      { "itemId": "gold_pouch", "chance": 0.5 },
+      { "itemId": "iron_sword", "chance": 0.3 }
+    ]
+  },
+  {
+    "id": "wild_wolf",
+    "name": "Wild Wolf",
+    "description": "A lean gray wolf with bared fangs and matted fur. Its amber eyes track your every movement with predatory focus.",
+    "stats": {
+      "maxHp": 18,
+      "hp": 18,
+      "attack": 6,
+      "defense": 2,
+      "speed": 7
+    },
+    "xpReward": 35,
+    "lootTable": [
+      { "itemId": "healing_herb", "chance": 0.3 }
+    ]
+  },
+  {
+    "id": "bandit",
+    "name": "Bandit",
+    "description": "A rough-looking human in tattered clothes, wielding a notched short sword. Desperation burns in their eyes.",
+    "stats": {
+      "maxHp": 25,
+      "hp": 25,
+      "attack": 7,
+      "defense": 3,
+      "speed": 4
+    },
+    "xpReward": 40,
+    "lootTable": [
+      { "itemId": "gold_pouch", "chance": 0.4 },
+      { "itemId": "health_potion", "chance": 0.2 }
+    ]
+  },
+  {
+    "id": "cave_bat",
+    "name": "Cave Bat Swarm",
+    "description": "A shrieking cloud of bats bursts from the darkness, their leathery wings beating the air in a frenzy.",
+    "stats": {
+      "maxHp": 12,
+      "hp": 12,
+      "attack": 3,
+      "defense": 1,
+      "speed": 8
+    },
+    "xpReward": 15,
+    "lootTable": []
+  },
+  {
+    "id": "stone_golem",
+    "name": "Stone Golem",
+    "description": "An animated construct of rough-hewn stone, glowing runes etched into its surface. It moves with surprising speed for its bulk.",
+    "stats": {
+      "maxHp": 60,
+      "hp": 60,
+      "attack": 12,
+      "defense": 8,
+      "speed": 2
+    },
+    "xpReward": 200,
+    "lootTable": [
+      { "itemId": "enchanted_blade", "chance": 0.2 },
+      { "itemId": "health_potion", "chance": 0.5 },
+      { "itemId": "gold_pile", "chance": 0.3 }
+    ]
+  }
+]

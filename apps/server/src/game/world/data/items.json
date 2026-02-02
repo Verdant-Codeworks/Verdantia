@@ -1,0 +1,138 @@
+[
+  {
+    "id": "healing_herb",
+    "name": "Healing Herb",
+    "description": "A fragrant green herb with restorative properties. Can be consumed to restore a small amount of health.",
+    "type": "consumable",
+    "effect": { "healAmount": 10 },
+    "value": 5
+  },
+  {
+    "id": "health_potion",
+    "name": "Health Potion",
+    "description": "A small glass vial filled with glowing red liquid. Restores a moderate amount of health when consumed.",
+    "type": "consumable",
+    "effect": { "healAmount": 25 },
+    "value": 20
+  },
+  {
+    "id": "mushroom",
+    "name": "Glowing Mushroom",
+    "description": "A bioluminescent fungus that pulses with an eerie blue light. Consuming it restores a small amount of health but tastes terrible.",
+    "type": "consumable",
+    "effect": { "healAmount": 8 },
+    "value": 3
+  },
+  {
+    "id": "iron_sword",
+    "name": "Iron Sword",
+    "description": "A sturdy iron blade, well-balanced and sharp. A reliable weapon for any adventurer.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 3 },
+    "value": 30
+  },
+  {
+    "id": "leather_armor",
+    "name": "Leather Armor",
+    "description": "A set of hardened leather armor. Offers decent protection without sacrificing mobility.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 2 },
+    "value": 25
+  },
+  {
+    "id": "enchanted_blade",
+    "name": "Enchanted Blade",
+    "description": "A sword that glows with a faint green light. Ancient runes are etched along the fuller. It feels alive in your hand.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 6, "speedBonus": 1 },
+    "value": 100
+  },
+  {
+    "id": "spider_silk",
+    "name": "Spider Silk Vest",
+    "description": "Woven from the silk of giant forest spiders, this vest is surprisingly tough and lightweight.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 3, "speedBonus": 1 },
+    "value": 60
+  },
+  {
+    "id": "gold_ring",
+    "name": "Gold Ring",
+    "description": "A simple gold ring, slightly tarnished. It might be worth something to the right buyer.",
+    "type": "misc",
+    "value": 40
+  },
+  {
+    "id": "gold_pouch",
+    "name": "Pouch of Gold",
+    "description": "A small leather pouch jingling with gold coins.",
+    "type": "misc",
+    "value": 50
+  },
+  {
+    "id": "gold_pile",
+    "name": "Pile of Gold",
+    "description": "A generous handful of gold coins from the treasure hoard.",
+    "type": "misc",
+    "value": 100
+  },
+  {
+    "id": "torch",
+    "name": "Torch",
+    "description": "A wooden torch wrapped in oil-soaked cloth. Useful for lighting dark places.",
+    "type": "misc",
+    "value": 2
+  },
+  {
+    "id": "old_map",
+    "name": "Old Map",
+    "description": "A faded map of the Verdantia region showing villages, forests, mountains, and caves. Some locations are marked with warnings.",
+    "type": "misc",
+    "value": 15
+  },
+  {
+    "id": "greater_health_potion",
+    "name": "Greater Health Potion",
+    "description": "A large flask of brilliant red liquid that swirls with golden motes. Restores a large amount of health.",
+    "type": "consumable",
+    "effect": { "healAmount": 50 },
+    "value": 50
+  },
+  {
+    "id": "steel_sword",
+    "name": "Steel Sword",
+    "description": "A finely crafted steel blade with a leather-wrapped grip. Superior to iron in every way.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 5 },
+    "value": 60
+  },
+  {
+    "id": "chainmail",
+    "name": "Chainmail Armor",
+    "description": "Interlocking steel rings form a protective shirt. Heavy but effective against slashing attacks.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 4 },
+    "value": 50
+  },
+  {
+    "id": "wolf_pelt",
+    "name": "Wolf Pelt",
+    "description": "A thick gray wolf pelt, still warm. Could be sold or perhaps used by a skilled craftsman.",
+    "type": "misc",
+    "value": 20
+  },
+  {
+    "id": "antidote",
+    "name": "Antidote",
+    "description": "A small vial of green liquid that cures poison and restores a bit of health.",
+    "type": "consumable",
+    "effect": { "healAmount": 15 },
+    "value": 12
+  }
+]

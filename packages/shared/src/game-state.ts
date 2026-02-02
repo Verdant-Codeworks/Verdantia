@@ -1,0 +1,48 @@
+import type {
+  CharacterStats,
+  Equipment,
+  InventoryItem,
+  ItemDefinition,
+  RoomDefinition,
+} from './entities.js';
+
+export enum GamePhase {
+  TITLE = 'title',
+  EXPLORATION = 'exploration',
+  COMBAT = 'combat',
+  GAME_OVER = 'game_over',
+  VICTORY = 'victory',
+}
+
+export interface CombatState {
+  enemyId: string;
+  enemyName: string;
+  enemyHp: number;
+  enemyMaxHp: number;
+  enemyAttack: number;
+  enemyDefense: number;
+  enemySpeed: number;
+  isPlayerTurn: boolean;
+  turnCount: number;
+}
+
+export interface NarrativeMessage {
+  id: string;
+  text: string;
+  type: 'narrative' | 'combat' | 'system' | 'error' | 'loot' | 'levelup';
+  timestamp: number;
+}
+
+export interface GameState {
+  phase: GamePhase;
+  playerName: string;
+  stats: CharacterStats;
+  currentRoomId: string;
+  currentRoom: RoomDefinition;
+  inventory: InventoryItem[];
+  equipment: Equipment;
+  combat: CombatState | null;
+  messages: NarrativeMessage[];
+  gold: number;
+  itemDefinitions: Record<string, ItemDefinition>; // items the player has seen
+}

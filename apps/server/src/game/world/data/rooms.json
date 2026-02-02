@@ -1,0 +1,209 @@
+[
+  {
+    "id": "forest_clearing",
+    "name": "Forest Clearing",
+    "description": "You stand in a sunlit clearing surrounded by ancient oak trees. Shafts of golden light pierce through the canopy above, illuminating patches of wildflowers. A worn stone path leads north toward what appears to be a village, while a narrow trail disappears east into dense undergrowth. To the south, you hear the gentle sound of flowing water.",
+    "exits": [
+      { "direction": "north", "roomId": "village_square", "description": "A worn stone path leads toward a village." },
+      { "direction": "east", "roomId": "deep_forest", "description": "A narrow trail winds into dense undergrowth." },
+      { "direction": "south", "roomId": "river_bank", "description": "The sound of water beckons from the south." }
+    ],
+    "items": ["healing_herb"],
+    "enemies": []
+  },
+  {
+    "id": "village_square",
+    "name": "Village Square",
+    "description": "The heart of a small woodland village opens before you. Timber-framed cottages line the square, their windows glowing with warm light. A weathered notice board stands near a stone well at the center. An old blacksmith's forge smokes to the west, and the forest trail leads back south.",
+    "exits": [
+      { "direction": "south", "roomId": "forest_clearing", "description": "The forest trail leads back to the clearing." },
+      { "direction": "west", "roomId": "blacksmith", "description": "The blacksmith's forge glows to the west." },
+      { "direction": "north", "roomId": "village_gate", "description": "A wooden gate stands at the northern edge of the village." }
+    ],
+    "items": [],
+    "enemies": []
+  },
+  {
+    "id": "blacksmith",
+    "name": "Blacksmith's Forge",
+    "description": "Heat radiates from a roaring forge where a stout dwarf hammers away at a glowing blade. Weapons and armor line the walls — swords, shields, chainmail, and more. The air smells of hot metal and coal. The village square is back to the east.",
+    "exits": [
+      { "direction": "east", "roomId": "village_square", "description": "The village square lies to the east." }
+    ],
+    "items": ["iron_sword", "leather_armor"],
+    "enemies": []
+  },
+  {
+    "id": "deep_forest",
+    "name": "Deep Forest",
+    "description": "Gnarled trees press close together here, their twisted branches blocking most of the sunlight. Strange fungi glow faintly on rotting logs, and the undergrowth rustles with unseen creatures. The air is thick and damp. The trail back to the clearing is to the west, and the forest continues north into even darker territory.",
+    "exits": [
+      { "direction": "west", "roomId": "forest_clearing", "description": "The trail leads back to the clearing." },
+      { "direction": "north", "roomId": "dark_hollow", "description": "The forest grows darker to the north." }
+    ],
+    "items": ["mushroom"],
+    "enemies": ["forest_spider", "wild_wolf"]
+  },
+  {
+    "id": "dark_hollow",
+    "name": "Dark Hollow",
+    "description": "You descend into a shadowy hollow where the trees form a near-impenetrable canopy. Pale webs stretch between the trunks, glistening with moisture. Bones — both animal and otherwise — litter the ground. Something skitters in the darkness ahead. The way back south offers the only retreat.",
+    "exits": [
+      { "direction": "south", "roomId": "deep_forest", "description": "The trail leads back through the deep forest." },
+      { "direction": "east", "roomId": "spider_den", "description": "Thick webs cover a passage to the east." }
+    ],
+    "items": [],
+    "enemies": ["forest_spider", "goblin"]
+  },
+  {
+    "id": "spider_den",
+    "name": "Spider Den",
+    "description": "Massive webs cocoon the entire area in white silk. Dessicated husks of past victims hang from the branches. In the center, a mound of bones and treasure glints in the faint light filtering through the web canopy. This place reeks of danger — and reward.",
+    "exits": [
+      { "direction": "west", "roomId": "dark_hollow", "description": "The passage back leads west." }
+    ],
+    "items": ["spider_silk", "gold_ring"],
+    "enemies": ["giant_spider"]
+  },
+  {
+    "id": "river_bank",
+    "name": "River Bank",
+    "description": "A crystal-clear river rushes over smooth stones, its banks lined with reeds and cattails. Colorful fish dart beneath the surface, and a fallen log creates a natural bridge to the far side. Wildflowers carpet the grassy bank, making this a surprisingly peaceful spot. The forest clearing lies to the north.",
+    "exits": [
+      { "direction": "north", "roomId": "forest_clearing", "description": "The clearing is back to the north." },
+      { "direction": "east", "roomId": "old_bridge", "description": "Following the river east, you spot an old stone bridge." }
+    ],
+    "items": ["healing_herb"],
+    "enemies": []
+  },
+  {
+    "id": "old_bridge",
+    "name": "Old Stone Bridge",
+    "description": "An ancient stone bridge arches over the river, its surface worn smooth by countless feet over the centuries. Moss and ivy cling to its sides. Strange runes are carved into the keystones — you can't read them, but they seem to pulse faintly. The river bank is to the west, and a mountain path begins on the far side to the east.",
+    "exits": [
+      { "direction": "west", "roomId": "river_bank", "description": "The river bank lies to the west." },
+      { "direction": "east", "roomId": "mountain_path", "description": "A mountain path climbs to the east." }
+    ],
+    "items": [],
+    "enemies": ["goblin"]
+  },
+  {
+    "id": "mountain_path",
+    "name": "Mountain Path",
+    "description": "A rocky path winds upward between towering boulders. The air grows thinner and cooler as you climb. Hardy shrubs cling to the rocky soil, and a hawk circles lazily overhead. You can see the forest stretching out behind you to the west, a green carpet punctuated by the glint of the river.",
+    "exits": [
+      { "direction": "west", "roomId": "old_bridge", "description": "The path descends back to the old bridge." },
+      { "direction": "north", "roomId": "cave_entrance", "description": "A dark cave mouth gapes in the mountainside to the north." }
+    ],
+    "items": [],
+    "enemies": ["goblin"]
+  },
+  {
+    "id": "cave_entrance",
+    "name": "Cave Entrance",
+    "description": "A yawning cave mouth opens in the mountainside, exhaling cold, stale air. Scratch marks score the rock around the entrance — something large has been coming and going. Torchlight flickers from somewhere deep inside, suggesting this cave is inhabited. The mountain path continues back to the south.",
+    "exits": [
+      { "direction": "south", "roomId": "mountain_path", "description": "The mountain path leads back south." },
+      { "direction": "north", "roomId": "goblin_lair", "description": "The cave descends into darkness to the north." }
+    ],
+    "items": ["torch"],
+    "enemies": ["goblin", "cave_bat"]
+  },
+  {
+    "id": "goblin_lair",
+    "name": "Goblin Lair",
+    "description": "The cave opens into a large, foul-smelling chamber lit by sputtering torches. Crude bedrolls and stolen goods are scattered across the floor. Bones and scraps of food litter the ground. This is clearly a goblin hideout — and its inhabitants don't welcome visitors.",
+    "exits": [
+      { "direction": "south", "roomId": "cave_entrance", "description": "The cave entrance is to the south." },
+      { "direction": "east", "roomId": "treasure_room", "description": "A heavy wooden door leads east." }
+    ],
+    "items": ["gold_pouch"],
+    "enemies": ["goblin", "goblin_chief"]
+  },
+  {
+    "id": "treasure_room",
+    "name": "Hidden Treasure Room",
+    "description": "Beyond the heavy door lies a small chamber glittering with ill-gotten treasure. Gold coins spill from overturned chests, and jeweled weapons hang on crude racks. A tattered banner on the wall bears the crest of some long-forgotten kingdom. The goblins have been busy collecting.",
+    "exits": [
+      { "direction": "west", "roomId": "goblin_lair", "description": "The goblin lair is back to the west." }
+    ],
+    "items": ["enchanted_blade", "health_potion", "gold_pile"],
+    "enemies": []
+  },
+  {
+    "id": "village_gate",
+    "name": "Village Gate",
+    "description": "A sturdy wooden gate marks the northern boundary of the village. Beyond it, a dirt road stretches into rolling hills dotted with farmsteads. Guards once manned the watchtowers flanking the gate, but they stand empty now. A notice warns travelers of dangers in the northern wilds.",
+    "exits": [
+      { "direction": "south", "roomId": "village_square", "description": "The village square is to the south." },
+      { "direction": "north", "roomId": "northern_road", "description": "The road continues north into the hills." }
+    ],
+    "items": [],
+    "enemies": []
+  },
+  {
+    "id": "northern_road",
+    "name": "Northern Road",
+    "description": "The road cuts through open farmland, though many of the fields lie fallow and overgrown. A cold wind blows from the north, carrying with it the faint scent of smoke. Crows gather on a broken scarecrow nearby, watching you with unsettling intelligence.",
+    "exits": [
+      { "direction": "south", "roomId": "village_gate", "description": "The village gate is to the south." },
+      { "direction": "north", "roomId": "ruined_watchtower", "description": "A ruined watchtower stands on a hill to the north." }
+    ],
+    "items": [],
+    "enemies": ["goblin", "wild_wolf"]
+  },
+  {
+    "id": "ruined_watchtower",
+    "name": "Ruined Watchtower",
+    "description": "The remains of a stone watchtower stand atop a windswept hill. Half the structure has collapsed, but the base still holds. From here, you can see the entire valley — the village to the south, the forest to the east, and dark mountains to the north. Carved into the remaining wall is a map of the region, faded but legible.",
+    "exits": [
+      { "direction": "south", "roomId": "northern_road", "description": "The road leads back south." },
+      { "direction": "east", "roomId": "abandoned_camp", "description": "A trail leads to what looks like an abandoned camp to the east." }
+    ],
+    "items": ["old_map", "health_potion"],
+    "enemies": []
+  },
+  {
+    "id": "abandoned_camp",
+    "name": "Abandoned Camp",
+    "description": "A ransacked campsite sits in a shallow depression. Torn canvas tents flap in the wind, and a cold fire pit sits at the center surrounded by scattered supplies. Whoever camped here left in a hurry — or was carried off. Tracks in the mud lead in every direction.",
+    "exits": [
+      { "direction": "west", "roomId": "ruined_watchtower", "description": "The watchtower hill lies to the west." },
+      { "direction": "north", "roomId": "bandit_pass", "description": "A narrow pass leads north between rocky outcrops." },
+      { "direction": "east", "roomId": "ancient_ruins", "description": "Crumbling stone columns are visible to the east." }
+    ],
+    "items": ["antidote", "chainmail"],
+    "enemies": ["bandit", "wild_wolf"]
+  },
+  {
+    "id": "bandit_pass",
+    "name": "Bandit's Pass",
+    "description": "A narrow canyon between two rocky cliffs. The walls are scarred with crude graffiti and warnings. Makeshift barricades block alternate routes, funneling travelers into a natural chokepoint. This is prime ambush territory.",
+    "exits": [
+      { "direction": "south", "roomId": "abandoned_camp", "description": "The abandoned camp lies to the south." }
+    ],
+    "items": ["steel_sword", "gold_pouch"],
+    "enemies": ["bandit", "bandit"]
+  },
+  {
+    "id": "ancient_ruins",
+    "name": "Ancient Ruins",
+    "description": "Crumbling marble columns rise from overgrown flagstones, remnants of a civilization long forgotten. Faded murals on broken walls depict scenes of a verdant paradise — perhaps this land's namesake. At the center stands a stone pedestal, its surface covered in glowing runes.",
+    "exits": [
+      { "direction": "west", "roomId": "abandoned_camp", "description": "The abandoned camp is to the west." },
+      { "direction": "down", "roomId": "underground_chamber", "description": "A staircase descends into darkness beneath the pedestal." }
+    ],
+    "items": ["greater_health_potion"],
+    "enemies": ["cave_bat"]
+  },
+  {
+    "id": "underground_chamber",
+    "name": "Underground Chamber",
+    "description": "Deep beneath the ruins, a vast chamber stretches into darkness. Bioluminescent crystals embedded in the walls cast an eerie blue glow across ancient stone carvings. The air hums with latent energy. In the center of the chamber, a massive stone golem stands motionless — for now.",
+    "exits": [
+      { "direction": "up", "roomId": "ancient_ruins", "description": "The staircase leads back up to the ruins." }
+    ],
+    "items": ["enchanted_blade", "gold_pile", "greater_health_potion"],
+    "enemies": ["stone_golem"]
+  }
+]
