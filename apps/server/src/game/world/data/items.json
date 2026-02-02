@@ -134,5 +134,74 @@
     "type": "consumable",
     "effect": { "healAmount": 15 },
     "value": 12
+  },
+  {
+    "id": "pickaxe",
+    "name": "Pickaxe",
+    "description": "A sturdy iron pickaxe, essential for mining ore from rock veins.",
+    "type": "misc",
+    "value": 15
+  },
+  {
+    "id": "copper_ore",
+    "name": "Copper Ore",
+    "description": "A chunk of raw copper ore. Can be smelted into a copper bar.",
+    "type": "material",
+    "value": 5
+  },
+  {
+    "id": "iron_ore",
+    "name": "Iron Ore",
+    "description": "A heavy piece of raw iron ore. Can be smelted into an iron bar.",
+    "type": "material",
+    "value": 12
+  },
+  {
+    "id": "coal",
+    "name": "Coal",
+    "description": "A lump of black coal, used as fuel for smelting.",
+    "type": "material",
+    "value": 3
+  },
+  {
+    "id": "copper_bar",
+    "name": "Copper Bar",
+    "description": "A refined bar of copper. Used in basic smithing recipes.",
+    "type": "material",
+    "value": 15
+  },
+  {
+    "id": "iron_bar",
+    "name": "Iron Bar",
+    "description": "A refined bar of iron. Used in advanced smithing recipes.",
+    "type": "material",
+    "value": 30
+  },
+  {
+    "id": "copper_dagger",
+    "name": "Copper Dagger",
+    "description": "A simple dagger forged from copper. Light and quick, but not very strong.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 2 },
+    "value": 25
+  },
+  {
+    "id": "iron_dagger",
+    "name": "Iron Dagger",
+    "description": "A keen iron dagger, balanced for speed. Deals solid damage with quick strikes.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 4, "speedBonus": 1 },
+    "value": 45
+  },
+  {
+    "id": "steel_plate",
+    "name": "Steel Plate",
+    "description": "Heavy plate armor forged from refined iron. Provides excellent protection.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 6 },
+    "value": 120
   }
 ]

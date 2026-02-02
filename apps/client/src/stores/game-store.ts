@@ -8,6 +8,9 @@ import type {
   ItemDefinition,
   NarrativeMessage,
   RoomDefinition,
+  PlayerSkill,
+  SkillDefinition,
+  RoomResourceNode,
 } from '@verdantia/shared';
 import { GamePhase } from '@verdantia/shared';
 
@@ -29,6 +32,9 @@ interface GameStore {
   combat: CombatState | null;
   gold: number;
   itemDefinitions: Record<string, ItemDefinition>;
+  skills: PlayerSkill[];
+  skillDefinitions: Record<string, SkillDefinition>;
+  currentRoomResources: RoomResourceNode[];
 
   // Client-side accumulated message history
   messageHistory: NarrativeMessage[];
@@ -57,6 +63,9 @@ export const useGameStore = create<GameStore>((set) => ({
   combat: null,
   gold: 0,
   itemDefinitions: {},
+  skills: [],
+  skillDefinitions: {},
+  currentRoomResources: [],
 
   messageHistory: [],
 
@@ -78,6 +87,9 @@ export const useGameStore = create<GameStore>((set) => ({
       combat: state.combat,
       gold: state.gold,
       itemDefinitions: { ...prev.itemDefinitions, ...state.itemDefinitions },
+      skills: state.skills,
+      skillDefinitions: { ...prev.skillDefinitions, ...state.skillDefinitions },
+      currentRoomResources: state.currentRoomResources,
       messageHistory: [...prev.messageHistory, ...state.messages],
       isProcessingCommand: false,
     })),
@@ -98,5 +110,8 @@ export const useGameStore = create<GameStore>((set) => ({
       gold: 0,
       messageHistory: [],
       itemDefinitions: {},
+      skills: [],
+      skillDefinitions: {},
+      currentRoomResources: [],
     }),
 }));

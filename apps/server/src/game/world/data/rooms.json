@@ -30,8 +30,9 @@
     "exits": [
       { "direction": "east", "roomId": "village_square", "description": "The village square lies to the east." }
     ],
-    "items": ["iron_sword", "leather_armor"],
-    "enemies": []
+    "items": ["iron_sword", "leather_armor", "pickaxe"],
+    "enemies": [],
+    "tags": ["forge"]
   },
   {
     "id": "deep_forest",
@@ -96,7 +97,8 @@
       { "direction": "north", "roomId": "cave_entrance", "description": "A dark cave mouth gapes in the mountainside to the north." }
     ],
     "items": [],
-    "enemies": ["goblin"]
+    "enemies": ["goblin"],
+    "resourceNodes": ["copper_vein"]
   },
   {
     "id": "cave_entrance",
@@ -107,7 +109,8 @@
       { "direction": "north", "roomId": "goblin_lair", "description": "The cave descends into darkness to the north." }
     ],
     "items": ["torch"],
-    "enemies": ["goblin", "cave_bat"]
+    "enemies": ["goblin", "cave_bat"],
+    "resourceNodes": ["copper_vein", "coal_deposit"]
   },
   {
     "id": "goblin_lair",
@@ -118,7 +121,8 @@
       { "direction": "east", "roomId": "treasure_room", "description": "A heavy wooden door leads east." }
     ],
     "items": ["gold_pouch"],
-    "enemies": ["goblin", "goblin_chief"]
+    "enemies": ["goblin", "goblin_chief"],
+    "resourceNodes": ["iron_vein"]
   },
   {
     "id": "treasure_room",

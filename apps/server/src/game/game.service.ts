@@ -4,8 +4,8 @@ import { CommandProcessor } from './engine/command-processor';
 import { MovementSystem } from './engine/movement-system';
 import { GameSession } from './engine/game-state';
 import { SaveService } from '../save/save.service';
-import { CommandType, GamePhase } from '@verdantia/shared';
-import type { GameCommand, GameState, ItemDefinition } from '@verdantia/shared';
+import { CommandType } from '@verdantia/shared';
+import type { GameCommand, GameState, ItemDefinition, SkillDefinition, RoomResourceNode } from '@verdantia/shared';
 
 @Injectable()
 export class GameService {
@@ -159,6 +159,26 @@ export class GameService {
       if (def) itemDefs[id] = def;
     }
 
-    return session.toGameState(room, itemDefs);
+    // Collect skill definitions
+    const skillDefs: Record<string, SkillDefinition> = {};
+    for (const [id, def] of this.worldLoader.getAllSkills()) {
+      skillDefs[id] = def;
+    }
+
+    // Build current room resources
+    const currentRoomResources: RoomResourceNode[] = [];
+    if (room.resourceNodes) {
+      const gathered = session.getGatheredNodes(room.id);
+      for (const nodeId of room.resourceNodes) {
+        const nodeDef = this.worldLoader.getResource(nodeId);
+        currentRoomResources.push({
+          nodeId,
+          name: nodeDef?.name || nodeId,
+          available: !gathered.includes(nodeId),
+        });
+      }
+    }
+
+    return session.toGameState(room, itemDefs, skillDefs, currentRoomResources);
   }
 }

@@ -7,10 +7,14 @@ import type {
   ItemDefinition,
   NarrativeMessage,
   RoomDefinition,
+  PlayerSkill,
+  SkillDefinition,
+  RoomResourceNode,
 } from '@verdantia/shared';
 import {
   GamePhase,
   DEFAULT_PLAYER_STATS,
+  DEFAULT_SKILL_LEVEL,
   STARTING_ROOM_ID,
 } from '@verdantia/shared';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,6 +32,10 @@ export class GameSession {
   // Rooms that have had items taken from them (track removed items)
   roomItemsRemoved: Record<string, string[]>;
 
+  // Skill state
+  skills: PlayerSkill[];
+  gatheredNodes: Record<string, string[]>;
+
   // Pending messages for the next state snapshot
   private pendingMessages: NarrativeMessage[] = [];
 
@@ -41,6 +49,8 @@ export class GameSession {
     this.phase = GamePhase.EXPLORATION;
     this.gold = 0;
     this.roomItemsRemoved = {};
+    this.skills = [];
+    this.gatheredNodes = {};
   }
 
   addMessage(text: string, type: NarrativeMessage['type'] = 'narrative') {
@@ -55,6 +65,8 @@ export class GameSession {
   toGameState(
     currentRoom: RoomDefinition,
     itemDefinitions: Record<string, ItemDefinition>,
+    skillDefinitions: Record<string, SkillDefinition> = {},
+    currentRoomResources: RoomResourceNode[] = [],
   ): GameState {
     const messages = [...this.pendingMessages];
     this.pendingMessages = [];
@@ -71,7 +83,43 @@ export class GameSession {
       messages,
       gold: this.gold,
       itemDefinitions,
+      skills: [...this.skills],
+      skillDefinitions,
+      currentRoomResources,
     };
+  }
+
+  getSkill(skillId: string): PlayerSkill {
+    let skill = this.skills.find((s) => s.skillId === skillId);
+    if (!skill) {
+      skill = { skillId, xp: 0, level: DEFAULT_SKILL_LEVEL };
+      this.skills.push(skill);
+    }
+    return skill;
+  }
+
+  setSkill(updated: PlayerSkill): void {
+    const index = this.skills.findIndex((s) => s.skillId === updated.skillId);
+    if (index >= 0) {
+      this.skills[index] = updated;
+    } else {
+      this.skills.push(updated);
+    }
+  }
+
+  markNodeGathered(roomId: string, nodeId: string): void {
+    if (!this.gatheredNodes[roomId]) {
+      this.gatheredNodes[roomId] = [];
+    }
+    this.gatheredNodes[roomId].push(nodeId);
+  }
+
+  getGatheredNodes(roomId: string): string[] {
+    return this.gatheredNodes[roomId] || [];
+  }
+
+  clearGatheredNodesForRoom(roomId: string): void {
+    delete this.gatheredNodes[roomId];
   }
 
   getAvailableRoomItems(room: RoomDefinition): string[] {
@@ -112,6 +160,11 @@ export class GameSession {
     return this.inventory.some((i) => i.itemId === itemId);
   }
 
+  getItemQuantity(itemId: string): number {
+    const item = this.inventory.find((i) => i.itemId === itemId);
+    return item ? item.quantity : 0;
+  }
+
   serialize(): string {
     return JSON.stringify({
       playerName: this.playerName,
@@ -122,6 +175,8 @@ export class GameSession {
       phase: this.phase,
       gold: this.gold,
       roomItemsRemoved: this.roomItemsRemoved,
+      skills: this.skills,
+      gatheredNodes: this.gatheredNodes,
     });
   }
 
@@ -135,6 +190,8 @@ export class GameSession {
     session.phase = parsed.phase;
     session.gold = parsed.gold;
     session.roomItemsRemoved = parsed.roomItemsRemoved || {};
+    session.skills = parsed.skills || [];
+    session.gatheredNodes = parsed.gatheredNodes || {};
     return session;
   }
 }

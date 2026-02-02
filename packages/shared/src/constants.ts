@@ -40,6 +40,9 @@ export const ENCOUNTER_CHANCE = 0.25; // chance per room move
 
 export const MAX_INVENTORY_SIZE = 20;
 
+export const DEFAULT_SKILL_LEVEL = 1;
+export const GATHER_FAILURE_CHANCE = 0.15;
+
 export const WS_EVENTS = {
   CLIENT_COMMAND: 'client:command',
   CLIENT_REQUEST_STATE: 'client:request_state',

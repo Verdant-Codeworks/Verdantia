@@ -1,0 +1,79 @@
+[
+  {
+    "id": "copper_bar",
+    "name": "Copper Bar",
+    "description": "Smelt copper ore into a copper bar.",
+    "skill": "smithing",
+    "levelRequired": 1,
+    "xpReward": 25,
+    "craftVerb": "smith",
+    "craftingStation": "forge",
+    "ingredients": [
+      { "itemId": "copper_ore", "quantity": 2 },
+      { "itemId": "coal", "quantity": 1 }
+    ],
+    "resultItemId": "copper_bar",
+    "resultQuantity": 1
+  },
+  {
+    "id": "copper_dagger",
+    "name": "Copper Dagger",
+    "description": "Forge a simple dagger from copper bars.",
+    "skill": "smithing",
+    "levelRequired": 2,
+    "xpReward": 40,
+    "craftVerb": "smith",
+    "craftingStation": "forge",
+    "ingredients": [
+      { "itemId": "copper_bar", "quantity": 2 }
+    ],
+    "resultItemId": "copper_dagger",
+    "resultQuantity": 1
+  },
+  {
+    "id": "iron_bar",
+    "name": "Iron Bar",
+    "description": "Smelt iron ore into an iron bar.",
+    "skill": "smithing",
+    "levelRequired": 5,
+    "xpReward": 50,
+    "craftVerb": "smith",
+    "craftingStation": "forge",
+    "ingredients": [
+      { "itemId": "iron_ore", "quantity": 2 },
+      { "itemId": "coal", "quantity": 2 }
+    ],
+    "resultItemId": "iron_bar",
+    "resultQuantity": 1
+  },
+  {
+    "id": "iron_dagger",
+    "name": "Iron Dagger",
+    "description": "Forge a keen iron dagger.",
+    "skill": "smithing",
+    "levelRequired": 7,
+    "xpReward": 75,
+    "craftVerb": "smith",
+    "craftingStation": "forge",
+    "ingredients": [
+      { "itemId": "iron_bar", "quantity": 2 }
+    ],
+    "resultItemId": "iron_dagger",
+    "resultQuantity": 1
+  },
+  {
+    "id": "steel_plate",
+    "name": "Steel Plate",
+    "description": "Forge heavy steel plate armor from refined iron.",
+    "skill": "smithing",
+    "levelRequired": 10,
+    "xpReward": 120,
+    "craftVerb": "smith",
+    "craftingStation": "forge",
+    "ingredients": [
+      { "itemId": "iron_bar", "quantity": 5 }
+    ],
+    "resultItemId": "steel_plate",
+    "resultQuantity": 1
+  }
+]

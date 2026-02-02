@@ -1,0 +1,41 @@
+[
+  {
+    "id": "copper_vein",
+    "name": "Copper Vein",
+    "description": "A vein of greenish-brown copper ore running through the rock.",
+    "skill": "mining",
+    "levelRequired": 1,
+    "xpReward": 20,
+    "gatherVerb": "mine",
+    "gatherMessage": "You swing your pickaxe at the copper vein.",
+    "lootTable": [{ "itemId": "copper_ore", "quantity": 1, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
+  },
+  {
+    "id": "coal_deposit",
+    "name": "Coal Deposit",
+    "description": "Dark seams of coal embedded in the cave wall.",
+    "skill": "mining",
+    "levelRequired": 3,
+    "xpReward": 25,
+    "gatherVerb": "mine",
+    "gatherMessage": "You chip away at the coal deposit.",
+    "lootTable": [{ "itemId": "coal", "quantity": 1, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
+  },
+  {
+    "id": "iron_vein",
+    "name": "Iron Vein",
+    "description": "A thick vein of reddish iron ore streaked through the stone.",
+    "skill": "mining",
+    "levelRequired": 5,
+    "xpReward": 40,
+    "gatherVerb": "mine",
+    "gatherMessage": "You strike the iron vein with your pickaxe.",
+    "lootTable": [{ "itemId": "iron_ore", "quantity": 1, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
+  }
+]

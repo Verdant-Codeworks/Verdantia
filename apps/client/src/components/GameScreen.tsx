@@ -7,6 +7,7 @@ import { NarrativeOutput } from './NarrativeOutput';
 import { CommandInput } from './CommandInput';
 import { StatsPanel } from './StatsPanel';
 import { InventoryPanel } from './InventoryPanel';
+import { SkillsPanel } from './SkillsPanel';
 import { CombatOverlay } from './CombatOverlay';
 import { GamePhase } from '@verdantia/shared';
 
@@ -54,6 +55,9 @@ export function GameScreen({ socketRef }: GameScreenProps) {
         {/* Sidebar */}
         <aside className="w-64 flex-shrink-0 border-l border-gray-800 overflow-y-auto hidden md:block">
           <InventoryPanel />
+          <div className="border-t border-gray-800">
+            <SkillsPanel />
+          </div>
         </aside>
       </div>
 

@@ -165,6 +165,12 @@ export function createMockWorldLoader() {
     getAllRooms: vi.fn(() => new Map(Object.entries(TEST_ROOMS))),
     getAllItems: vi.fn(() => new Map(Object.entries(TEST_ITEMS))),
     getAllEnemies: vi.fn(() => new Map(Object.entries(TEST_ENEMIES))),
+    getSkill: vi.fn(),
+    getResource: vi.fn(),
+    getRecipe: vi.fn(),
+    getAllSkills: vi.fn(() => new Map()),
+    getAllResources: vi.fn(() => new Map()),
+    getAllRecipes: vi.fn(() => new Map()),
     onModuleInit: vi.fn(),
   };
 }

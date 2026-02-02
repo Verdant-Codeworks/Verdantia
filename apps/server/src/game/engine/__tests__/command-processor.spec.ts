@@ -24,6 +24,12 @@ function createMockSystems() {
       unequip: vi.fn(),
       showInventory: vi.fn(),
     },
+    skills: {
+      gather: vi.fn(),
+      craft: vi.fn(),
+      showRecipes: vi.fn(),
+      showSkills: vi.fn(),
+    },
   };
 }
 
@@ -38,6 +44,7 @@ describe('CommandProcessor', () => {
       mocks.movement as any,
       mocks.combat as any,
       mocks.inventory as any,
+      mocks.skills as any,
     );
     session = new GameSession('TestPlayer');
   });

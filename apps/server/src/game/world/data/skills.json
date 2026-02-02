@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mining",
+    "name": "Mining",
+    "description": "The art of extracting ores and minerals from rock. Higher levels unlock rarer veins.",
+    "maxLevel": 15,
+    "xpPerLevel": [0, 50, 125, 225, 400, 625, 900, 1250, 1700, 2250, 2900, 3700, 4600, 5700, 7000]
+  },
+  {
+    "id": "smithing",
+    "name": "Smithing",
+    "description": "The craft of smelting ores and forging metal into weapons, armor, and other goods.",
+    "maxLevel": 15,
+    "xpPerLevel": [0, 50, 125, 225, 400, 625, 900, 1250, 1700, 2250, 2900, 3700, 4600, 5700, 7000]
+  }
+]

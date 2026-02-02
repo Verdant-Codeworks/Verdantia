@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import type { RoomDefinition, ItemDefinition, EnemyDefinition } from '@verdantia/shared';
+import type { RoomDefinition, ItemDefinition, EnemyDefinition, SkillDefinition, ResourceNodeDefinition, RecipeDefinition } from '@verdantia/shared';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -10,6 +10,9 @@ export class WorldLoaderService implements OnModuleInit {
   private rooms = new Map<string, RoomDefinition>();
   private items = new Map<string, ItemDefinition>();
   private enemies = new Map<string, EnemyDefinition>();
+  private skills = new Map<string, SkillDefinition>();
+  private resources = new Map<string, ResourceNodeDefinition>();
+  private recipes = new Map<string, RecipeDefinition>();
 
   onModuleInit() {
     this.loadData();
@@ -41,6 +44,30 @@ export class WorldLoaderService implements OnModuleInit {
       this.enemies.set(enemy.id, enemy);
     }
     this.logger.log(`Loaded ${this.enemies.size} enemies`);
+
+    const skillsData: SkillDefinition[] = JSON.parse(
+      fs.readFileSync(path.join(dataDir, 'skills.json'), 'utf-8'),
+    );
+    for (const skill of skillsData) {
+      this.skills.set(skill.id, skill);
+    }
+    this.logger.log(`Loaded ${this.skills.size} skills`);
+
+    const resourcesData: ResourceNodeDefinition[] = JSON.parse(
+      fs.readFileSync(path.join(dataDir, 'resources.json'), 'utf-8'),
+    );
+    for (const resource of resourcesData) {
+      this.resources.set(resource.id, resource);
+    }
+    this.logger.log(`Loaded ${this.resources.size} resources`);
+
+    const recipesData: RecipeDefinition[] = JSON.parse(
+      fs.readFileSync(path.join(dataDir, 'recipes.json'), 'utf-8'),
+    );
+    for (const recipe of recipesData) {
+      this.recipes.set(recipe.id, recipe);
+    }
+    this.logger.log(`Loaded ${this.recipes.size} recipes`);
   }
 
   getRoom(id: string): RoomDefinition | undefined {
@@ -55,6 +82,18 @@ export class WorldLoaderService implements OnModuleInit {
     return this.enemies.get(id);
   }
 
+  getSkill(id: string): SkillDefinition | undefined {
+    return this.skills.get(id);
+  }
+
+  getResource(id: string): ResourceNodeDefinition | undefined {
+    return this.resources.get(id);
+  }
+
+  getRecipe(id: string): RecipeDefinition | undefined {
+    return this.recipes.get(id);
+  }
+
   getAllRooms(): Map<string, RoomDefinition> {
     return this.rooms;
   }
@@ -65,5 +104,17 @@ export class WorldLoaderService implements OnModuleInit {
 
   getAllEnemies(): Map<string, EnemyDefinition> {
     return this.enemies;
+  }
+
+  getAllSkills(): Map<string, SkillDefinition> {
+    return this.skills;
+  }
+
+  getAllResources(): Map<string, ResourceNodeDefinition> {
+    return this.resources;
+  }
+
+  getAllRecipes(): Map<string, RecipeDefinition> {
+    return this.recipes;
   }
 }

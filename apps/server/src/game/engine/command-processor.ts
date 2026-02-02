@@ -3,6 +3,7 @@ import { GameSession } from './game-state';
 import { MovementSystem } from './movement-system';
 import { CombatSystem } from './combat-system';
 import { InventorySystem } from './inventory-system';
+import { SkillSystem } from './skill-system';
 import { CommandType, GamePhase } from '@verdantia/shared';
 import type { GameCommand } from '@verdantia/shared';
 
@@ -12,6 +13,7 @@ export class CommandProcessor {
     private readonly movement: MovementSystem,
     private readonly combat: CombatSystem,
     private readonly inventory: InventorySystem,
+    private readonly skills: SkillSystem,
   ) {}
 
   process(session: GameSession, command: GameCommand): void {
@@ -107,6 +109,34 @@ export class CommandProcessor {
         break;
       }
 
+      case CommandType.GATHER: {
+        const nodeId = (command.payload as { nodeId: string })?.nodeId;
+        if (!nodeId) {
+          session.addMessage('Gather what? Specify a resource node.', 'system');
+          return;
+        }
+        this.skills.gather(session, nodeId);
+        break;
+      }
+
+      case CommandType.CRAFT: {
+        const recipeId = (command.payload as { recipeId: string })?.recipeId;
+        if (!recipeId) {
+          session.addMessage('Craft what? Specify a recipe name.', 'system');
+          return;
+        }
+        this.skills.craft(session, recipeId);
+        break;
+      }
+
+      case CommandType.RECIPES:
+        this.skills.showRecipes(session);
+        break;
+
+      case CommandType.SKILLS:
+        this.skills.showSkills(session);
+        break;
+
       case CommandType.ATTACK:
       case CommandType.DEFEND:
       case CommandType.FLEE:
@@ -147,6 +177,10 @@ export class CommandProcessor {
       case CommandType.DROP:
       case CommandType.EQUIP:
       case CommandType.UNEQUIP:
+      case CommandType.GATHER:
+      case CommandType.CRAFT:
+      case CommandType.RECIPES:
+      case CommandType.SKILLS:
         session.addMessage('You can\'t do that during combat!', 'system');
         break;
 
@@ -160,6 +194,7 @@ export class CommandProcessor {
     session.addMessage('Movement: north/south/east/west (or n/s/e/w), look (l)', 'system');
     session.addMessage('Combat: attack (a), defend, flee', 'system');
     session.addMessage('Items: take [item], drop [item], use [item], equip [item], unequip [slot]', 'system');
+    session.addMessage('Skills: mine [node], smith [recipe], recipes, skills', 'system');
     session.addMessage('Other: inventory (i), save [slot], load [slot], help (h)', 'system');
   }
 }

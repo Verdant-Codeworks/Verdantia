@@ -100,6 +100,28 @@ function parseRawInput(raw: string): GameCommand | null {
     case '?':
       return { type: CommandType.HELP };
 
+    case 'mine': {
+      const target = rest || 'mine';
+      return { type: CommandType.GATHER, payload: { nodeId: target } };
+    }
+
+    case 'gather':
+      return rest ? { type: CommandType.GATHER, payload: { nodeId: rest } } : null;
+
+    case 'smith':
+    case 'smelt':
+    case 'forge':
+    case 'craft':
+      return rest ? { type: CommandType.CRAFT, payload: { recipeId: rest } } : null;
+
+    case 'recipes':
+    case 'recipe':
+      return { type: CommandType.RECIPES };
+
+    case 'skills':
+    case 'skill':
+      return { type: CommandType.SKILLS };
+
     default:
       return null;
   }

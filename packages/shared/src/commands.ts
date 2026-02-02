@@ -16,6 +16,12 @@ export enum CommandType {
   UNEQUIP = 'unequip',
   INVENTORY = 'inventory',
 
+  // Skills
+  GATHER = 'gather',
+  CRAFT = 'craft',
+  RECIPES = 'recipes',
+  SKILLS = 'skills',
+
   // Game
   NEW_GAME = 'new_game',
   SAVE = 'save',
@@ -62,4 +68,12 @@ export interface SavePayload {
 
 export interface LoadPayload {
   slotName: string;
+}
+
+export interface GatherPayload {
+  nodeId: string;
+}
+
+export interface CraftPayload {
+  recipeId: string;
 }

@@ -31,6 +31,7 @@ export class MovementSystem {
     }
 
     session.currentRoomId = nextRoom.id;
+    session.clearGatheredNodesForRoom(nextRoom.id);
     this.describeLook(session);
 
     // Check for random encounter
@@ -75,6 +76,18 @@ export class MovementSystem {
         .map((id) => this.worldLoader.getItem(id)?.name || id)
         .join(', ');
       session.addMessage(`\nYou see: ${itemNames}`, 'loot');
+    }
+
+    // Show resource nodes
+    if (room.resourceNodes && room.resourceNodes.length > 0) {
+      const gathered = session.getGatheredNodes(room.id);
+      const availableNodes = room.resourceNodes.filter((id) => !gathered.includes(id));
+      if (availableNodes.length > 0) {
+        const nodeNames = availableNodes
+          .map((id) => this.worldLoader.getResource(id)?.name || id)
+          .join(', ');
+        session.addMessage(`\nResource nodes: ${nodeNames}`, 'skill');
+      }
     }
   }
 

@@ -22,9 +22,11 @@ export interface RoomDefinition {
   items?: string[]; // item IDs present in the room
   enemies?: string[]; // enemy IDs that can spawn here
   isShop?: boolean;
+  resourceNodes?: string[];
+  tags?: string[];
 }
 
-export type ItemType = 'consumable' | 'weapon' | 'armor' | 'key' | 'misc';
+export type ItemType = 'consumable' | 'weapon' | 'armor' | 'key' | 'misc' | 'material';
 
 export type EquipmentSlot = 'weapon' | 'armor';
 

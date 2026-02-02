@@ -328,4 +328,105 @@ describe('GameSession', () => {
       expect(restored.roomItemsRemoved).toEqual({});
     });
   });
+
+  describe('skill methods', () => {
+    it('getSkill auto-creates a skill entry at level 1', () => {
+      const session = new GameSession('Hero');
+      const skill = session.getSkill('mining');
+      expect(skill).toEqual({ skillId: 'mining', xp: 0, level: 1 });
+      expect(session.skills).toHaveLength(1);
+    });
+
+    it('getSkill returns existing skill', () => {
+      const session = new GameSession('Hero');
+      session.skills.push({ skillId: 'mining', xp: 100, level: 3 });
+      const skill = session.getSkill('mining');
+      expect(skill.xp).toBe(100);
+      expect(skill.level).toBe(3);
+    });
+
+    it('setSkill updates an existing skill', () => {
+      const session = new GameSession('Hero');
+      session.getSkill('mining'); // auto-create
+      session.setSkill({ skillId: 'mining', xp: 50, level: 2 });
+      expect(session.skills[0].xp).toBe(50);
+      expect(session.skills[0].level).toBe(2);
+    });
+
+    it('setSkill adds skill if not found', () => {
+      const session = new GameSession('Hero');
+      session.setSkill({ skillId: 'smithing', xp: 25, level: 1 });
+      expect(session.skills).toHaveLength(1);
+      expect(session.skills[0].skillId).toBe('smithing');
+    });
+
+    it('markNodeGathered and getGatheredNodes', () => {
+      const session = new GameSession('Hero');
+      session.markNodeGathered('cave', 'copper_vein');
+      session.markNodeGathered('cave', 'coal_deposit');
+      expect(session.getGatheredNodes('cave')).toEqual(['copper_vein', 'coal_deposit']);
+      expect(session.getGatheredNodes('other_room')).toEqual([]);
+    });
+
+    it('clearGatheredNodesForRoom removes entries', () => {
+      const session = new GameSession('Hero');
+      session.markNodeGathered('cave', 'copper_vein');
+      session.clearGatheredNodesForRoom('cave');
+      expect(session.getGatheredNodes('cave')).toEqual([]);
+    });
+
+    it('getItemQuantity returns quantity or 0', () => {
+      const session = new GameSession('Hero');
+      expect(session.getItemQuantity('healing_herb')).toBe(0);
+      session.addToInventory('healing_herb', 3);
+      expect(session.getItemQuantity('healing_herb')).toBe(3);
+    });
+  });
+
+  describe('toGameState with skill data', () => {
+    it('includes skills, skillDefinitions, and currentRoomResources', () => {
+      const session = new GameSession('Hero');
+      session.getSkill('mining');
+      const skillDefs = { mining: { id: 'mining', name: 'Mining', description: 'Mine stuff', maxLevel: 15, xpPerLevel: [0, 50] } };
+      const resources = [{ nodeId: 'copper_vein', name: 'Copper Vein', available: true }];
+      const state = session.toGameState(mockRoom, mockItemDefs, skillDefs, resources);
+      expect(state.skills).toHaveLength(1);
+      expect(state.skills[0].skillId).toBe('mining');
+      expect(state.skillDefinitions).toBe(skillDefs);
+      expect(state.currentRoomResources).toBe(resources);
+    });
+
+    it('defaults skill fields when not provided', () => {
+      const session = new GameSession('Hero');
+      const state = session.toGameState(mockRoom, mockItemDefs);
+      expect(state.skills).toEqual([]);
+      expect(state.skillDefinitions).toEqual({});
+      expect(state.currentRoomResources).toEqual([]);
+    });
+  });
+
+  describe('serialize / deserialize with skills', () => {
+    it('round-trips skill data', () => {
+      const session = new GameSession('Hero');
+      session.skills = [{ skillId: 'mining', xp: 100, level: 3 }];
+      session.gatheredNodes = { cave: ['copper_vein'] };
+
+      const data = session.serialize();
+      const restored = GameSession.deserialize(data);
+
+      expect(restored.skills).toEqual([{ skillId: 'mining', xp: 100, level: 3 }]);
+      expect(restored.gatheredNodes).toEqual({ cave: ['copper_vein'] });
+    });
+
+    it('handles missing skill data in old saves', () => {
+      const session = new GameSession('Hero');
+      const data = session.serialize();
+      const parsed = JSON.parse(data);
+      delete parsed.skills;
+      delete parsed.gatheredNodes;
+      const restored = GameSession.deserialize(JSON.stringify(parsed));
+      expect(restored.skills).toEqual([]);
+      expect(restored.gatheredNodes).toEqual({});
+    });
+  });
 });

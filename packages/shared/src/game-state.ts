@@ -5,6 +5,11 @@ import type {
   ItemDefinition,
   RoomDefinition,
 } from './entities.js';
+import type {
+  PlayerSkill,
+  RoomResourceNode,
+  SkillDefinition,
+} from './skills.js';
 
 export enum GamePhase {
   TITLE = 'title',
@@ -29,7 +34,7 @@ export interface CombatState {
 export interface NarrativeMessage {
   id: string;
   text: string;
-  type: 'narrative' | 'combat' | 'system' | 'error' | 'loot' | 'levelup';
+  type: 'narrative' | 'combat' | 'system' | 'error' | 'loot' | 'levelup' | 'skill';
   timestamp: number;
 }
 
@@ -45,4 +50,7 @@ export interface GameState {
   messages: NarrativeMessage[];
   gold: number;
   itemDefinitions: Record<string, ItemDefinition>; // items the player has seen
+  skills: PlayerSkill[];
+  skillDefinitions: Record<string, SkillDefinition>;
+  currentRoomResources: RoomResourceNode[];
 }
