@@ -9,6 +9,7 @@
     "dev:server": "pnpm --filter @verdantia/server dev",
     "build": "pnpm --filter @verdantia/shared build && pnpm --parallel --filter @verdantia/client --filter @verdantia/server build",
     "build:shared": "pnpm --filter @verdantia/shared build",
+    "test": "pnpm --filter @verdantia/server test",
     "lint": "pnpm --parallel -r lint",
     "clean": "pnpm --parallel -r clean"
   },
