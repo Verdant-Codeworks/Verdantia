@@ -18,6 +18,7 @@ import { SaveGame } from '../entities/save-game.entity';
             entities: [Player, SaveGame],
             clientUrl: databaseUrl,
             driver: PostgreSqlDriver,
+            schema: 'public',
             allowGlobalContext: true,
             debug: false,
           };
@@ -49,7 +50,8 @@ export class DatabaseModule implements OnModuleInit {
 
   async onModuleInit() {
     const generator = this.orm.getSchemaGenerator();
-    await generator.updateSchema();
+    // Use safe mode to only create missing tables, never drop/alter existing ones
+    await generator.updateSchema({ safe: true, dropTables: false });
     this.logger.log('Database schema updated');
   }
 }
