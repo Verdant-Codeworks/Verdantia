@@ -40,7 +40,6 @@ import { SaveGame } from '../entities/save-game.entity';
       inject: [ConfigService],
     }),
   ],
-  exports: [MikroOrmModule],
 })
 export class DatabaseModule implements OnModuleInit {
   private readonly logger = new Logger(DatabaseModule.name);
