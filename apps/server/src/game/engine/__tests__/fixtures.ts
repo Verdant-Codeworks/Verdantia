@@ -20,6 +20,7 @@ export const TEST_ROOMS: Record<string, RoomDefinition> = {
     ],
     items: ['healing_herb'],
     enemies: [],
+    coordinates: { x: 0, y: 0 },
   },
   village_square: {
     id: 'village_square',
@@ -31,6 +32,7 @@ export const TEST_ROOMS: Record<string, RoomDefinition> = {
     ],
     items: [],
     enemies: [],
+    coordinates: { x: 0, y: -1 },
   },
   blacksmith: {
     id: 'blacksmith',
@@ -41,6 +43,7 @@ export const TEST_ROOMS: Record<string, RoomDefinition> = {
     enemies: [],
     isShop: true,
     tags: ['forge'],
+    coordinates: { x: -1, y: -1 },
   },
   deep_forest: {
     id: 'deep_forest',
@@ -52,6 +55,7 @@ export const TEST_ROOMS: Record<string, RoomDefinition> = {
     ],
     items: ['mushroom'],
     enemies: ['forest_spider', 'wild_wolf'],
+    coordinates: { x: 1, y: 0 },
   },
 };
 

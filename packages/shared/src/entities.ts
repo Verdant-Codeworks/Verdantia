@@ -14,6 +14,12 @@ export interface RoomExit {
   description?: string;
 }
 
+export interface RoomCoordinates {
+  x: number;
+  y: number;
+  z?: number;
+}
+
 export interface RoomDefinition {
   id: string;
   name: string;
@@ -24,6 +30,17 @@ export interface RoomDefinition {
   isShop?: boolean;
   resourceNodes?: string[];
   tags?: string[];
+  coordinates?: RoomCoordinates;
+}
+
+export interface VisitedRoomSnapshot {
+  roomId: string;
+  name: string;
+  description: string;
+  exits: RoomExit[];
+  itemsSeen: string[]; // item names present on first visit
+  enemiesSeen: string[]; // enemy names present on first visit
+  firstVisited: number; // timestamp
 }
 
 export type ItemType = 'consumable' | 'weapon' | 'armor' | 'key' | 'misc' | 'material' | 'tool';

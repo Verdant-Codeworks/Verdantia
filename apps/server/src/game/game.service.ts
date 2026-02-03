@@ -5,7 +5,7 @@ import { MovementSystem } from './engine/movement-system';
 import { GameSession } from './engine/game-state';
 import { SaveService } from '../save/save.service';
 import { CommandType } from '@verdantia/shared';
-import type { GameCommand, GameState, ItemDefinition, SkillDefinition, RoomResourceNode } from '@verdantia/shared';
+import type { GameCommand, GameState, ItemDefinition, SkillDefinition, RoomResourceNode, RoomCoordinates } from '@verdantia/shared';
 
 @Injectable()
 export class GameService {
@@ -179,6 +179,14 @@ export class GameService {
       }
     }
 
-    return session.toGameState(room, itemDefs, skillDefs, currentRoomResources);
+    // Collect room coordinates for all rooms
+    const roomCoordinates: Record<string, RoomCoordinates> = {};
+    for (const [roomId, roomDef] of this.worldLoader.getAllRooms()) {
+      if (roomDef.coordinates) {
+        roomCoordinates[roomId] = roomDef.coordinates;
+      }
+    }
+
+    return session.toGameState(room, itemDefs, skillDefs, currentRoomResources, roomCoordinates);
   }
 }

@@ -6,10 +6,12 @@ import type {
   InventoryItem,
   ItemDefinition,
   NarrativeMessage,
+  RoomCoordinates,
   RoomDefinition,
   PlayerSkill,
   SkillDefinition,
   RoomResourceNode,
+  VisitedRoomSnapshot,
 } from '@verdantia/shared';
 import {
   GamePhase,
@@ -36,6 +38,9 @@ export class GameSession {
   skills: PlayerSkill[];
   gatheredNodes: Record<string, string[]>;
 
+  // Map state - visited rooms with snapshot of first visit
+  visitedRooms: Record<string, VisitedRoomSnapshot>;
+
   // Pending messages for the next state snapshot
   private pendingMessages: NarrativeMessage[] = [];
 
@@ -51,6 +56,7 @@ export class GameSession {
     this.roomItemsRemoved = {};
     this.skills = [];
     this.gatheredNodes = {};
+    this.visitedRooms = {};
   }
 
   addMessage(text: string, type: NarrativeMessage['type'] = 'narrative') {
@@ -67,6 +73,7 @@ export class GameSession {
     itemDefinitions: Record<string, ItemDefinition>,
     skillDefinitions: Record<string, SkillDefinition> = {},
     currentRoomResources: RoomResourceNode[] = [],
+    roomCoordinates: Record<string, RoomCoordinates> = {},
   ): GameState {
     const messages = [...this.pendingMessages];
     this.pendingMessages = [];
@@ -86,6 +93,18 @@ export class GameSession {
       skills: [...this.skills],
       skillDefinitions,
       currentRoomResources,
+      visitedRooms: Object.fromEntries(
+        Object.entries(this.visitedRooms).map(([roomId, snapshot]) => [
+          roomId,
+          {
+            ...snapshot,
+            exits: [...snapshot.exits],
+            itemsSeen: [...snapshot.itemsSeen],
+            enemiesSeen: [...snapshot.enemiesSeen],
+          },
+        ]),
+      ),
+      roomCoordinates,
     };
   }
 
@@ -120,6 +139,29 @@ export class GameSession {
 
   clearGatheredNodesForRoom(roomId: string): void {
     delete this.gatheredNodes[roomId];
+  }
+
+  markRoomVisited(
+    room: RoomDefinition,
+    itemNames: string[],
+    enemyNames: string[],
+  ): void {
+    if (this.visitedRooms[room.id]) {
+      return; // Already visited
+    }
+    this.visitedRooms[room.id] = {
+      roomId: room.id,
+      name: room.name,
+      description: room.description,
+      exits: [...room.exits],
+      itemsSeen: itemNames,
+      enemiesSeen: enemyNames,
+      firstVisited: Date.now(),
+    };
+  }
+
+  hasVisitedRoom(roomId: string): boolean {
+    return !!this.visitedRooms[roomId];
   }
 
   getAvailableRoomItems(room: RoomDefinition): string[] {
@@ -177,6 +219,7 @@ export class GameSession {
       roomItemsRemoved: this.roomItemsRemoved,
       skills: this.skills,
       gatheredNodes: this.gatheredNodes,
+      visitedRooms: this.visitedRooms,
     });
   }
 
@@ -192,6 +235,7 @@ export class GameSession {
     session.roomItemsRemoved = parsed.roomItemsRemoved || {};
     session.skills = parsed.skills || [];
     session.gatheredNodes = parsed.gatheredNodes || {};
+    session.visitedRooms = parsed.visitedRooms || {};
     return session;
   }
 }

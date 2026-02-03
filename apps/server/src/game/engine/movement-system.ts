@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WorldLoaderService } from '../world/world-loader.service';
 import { GameSession } from './game-state';
 import { GamePhase, ENCOUNTER_CHANCE } from '@verdantia/shared';
-import type { EnemyDefinition } from '@verdantia/shared';
+import type { EnemyDefinition, RoomDefinition } from '@verdantia/shared';
 
 @Injectable()
 export class MovementSystem {
@@ -54,6 +54,9 @@ export class MovementSystem {
       session.addMessage('You are in an unknown place.', 'error');
       return;
     }
+
+    // Mark room as visited with current items/enemies
+    this.markRoomAsVisited(session, room);
 
     session.addMessage(`\n--- ${room.name} ---`, 'system');
     session.addMessage(room.description);
@@ -117,5 +120,24 @@ export class MovementSystem {
     session.addMessage(enemyDef.description, 'combat');
 
     return true;
+  }
+
+  private markRoomAsVisited(session: GameSession, room: RoomDefinition): void {
+    if (session.hasVisitedRoom(room.id)) {
+      return;
+    }
+
+    // Get item names present in room
+    const availableItems = session.getAvailableRoomItems(room);
+    const itemNames = availableItems
+      .map((id) => this.worldLoader.getItem(id)?.name || id)
+      .filter((name) => name);
+
+    // Get enemy names that can spawn in room
+    const enemyNames = (room.enemies || [])
+      .map((id) => this.worldLoader.getEnemy(id)?.name || id)
+      .filter((name, index, arr) => name && arr.indexOf(name) === index); // dedupe
+
+    session.markRoomVisited(room, itemNames, enemyNames);
   }
 }

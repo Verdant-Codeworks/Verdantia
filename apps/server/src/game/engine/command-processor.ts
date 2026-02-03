@@ -137,6 +137,11 @@ export class CommandProcessor {
         this.skills.showSkills(session);
         break;
 
+      case CommandType.MAP:
+        // Map command is handled client-side, just acknowledge
+        session.addMessage('Opening map...', 'system');
+        break;
+
       case CommandType.ATTACK:
       case CommandType.DEFEND:
       case CommandType.FLEE:
@@ -181,6 +186,7 @@ export class CommandProcessor {
       case CommandType.CRAFT:
       case CommandType.RECIPES:
       case CommandType.SKILLS:
+      case CommandType.MAP:
         session.addMessage('You can\'t do that during combat!', 'system');
         break;
 
@@ -195,6 +201,6 @@ export class CommandProcessor {
     session.addMessage('Combat: attack (a), defend, flee', 'system');
     session.addMessage('Items: take [item], drop [item], use [item], equip [item], unequip [slot]', 'system');
     session.addMessage('Skills: mine [node], smith [recipe], recipes, skills', 'system');
-    session.addMessage('Other: inventory (i), save [slot], load [slot], help (h)', 'system');
+    session.addMessage('Other: inventory (i), map (m), save [slot], load [slot], help (h)', 'system');
   }
 }

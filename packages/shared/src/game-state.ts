@@ -3,7 +3,9 @@ import type {
   Equipment,
   InventoryItem,
   ItemDefinition,
+  RoomCoordinates,
   RoomDefinition,
+  VisitedRoomSnapshot,
 } from './entities.js';
 import type {
   PlayerSkill,
@@ -53,4 +55,6 @@ export interface GameState {
   skills: PlayerSkill[];
   skillDefinitions: Record<string, SkillDefinition>;
   currentRoomResources: RoomResourceNode[];
+  visitedRooms: Record<string, VisitedRoomSnapshot>;
+  roomCoordinates: Record<string, RoomCoordinates>;
 }
