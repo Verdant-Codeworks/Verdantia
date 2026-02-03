@@ -2,8 +2,7 @@ import {
   Entity,
   PrimaryKey,
   Property,
-  Collection,
-  OneToMany,
+  OneToOne,
   Unique,
 } from '@mikro-orm/core';
 import { v4 } from 'uuid';
@@ -18,8 +17,8 @@ export class Player {
   @Unique()
   name!: string;
 
-  @OneToMany(() => SaveGame, (save) => save.player)
-  saves = new Collection<SaveGame>(this);
+  @OneToOne(() => SaveGame, (save) => save.player)
+  save?: SaveGame;
 
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date();
