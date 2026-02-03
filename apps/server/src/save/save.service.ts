@@ -9,7 +9,7 @@ export class SaveService {
 
   constructor(private readonly em: EntityManager) {}
 
-  async saveGame(playerName: string, slotName: string, gameData: string): Promise<boolean> {
+  async saveGame(playerName: string, gameData: string): Promise<boolean> {
     try {
       const fork = this.em.fork();
 
@@ -22,20 +22,19 @@ export class SaveService {
         await fork.flush();
       }
 
-      // Find or create save
-      let save = await fork.findOne(SaveGame, { player, slotName });
+      // Find or create save (one save per player)
+      let save = await fork.findOne(SaveGame, { player });
       if (save) {
         save.gameData = gameData;
       } else {
         save = new SaveGame();
         save.player = player;
-        save.slotName = slotName;
         save.gameData = gameData;
         fork.persist(save);
       }
 
       await fork.flush();
-      this.logger.log(`Game saved for ${playerName} in slot "${slotName}"`);
+      this.logger.log(`Game saved for ${playerName}`);
       return true;
     } catch (error) {
       this.logger.error(`Failed to save game: ${error}`);
@@ -43,13 +42,13 @@ export class SaveService {
     }
   }
 
-  async loadGame(playerName: string, slotName: string): Promise<string | null> {
+  async loadGame(playerName: string): Promise<string | null> {
     try {
       const fork = this.em.fork();
       const player = await fork.findOne(Player, { name: playerName });
       if (!player) return null;
 
-      const save = await fork.findOne(SaveGame, { player, slotName });
+      const save = await fork.findOne(SaveGame, { player });
       if (!save) return null;
 
       return save.gameData;
@@ -69,19 +68,6 @@ export class SaveService {
       return count > 0;
     } catch (error) {
       return false;
-    }
-  }
-
-  async listSaves(playerName: string): Promise<{ slotName: string; updatedAt: Date }[]> {
-    try {
-      const fork = this.em.fork();
-      const player = await fork.findOne(Player, { name: playerName });
-      if (!player) return [];
-
-      const saves = await fork.find(SaveGame, { player }, { orderBy: { updatedAt: 'desc' } });
-      return saves.map((s) => ({ slotName: s.slotName, updatedAt: s.updatedAt }));
-    } catch (error) {
-      return [];
     }
   }
 }

@@ -201,6 +201,6 @@ export class CommandProcessor {
     session.addMessage('Combat: attack (a), defend, flee', 'system');
     session.addMessage('Items: take [item], drop [item], use [item], equip [item], unequip [slot]', 'system');
     session.addMessage('Skills: mine [node], smith [recipe], recipes, skills', 'system');
-    session.addMessage('Other: inventory (i), map (m), save [slot], load [slot], help (h)', 'system');
+    session.addMessage('Other: inventory (i), map (m), save, load, help (h)', 'system');
   }
 }

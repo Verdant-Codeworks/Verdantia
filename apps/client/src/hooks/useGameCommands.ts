@@ -90,10 +90,10 @@ function parseRawInput(raw: string): GameCommand | null {
       return { type: CommandType.INVENTORY };
 
     case 'save':
-      return { type: CommandType.SAVE, payload: { slotName: rest || 'auto' } };
+      return { type: CommandType.SAVE };
 
     case 'load':
-      return { type: CommandType.LOAD, payload: { slotName: rest || 'auto' } };
+      return { type: CommandType.LOAD };
 
     case 'help':
     case 'h':
@@ -177,12 +177,9 @@ export function useGameCommands(socketRef: React.RefObject<TypedSocket | null>) 
     [sendCommand],
   );
 
-  const loadGame = useCallback(
-    (slotName: string) => {
-      sendCommand({ type: CommandType.LOAD, payload: { slotName } });
-    },
-    [sendCommand],
-  );
+  const loadGame = useCallback(() => {
+    sendCommand({ type: CommandType.LOAD });
+  }, [sendCommand]);
 
   const getHistory = useCallback((direction: 'up' | 'down'): string | null => {
     const history = commandHistoryRef.current;

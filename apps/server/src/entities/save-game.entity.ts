@@ -2,23 +2,18 @@ import {
   Entity,
   PrimaryKey,
   Property,
-  ManyToOne,
-  Unique,
+  OneToOne,
 } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { Player } from './player.entity';
 
 @Entity()
-@Unique({ properties: ['player', 'slotName'] })
 export class SaveGame {
   @PrimaryKey()
   id: string = v4();
 
-  @ManyToOne(() => Player)
+  @OneToOne(() => Player, { unique: true })
   player!: Player;
-
-  @Property()
-  slotName!: string;
 
   @Property({ type: 'json' })
   gameData!: string;

@@ -53,16 +53,14 @@ export class GameService {
     if (command.type === CommandType.SAVE) {
       const session = this.sessions.get(socketId);
       if (!session) return null;
-      const slotName = (command.payload as { slotName: string })?.slotName || 'auto';
-      await this.handleSave(session, slotName);
+      await this.handleSave(session);
       return this.buildGameState(session);
     }
 
     // Handle load
     if (command.type === CommandType.LOAD) {
-      const slotName = (command.payload as { slotName: string })?.slotName || 'auto';
       const playerName = (command.payload as { playerName?: string })?.playerName;
-      return this.handleLoad(socketId, slotName, playerName);
+      return this.handleLoad(socketId, playerName);
     }
 
     const session = this.sessions.get(socketId);
@@ -75,22 +73,22 @@ export class GameService {
     return this.buildGameState(session);
   }
 
-  private async handleSave(session: GameSession, slotName: string): Promise<void> {
+  private async handleSave(session: GameSession): Promise<void> {
     if (!this.saveService) {
       session.addMessage('Save system is not available (no database configured).', 'error');
       return;
     }
 
     const gameData = session.serialize();
-    const success = await this.saveService.saveGame(session.playerName, slotName, gameData);
+    const success = await this.saveService.saveGame(session.playerName, gameData);
     if (success) {
-      session.addMessage(`Game saved to slot "${slotName}".`, 'system');
+      session.addMessage('Game saved.', 'system');
     } else {
       session.addMessage('Failed to save game.', 'error');
     }
   }
 
-  private async handleLoad(socketId: string, slotName: string, playerName?: string): Promise<GameState | null> {
+  private async handleLoad(socketId: string, playerName?: string): Promise<GameState | null> {
     if (!this.saveService) {
       // Create a temporary session just to send error message
       const tempSession = this.sessions.get(socketId);
@@ -108,10 +106,10 @@ export class GameService {
       return null;
     }
 
-    const gameData = await this.saveService.loadGame(name, slotName);
+    const gameData = await this.saveService.loadGame(name);
     if (!gameData) {
       if (existingSession) {
-        existingSession.addMessage(`No save found in slot "${slotName}".`, 'error');
+        existingSession.addMessage('No saved game found.', 'error');
         return this.buildGameState(existingSession);
       }
       return null;
@@ -120,7 +118,7 @@ export class GameService {
     const session = GameSession.deserialize(gameData);
     this.sessions.set(socketId, session);
 
-    session.addMessage(`Game loaded from slot "${slotName}". Welcome back, ${session.playerName}!`, 'system');
+    session.addMessage(`Game loaded. Welcome back, ${session.playerName}!`, 'system');
     this.movementSystem.look(session);
 
     return this.buildGameState(session);

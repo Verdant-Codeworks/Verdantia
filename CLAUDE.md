@@ -66,12 +66,18 @@ The server runs without a database (save/load commands won't work, but everythin
 
 ## Git Workflow
 
-**Branching Strategy:**
-- Always branch off of `main`
-- Use `feature/[feature-name]` as the branch naming convention
-- Make changes on the feature branch
-- Push to origin and create a pull request to `main`
-- Wait for review before merging — this gives control over deployments
+**IMPORTANT: Hooks will BLOCK file edits on main/develop branches.**
+
+Before starting ANY implementation work:
+1. `git checkout main && git pull origin main`
+2. `git checkout -b feature/[feature-name]`
+3. Verify with `git branch`
+
+After completing work:
+1. Stage and commit changes
+2. Push: `git push -u origin [branch-name]`
+3. Create PR: `gh pr create --base main`
+4. Wait for review before merging
 
 **Example:**
 ```bash

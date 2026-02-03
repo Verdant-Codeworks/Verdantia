@@ -51,7 +51,7 @@ export function TitleScreen({ socketRef }: TitleScreenProps) {
               </button>
               {hasSavedGame && (
                 <button
-                  onClick={() => loadGame('auto')}
+                  onClick={() => loadGame()}
                   className="w-full py-3 px-6 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
                 >
                   Continue
