@@ -23,7 +23,6 @@ import { SaveGame } from '../entities/save-game.entity';
             debug: false,
           };
         }
-
         // Fall back to individual vars for local development
         return {
           entities: [Player, SaveGame],
