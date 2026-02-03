@@ -7,10 +7,12 @@ import type {
   InventoryItem,
   ItemDefinition,
   NarrativeMessage,
+  RoomCoordinates,
   RoomDefinition,
   PlayerSkill,
   SkillDefinition,
   RoomResourceNode,
+  VisitedRoomSnapshot,
 } from '@verdantia/shared';
 import { GamePhase } from '@verdantia/shared';
 
@@ -39,6 +41,11 @@ interface GameStore {
   skills: PlayerSkill[];
   skillDefinitions: Record<string, SkillDefinition>;
   currentRoomResources: RoomResourceNode[];
+  visitedRooms: Record<string, VisitedRoomSnapshot>;
+  roomCoordinates: Record<string, RoomCoordinates>;
+
+  // Map modal state
+  isMapModalOpen: boolean;
 
   // Client-side accumulated message history
   messageHistory: NarrativeMessage[];
@@ -51,6 +58,7 @@ interface GameStore {
   resetToTitle: () => void;
   setInviteCode: (code: string | null) => void;
   setAuthError: (error: string | null) => void;
+  setMapModalOpen: (open: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set) => ({
@@ -75,6 +83,10 @@ export const useGameStore = create<GameStore>((set) => ({
   skills: [],
   skillDefinitions: {},
   currentRoomResources: [],
+  visitedRooms: {},
+  roomCoordinates: {},
+
+  isMapModalOpen: false,
 
   messageHistory: [],
 
@@ -99,6 +111,8 @@ export const useGameStore = create<GameStore>((set) => ({
       skills: state.skills,
       skillDefinitions: { ...prev.skillDefinitions, ...state.skillDefinitions },
       currentRoomResources: state.currentRoomResources,
+      visitedRooms: { ...prev.visitedRooms, ...state.visitedRooms },
+      roomCoordinates: state.roomCoordinates,
       messageHistory: [...prev.messageHistory, ...state.messages],
       isProcessingCommand: false,
     })),
@@ -122,6 +136,9 @@ export const useGameStore = create<GameStore>((set) => ({
       skills: [],
       skillDefinitions: {},
       currentRoomResources: [],
+      visitedRooms: {},
+      roomCoordinates: {},
+      isMapModalOpen: false,
     }),
 
   setInviteCode: (code) =>
@@ -129,4 +146,7 @@ export const useGameStore = create<GameStore>((set) => ({
 
   setAuthError: (error) =>
     set({ authError: error }),
+
+  setMapModalOpen: (open) =>
+    set({ isMapModalOpen: open }),
 }));

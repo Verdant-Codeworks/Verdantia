@@ -27,6 +27,7 @@ export enum CommandType {
   SAVE = 'save',
   LOAD = 'load',
   HELP = 'help',
+  MAP = 'map',
 }
 
 export interface GameCommand {

@@ -122,6 +122,10 @@ function parseRawInput(raw: string): GameCommand | null {
     case 'skill':
       return { type: CommandType.SKILLS };
 
+    case 'map':
+    case 'm':
+      return { type: CommandType.MAP };
+
     default:
       return null;
   }
@@ -129,6 +133,7 @@ function parseRawInput(raw: string): GameCommand | null {
 
 export function useGameCommands(socketRef: React.RefObject<TypedSocket | null>) {
   const setProcessing = useGameStore((s) => s.setProcessing);
+  const setMapModalOpen = useGameStore((s) => s.setMapModalOpen);
   const commandHistoryRef = useRef<string[]>([]);
   const historyIndexRef = useRef(-1);
 
@@ -154,10 +159,15 @@ export function useGameCommands(socketRef: React.RefObject<TypedSocket | null>) 
       }
       historyIndexRef.current = -1;
 
+      // Handle map command specially - open modal on client side
+      if (command.type === CommandType.MAP) {
+        setMapModalOpen(true);
+      }
+
       sendCommand(command);
       return true;
     },
-    [sendCommand],
+    [sendCommand, setMapModalOpen],
   );
 
   const newGame = useCallback(

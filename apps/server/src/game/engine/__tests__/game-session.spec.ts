@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { GameSession } from '../game-state';
 import { GamePhase, DEFAULT_PLAYER_STATS, STARTING_ROOM_ID } from '@verdantia/shared';
-import type { RoomDefinition, ItemDefinition } from '@verdantia/shared';
+import type { RoomDefinition, ItemDefinition, RoomCoordinates } from '@verdantia/shared';
 
 const mockRoom: RoomDefinition = {
   id: 'forest_clearing',
@@ -67,6 +67,11 @@ describe('GameSession', () => {
     it('starts with empty roomItemsRemoved', () => {
       const session = new GameSession('Hero');
       expect(session.roomItemsRemoved).toEqual({});
+    });
+
+    it('starts with empty visitedRooms', () => {
+      const session = new GameSession('Hero');
+      expect(session.visitedRooms).toEqual({});
     });
   });
 
@@ -427,6 +432,186 @@ describe('GameSession', () => {
       const restored = GameSession.deserialize(JSON.stringify(parsed));
       expect(restored.skills).toEqual([]);
       expect(restored.gatheredNodes).toEqual({});
+    });
+  });
+
+  // ── Visited Rooms (Map Feature) ──────────────────────────────────────
+
+  describe('markRoomVisited / hasVisitedRoom', () => {
+    const testRoom: RoomDefinition = {
+      id: 'test_room',
+      name: 'Test Room',
+      description: 'A room for testing.',
+      exits: [{ direction: 'north', roomId: 'other_room' }],
+      items: ['healing_herb'],
+      enemies: ['goblin'],
+    };
+
+    it('marks a room as visited with snapshot data', () => {
+      const session = new GameSession('Hero');
+      session.markRoomVisited(testRoom, ['Healing Herb'], ['Goblin']);
+
+      expect(session.visitedRooms['test_room']).toBeDefined();
+      expect(session.visitedRooms['test_room'].roomId).toBe('test_room');
+      expect(session.visitedRooms['test_room'].name).toBe('Test Room');
+      expect(session.visitedRooms['test_room'].description).toBe('A room for testing.');
+      expect(session.visitedRooms['test_room'].exits).toEqual([{ direction: 'north', roomId: 'other_room' }]);
+      expect(session.visitedRooms['test_room'].itemsSeen).toEqual(['Healing Herb']);
+      expect(session.visitedRooms['test_room'].enemiesSeen).toEqual(['Goblin']);
+      expect(session.visitedRooms['test_room'].firstVisited).toBeTypeOf('number');
+    });
+
+    it('does not overwrite existing visited room data', () => {
+      const session = new GameSession('Hero');
+      session.markRoomVisited(testRoom, ['Healing Herb'], ['Goblin']);
+      const originalTimestamp = session.visitedRooms['test_room'].firstVisited;
+
+      // Try to mark again with different data
+      const modifiedRoom = { ...testRoom, name: 'Modified Name' };
+      session.markRoomVisited(modifiedRoom, ['Iron Sword'], ['Spider']);
+
+      // Should still have original data
+      expect(session.visitedRooms['test_room'].name).toBe('Test Room');
+      expect(session.visitedRooms['test_room'].itemsSeen).toEqual(['Healing Herb']);
+      expect(session.visitedRooms['test_room'].enemiesSeen).toEqual(['Goblin']);
+      expect(session.visitedRooms['test_room'].firstVisited).toBe(originalTimestamp);
+    });
+
+    it('hasVisitedRoom returns true for visited rooms', () => {
+      const session = new GameSession('Hero');
+      session.markRoomVisited(testRoom, [], []);
+
+      expect(session.hasVisitedRoom('test_room')).toBe(true);
+    });
+
+    it('hasVisitedRoom returns false for unvisited rooms', () => {
+      const session = new GameSession('Hero');
+
+      expect(session.hasVisitedRoom('test_room')).toBe(false);
+    });
+
+    it('stores exits as a copy (immutable)', () => {
+      const session = new GameSession('Hero');
+      session.markRoomVisited(testRoom, [], []);
+
+      // Mutating the original room exits should not affect the snapshot
+      testRoom.exits.push({ direction: 'south', roomId: 'new_room' });
+
+      expect(session.visitedRooms['test_room'].exits).toHaveLength(1);
+    });
+  });
+
+  describe('toGameState with map data', () => {
+    it('includes visitedRooms in game state', () => {
+      const session = new GameSession('Hero');
+      const testRoom: RoomDefinition = {
+        id: 'test_room',
+        name: 'Test Room',
+        description: 'A test room.',
+        exits: [],
+      };
+      session.markRoomVisited(testRoom, ['Item'], ['Enemy']);
+
+      const roomCoordinates: Record<string, RoomCoordinates> = {
+        test_room: { x: 0, y: 0 },
+      };
+
+      const state = session.toGameState(mockRoom, mockItemDefs, {}, [], roomCoordinates);
+
+      expect(state.visitedRooms).toBeDefined();
+      expect(state.visitedRooms['test_room']).toBeDefined();
+      expect(state.visitedRooms['test_room'].name).toBe('Test Room');
+    });
+
+    it('includes roomCoordinates in game state', () => {
+      const session = new GameSession('Hero');
+      const roomCoordinates: Record<string, RoomCoordinates> = {
+        forest_clearing: { x: 0, y: 0 },
+        village_square: { x: 0, y: -1 },
+      };
+
+      const state = session.toGameState(mockRoom, mockItemDefs, {}, [], roomCoordinates);
+
+      expect(state.roomCoordinates).toEqual(roomCoordinates);
+    });
+
+    it('returns a copy of visitedRooms (immutable)', () => {
+      const session = new GameSession('Hero');
+      const testRoom: RoomDefinition = {
+        id: 'test_room',
+        name: 'Test Room',
+        description: 'A test room.',
+        exits: [],
+      };
+      session.markRoomVisited(testRoom, [], []);
+
+      const state = session.toGameState(mockRoom, mockItemDefs, {}, [], {});
+
+      // Mutating returned visitedRooms should not affect session
+      state.visitedRooms['test_room'].name = 'Modified';
+
+      expect(session.visitedRooms['test_room'].name).toBe('Test Room');
+    });
+
+    it('defaults roomCoordinates to empty object when not provided', () => {
+      const session = new GameSession('Hero');
+      const state = session.toGameState(mockRoom, mockItemDefs);
+
+      expect(state.roomCoordinates).toEqual({});
+    });
+  });
+
+  describe('serialize / deserialize with visitedRooms', () => {
+    it('round-trips visitedRooms data', () => {
+      const session = new GameSession('Hero');
+      const testRoom: RoomDefinition = {
+        id: 'test_room',
+        name: 'Test Room',
+        description: 'A test room.',
+        exits: [{ direction: 'north', roomId: 'other' }],
+      };
+      session.markRoomVisited(testRoom, ['Healing Herb'], ['Goblin']);
+
+      const data = session.serialize();
+      const restored = GameSession.deserialize(data);
+
+      expect(restored.visitedRooms).toBeDefined();
+      expect(restored.visitedRooms['test_room']).toBeDefined();
+      expect(restored.visitedRooms['test_room'].name).toBe('Test Room');
+      expect(restored.visitedRooms['test_room'].itemsSeen).toEqual(['Healing Herb']);
+      expect(restored.visitedRooms['test_room'].enemiesSeen).toEqual(['Goblin']);
+      expect(restored.visitedRooms['test_room'].exits).toEqual([{ direction: 'north', roomId: 'other' }]);
+    });
+
+    it('handles missing visitedRooms in old saves', () => {
+      const session = new GameSession('Hero');
+      const data = session.serialize();
+      const parsed = JSON.parse(data);
+      delete parsed.visitedRooms;
+      const restored = GameSession.deserialize(JSON.stringify(parsed));
+
+      expect(restored.visitedRooms).toEqual({});
+    });
+
+    it('preserves multiple visited rooms', () => {
+      const session = new GameSession('Hero');
+      session.markRoomVisited(
+        { id: 'room1', name: 'Room 1', description: 'First room.', exits: [] },
+        ['Item1'],
+        ['Enemy1'],
+      );
+      session.markRoomVisited(
+        { id: 'room2', name: 'Room 2', description: 'Second room.', exits: [] },
+        ['Item2'],
+        ['Enemy2'],
+      );
+
+      const data = session.serialize();
+      const restored = GameSession.deserialize(data);
+
+      expect(Object.keys(restored.visitedRooms)).toHaveLength(2);
+      expect(restored.visitedRooms['room1'].name).toBe('Room 1');
+      expect(restored.visitedRooms['room2'].name).toBe('Room 2');
     });
   });
 });

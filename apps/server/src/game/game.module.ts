@@ -9,8 +9,10 @@ import { InventorySystem } from './engine/inventory-system';
 import { SkillSystem } from './engine/skill-system';
 import { SaveModule } from '../save/save.module';
 
+const isDatabaseConfigured = !!(process.env.DATABASE_URL || process.env.DATABASE_HOST);
+
 @Module({
-  imports: [SaveModule],
+  imports: [...(isDatabaseConfigured ? [SaveModule] : [])],
   providers: [
     GameGateway,
     GameService,

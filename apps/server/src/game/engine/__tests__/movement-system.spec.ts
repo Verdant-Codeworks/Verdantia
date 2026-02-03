@@ -193,4 +193,118 @@ describe('MovementSystem', () => {
       expect(result).toBe(true);
     });
   });
+
+  // ── Room Visited Tracking (Map Feature) ────────────────────────────────
+
+  describe('room visited tracking', () => {
+    it('marks starting room as visited when look is called', () => {
+      expect(session.hasVisitedRoom('forest_clearing')).toBe(false);
+
+      movement.look(session);
+
+      expect(session.hasVisitedRoom('forest_clearing')).toBe(true);
+    });
+
+    it('marks new room as visited when moving', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter
+      expect(session.hasVisitedRoom('village_square')).toBe(false);
+
+      movement.move(session, 'north');
+
+      expect(session.hasVisitedRoom('village_square')).toBe(true);
+    });
+
+    it('captures room name and description in visited snapshot', () => {
+      movement.look(session);
+
+      const visited = session.visitedRooms['forest_clearing'];
+      expect(visited.name).toBe('Forest Clearing');
+      expect(visited.description).toContain('sunlit clearing');
+    });
+
+    it('captures exits in visited snapshot', () => {
+      movement.look(session);
+
+      const visited = session.visitedRooms['forest_clearing'];
+      expect(visited.exits).toHaveLength(2);
+      expect(visited.exits.some((e) => e.direction === 'north')).toBe(true);
+      expect(visited.exits.some((e) => e.direction === 'east')).toBe(true);
+    });
+
+    it('captures item names seen in room', () => {
+      movement.look(session);
+
+      const visited = session.visitedRooms['forest_clearing'];
+      expect(visited.itemsSeen).toContain('Healing Herb');
+    });
+
+    it('does not include items that were already taken', () => {
+      session.removeRoomItem('forest_clearing', 'healing_herb');
+      movement.look(session);
+
+      const visited = session.visitedRooms['forest_clearing'];
+      expect(visited.itemsSeen).toEqual([]);
+    });
+
+    it('captures enemy names that can spawn in room', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter
+      movement.move(session, 'east'); // deep_forest has enemies
+
+      const visited = session.visitedRooms['deep_forest'];
+      expect(visited.enemiesSeen).toContain('Forest Spider');
+      expect(visited.enemiesSeen).toContain('Wild Wolf');
+    });
+
+    it('does not duplicate enemy names', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      movement.move(session, 'east');
+
+      const visited = session.visitedRooms['deep_forest'];
+      // Each enemy name should appear only once
+      const uniqueNames = [...new Set(visited.enemiesSeen)];
+      expect(visited.enemiesSeen.length).toBe(uniqueNames.length);
+    });
+
+    it('does not overwrite visited data on subsequent visits', () => {
+      movement.look(session);
+      const originalTimestamp = session.visitedRooms['forest_clearing'].firstVisited;
+
+      // Remove an item and look again
+      session.removeRoomItem('forest_clearing', 'healing_herb');
+      movement.look(session);
+
+      // Should still have the original itemsSeen
+      expect(session.visitedRooms['forest_clearing'].itemsSeen).toContain('Healing Herb');
+      expect(session.visitedRooms['forest_clearing'].firstVisited).toBe(originalTimestamp);
+    });
+
+    it('records firstVisited timestamp', () => {
+      const beforeTime = Date.now();
+      movement.look(session);
+      const afterTime = Date.now();
+
+      const visited = session.visitedRooms['forest_clearing'];
+      expect(visited.firstVisited).toBeGreaterThanOrEqual(beforeTime);
+      expect(visited.firstVisited).toBeLessThanOrEqual(afterTime);
+    });
+
+    it('marks room as visited even when encounter triggers', () => {
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0.01) // triggers encounter
+        .mockReturnValueOnce(0); // picks first enemy
+      movement.move(session, 'east');
+
+      expect(session.hasVisitedRoom('deep_forest')).toBe(true);
+      expect(session.phase).toBe(GamePhase.COMBAT);
+    });
+
+    it('handles rooms with no items or enemies', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      movement.move(session, 'north'); // village_square has no items/enemies
+
+      const visited = session.visitedRooms['village_square'];
+      expect(visited.itemsSeen).toEqual([]);
+      expect(visited.enemiesSeen).toEqual([]);
+    });
+  });
 });

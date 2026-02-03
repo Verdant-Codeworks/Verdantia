@@ -9,6 +9,8 @@ import { StatsPanel } from './StatsPanel';
 import { InventoryPanel } from './InventoryPanel';
 import { SkillsPanel } from './SkillsPanel';
 import { CombatOverlay } from './CombatOverlay';
+import { MiniMapPanel } from './MiniMapPanel';
+import { MapModal } from './MapModal';
 import { GamePhase } from '@verdantia/shared';
 
 type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -54,12 +56,16 @@ export function GameScreen({ socketRef }: GameScreenProps) {
 
         {/* Sidebar */}
         <aside className="w-64 flex-shrink-0 border-l border-gray-800 overflow-y-auto hidden md:block">
+          <MiniMapPanel />
           <InventoryPanel />
           <div className="border-t border-gray-800">
             <SkillsPanel />
           </div>
         </aside>
       </div>
+
+      {/* Map modal */}
+      <MapModal />
 
       {/* Combat overlay */}
       {phase === GamePhase.COMBAT && combat && (

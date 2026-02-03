@@ -9,7 +9,8 @@
       { "direction": "south", "roomId": "river_bank", "description": "The sound of water beckons from the south." }
     ],
     "items": ["healing_herb"],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 0, "y": 0 }
   },
   {
     "id": "village_square",
@@ -21,7 +22,8 @@
       { "direction": "north", "roomId": "village_gate", "description": "A wooden gate stands at the northern edge of the village." }
     ],
     "items": [],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 0, "y": -1 }
   },
   {
     "id": "blacksmith",
@@ -33,7 +35,8 @@
     "items": ["iron_sword", "leather_armor", "pickaxe"],
     "enemies": [],
     "isShop": true,
-    "tags": ["forge"]
+    "tags": ["forge"],
+    "coordinates": { "x": -1, "y": -1 }
   },
   {
     "id": "deep_forest",
@@ -44,7 +47,8 @@
       { "direction": "north", "roomId": "dark_hollow", "description": "The forest grows darker to the north." }
     ],
     "items": ["mushroom"],
-    "enemies": ["forest_spider", "wild_wolf"]
+    "enemies": ["forest_spider", "wild_wolf"],
+    "coordinates": { "x": 1, "y": 0 }
   },
   {
     "id": "dark_hollow",
@@ -55,7 +59,8 @@
       { "direction": "east", "roomId": "spider_den", "description": "Thick webs cover a passage to the east." }
     ],
     "items": [],
-    "enemies": ["forest_spider", "goblin"]
+    "enemies": ["forest_spider", "goblin"],
+    "coordinates": { "x": 1, "y": -1 }
   },
   {
     "id": "spider_den",
@@ -65,7 +70,8 @@
       { "direction": "west", "roomId": "dark_hollow", "description": "The passage back leads west." }
     ],
     "items": ["spider_silk", "gold_ring"],
-    "enemies": ["giant_spider"]
+    "enemies": ["giant_spider"],
+    "coordinates": { "x": 2, "y": -1 }
   },
   {
     "id": "river_bank",
@@ -76,7 +82,8 @@
       { "direction": "east", "roomId": "old_bridge", "description": "Following the river east, you spot an old stone bridge." }
     ],
     "items": ["healing_herb"],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 0, "y": 1 }
   },
   {
     "id": "old_bridge",
@@ -87,7 +94,8 @@
       { "direction": "east", "roomId": "mountain_path", "description": "A mountain path climbs to the east." }
     ],
     "items": [],
-    "enemies": ["goblin"]
+    "enemies": ["goblin"],
+    "coordinates": { "x": 1, "y": 1 }
   },
   {
     "id": "mountain_path",
@@ -99,7 +107,8 @@
     ],
     "items": [],
     "enemies": ["goblin"],
-    "resourceNodes": ["copper_vein"]
+    "resourceNodes": ["copper_vein"],
+    "coordinates": { "x": 2, "y": 1 }
   },
   {
     "id": "cave_entrance",
@@ -107,33 +116,36 @@
     "description": "A yawning cave mouth opens in the mountainside, exhaling cold, stale air. Scratch marks score the rock around the entrance — something large has been coming and going. Torchlight flickers from somewhere deep inside, suggesting this cave is inhabited. The mountain path continues back to the south.",
     "exits": [
       { "direction": "south", "roomId": "mountain_path", "description": "The mountain path leads back south." },
-      { "direction": "north", "roomId": "goblin_lair", "description": "The cave descends into darkness to the north." }
+      { "direction": "east", "roomId": "goblin_lair", "description": "The cave descends into darkness to the east." }
     ],
     "items": ["torch"],
     "enemies": ["goblin", "cave_bat"],
-    "resourceNodes": ["copper_vein", "coal_deposit"]
+    "resourceNodes": ["copper_vein", "coal_deposit"],
+    "coordinates": { "x": 2, "y": 0 }
   },
   {
     "id": "goblin_lair",
     "name": "Goblin Lair",
     "description": "The cave opens into a large, foul-smelling chamber lit by sputtering torches. Crude bedrolls and stolen goods are scattered across the floor. Bones and scraps of food litter the ground. This is clearly a goblin hideout — and its inhabitants don't welcome visitors.",
     "exits": [
-      { "direction": "south", "roomId": "cave_entrance", "description": "The cave entrance is to the south." },
-      { "direction": "east", "roomId": "treasure_room", "description": "A heavy wooden door leads east." }
+      { "direction": "west", "roomId": "cave_entrance", "description": "The cave entrance is to the west." },
+      { "direction": "north", "roomId": "treasure_room", "description": "A heavy wooden door leads north." }
     ],
     "items": ["gold_pouch"],
     "enemies": ["goblin", "goblin_chief"],
-    "resourceNodes": ["iron_vein"]
+    "resourceNodes": ["iron_vein"],
+    "coordinates": { "x": 3, "y": -1 }
   },
   {
     "id": "treasure_room",
     "name": "Hidden Treasure Room",
     "description": "Beyond the heavy door lies a small chamber glittering with ill-gotten treasure. Gold coins spill from overturned chests, and jeweled weapons hang on crude racks. A tattered banner on the wall bears the crest of some long-forgotten kingdom. The goblins have been busy collecting.",
     "exits": [
-      { "direction": "west", "roomId": "goblin_lair", "description": "The goblin lair is back to the west." }
+      { "direction": "south", "roomId": "goblin_lair", "description": "The goblin lair is back to the south." }
     ],
     "items": ["enchanted_blade", "health_potion", "gold_pile"],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 3, "y": 1 }
   },
   {
     "id": "village_gate",
@@ -144,7 +156,8 @@
       { "direction": "north", "roomId": "northern_road", "description": "The road continues north into the hills." }
     ],
     "items": [],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 0, "y": -2 }
   },
   {
     "id": "northern_road",
@@ -155,7 +168,8 @@
       { "direction": "north", "roomId": "ruined_watchtower", "description": "A ruined watchtower stands on a hill to the north." }
     ],
     "items": [],
-    "enemies": ["goblin", "wild_wolf"]
+    "enemies": ["goblin", "wild_wolf"],
+    "coordinates": { "x": 0, "y": -3 }
   },
   {
     "id": "ruined_watchtower",
@@ -166,7 +180,8 @@
       { "direction": "east", "roomId": "abandoned_camp", "description": "A trail leads to what looks like an abandoned camp to the east." }
     ],
     "items": ["old_map", "health_potion"],
-    "enemies": []
+    "enemies": [],
+    "coordinates": { "x": 0, "y": -4 }
   },
   {
     "id": "abandoned_camp",
@@ -178,7 +193,8 @@
       { "direction": "east", "roomId": "ancient_ruins", "description": "Crumbling stone columns are visible to the east." }
     ],
     "items": ["antidote", "chainmail"],
-    "enemies": ["bandit", "wild_wolf"]
+    "enemies": ["bandit", "wild_wolf"],
+    "coordinates": { "x": 1, "y": -4 }
   },
   {
     "id": "bandit_pass",
@@ -188,7 +204,8 @@
       { "direction": "south", "roomId": "abandoned_camp", "description": "The abandoned camp lies to the south." }
     ],
     "items": ["steel_sword", "gold_pouch"],
-    "enemies": ["bandit", "bandit"]
+    "enemies": ["bandit", "bandit"],
+    "coordinates": { "x": 1, "y": -5 }
   },
   {
     "id": "ancient_ruins",
@@ -199,7 +216,8 @@
       { "direction": "down", "roomId": "underground_chamber", "description": "A staircase descends into darkness beneath the pedestal." }
     ],
     "items": ["greater_health_potion"],
-    "enemies": ["cave_bat"]
+    "enemies": ["cave_bat"],
+    "coordinates": { "x": 2, "y": -4 }
   },
   {
     "id": "underground_chamber",
@@ -209,6 +227,7 @@
       { "direction": "up", "roomId": "ancient_ruins", "description": "The staircase leads back up to the ruins." }
     ],
     "items": ["enchanted_blade", "gold_pile", "greater_health_potion"],
-    "enemies": ["stone_golem"]
+    "enemies": ["stone_golem"],
+    "coordinates": { "x": 2, "y": -4, "z": -1 }
   }
 ]

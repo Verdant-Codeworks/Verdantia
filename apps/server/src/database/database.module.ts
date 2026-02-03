@@ -39,7 +39,6 @@ import { SaveGame } from '../entities/save-game.entity';
       },
       inject: [ConfigService],
     }),
-    MikroOrmModule.forFeature([Player, SaveGame]),
   ],
   exports: [MikroOrmModule],
 })

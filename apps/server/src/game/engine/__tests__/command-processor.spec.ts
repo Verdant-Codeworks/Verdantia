@@ -65,6 +65,14 @@ describe('CommandProcessor', () => {
       expect(state.messages[0].text).toContain('Commands');
     });
 
+    it('HELP mentions map command', () => {
+      session.phase = GamePhase.EXPLORATION;
+      processor.process(session, { type: CommandType.HELP });
+      const state = session.toGameState({} as any, {});
+      const allText = state.messages.map((m) => m.text).join(' ');
+      expect(allText.toLowerCase()).toContain('map');
+    });
+
     it('HELP works in COMBAT phase', () => {
       session.phase = GamePhase.COMBAT;
       processor.process(session, { type: CommandType.HELP });
@@ -200,6 +208,12 @@ describe('CommandProcessor', () => {
       const state = session.toGameState({} as any, {});
       expect(state.messages[0].text).toContain('help');
     });
+
+    it('MAP command adds acknowledgement message', () => {
+      processor.process(session, { type: CommandType.MAP });
+      const state = session.toGameState({} as any, {});
+      expect(state.messages[0].text.toLowerCase()).toContain('map');
+    });
   });
 
   // ── Combat Phase ────────────────────────────────────────────────────
@@ -260,6 +274,12 @@ describe('CommandProcessor', () => {
     it('UNEQUIP is blocked during combat', () => {
       processor.process(session, { type: CommandType.UNEQUIP, payload: { slot: 'weapon' } });
       expect(mocks.inventory.unequip).not.toHaveBeenCalled();
+    });
+
+    it('MAP is blocked during combat', () => {
+      processor.process(session, { type: CommandType.MAP });
+      const state = session.toGameState({} as any, {});
+      expect(state.messages[0].text).toContain("can't do that during combat");
     });
 
     it('unknown command shows combat hint', () => {
