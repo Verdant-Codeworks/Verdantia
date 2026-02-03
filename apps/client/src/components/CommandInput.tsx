@@ -12,9 +12,13 @@ export function CommandInput({ onSubmit, getHistory, disabled }: CommandInputPro
   const inputRef = useRef<HTMLInputElement>(null);
   const isProcessing = useGameStore((s) => s.isProcessingCommand);
 
+  const isDisabled = disabled || isProcessing;
+
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (!isDisabled) {
+      inputRef.current?.focus();
+    }
+  }, [isDisabled]);
 
   const handleSubmit = () => {
     if (!input.trim() || isProcessing || disabled) return;
@@ -49,7 +53,7 @@ export function CommandInput({ onSubmit, getHistory, disabled }: CommandInputPro
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={disabled ? 'Game over...' : 'Enter a command...'}
-          disabled={disabled || isProcessing}
+          disabled={isDisabled}
           className="flex-1 bg-transparent text-gray-100 placeholder-gray-600 focus:outline-none"
           autoFocus
         />
