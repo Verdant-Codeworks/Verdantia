@@ -29,6 +29,22 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
+
+    // Validate invite code if configured
+    const requiredCode = process.env.INVITE_CODE;
+    if (requiredCode) {
+      const providedCode = client.handshake.auth?.inviteCode;
+      if (providedCode !== requiredCode) {
+        this.logger.warn(`Client ${client.id} rejected: invalid invite code`);
+        client.emit(WS_EVENTS.SERVER_ERROR, {
+          code: 'INVALID_INVITE_CODE',
+          message: 'Invalid or missing invite code.',
+        });
+        client.disconnect(true);
+        return;
+      }
+    }
+
     this.gameService.createSession(client.id);
 
     client.emit(WS_EVENTS.SERVER_CONNECTED, {

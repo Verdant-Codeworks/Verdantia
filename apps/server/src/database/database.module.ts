@@ -9,17 +9,33 @@ import { SaveGame } from '../entities/save-game.entity';
 @Module({
   imports: [
     MikroOrmModule.forRootAsync({
-      useFactory: (config: ConfigService) => ({
-        entities: [Player, SaveGame],
-        dbName: config.getOrThrow('DATABASE_NAME'),
-        host: config.getOrThrow('DATABASE_HOST'),
-        port: config.getOrThrow<number>('DATABASE_PORT'),
-        user: config.getOrThrow('DATABASE_USER'),
-        password: config.getOrThrow('DATABASE_PASSWORD'),
-        driver: PostgreSqlDriver,
-        allowGlobalContext: true,
-        debug: false,
-      }),
+      useFactory: (config: ConfigService) => {
+        const databaseUrl = config.get('DATABASE_URL');
+
+        // Use DATABASE_URL if available (for cloud deployments like Railway/Supabase)
+        if (databaseUrl) {
+          return {
+            entities: [Player, SaveGame],
+            clientUrl: databaseUrl,
+            driver: PostgreSqlDriver,
+            allowGlobalContext: true,
+            debug: false,
+          };
+        }
+
+        // Fall back to individual vars for local development
+        return {
+          entities: [Player, SaveGame],
+          dbName: config.getOrThrow('DATABASE_NAME'),
+          host: config.getOrThrow('DATABASE_HOST'),
+          port: config.getOrThrow<number>('DATABASE_PORT'),
+          user: config.getOrThrow('DATABASE_USER'),
+          password: config.getOrThrow('DATABASE_PASSWORD'),
+          driver: PostgreSqlDriver,
+          allowGlobalContext: true,
+          debug: false,
+        };
+      },
       inject: [ConfigService],
     }),
     MikroOrmModule.forFeature([Player, SaveGame]),

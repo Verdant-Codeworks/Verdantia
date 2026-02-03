@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { ServerToClientEvents, ClientToServerEvents } from '@verdantia/shared';
 import { WS_EVENTS } from '@verdantia/shared';
@@ -14,8 +14,16 @@ export function useSocket() {
   const setDisconnected = useGameStore((s) => s.setDisconnected);
   const applyStateUpdate = useGameStore((s) => s.applyStateUpdate);
   const setProcessing = useGameStore((s) => s.setProcessing);
+  const setAuthError = useGameStore((s) => s.setAuthError);
+  const inviteCode = useGameStore((s) => s.inviteCode);
 
-  useEffect(() => {
+  const connect = useCallback((code: string) => {
+    // Disconnect existing socket if any
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
     const socket: TypedSocket = io(SERVER_URL, {
       transports: ['websocket'],
       autoConnect: true,
@@ -23,6 +31,7 @@ export function useSocket() {
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
+      auth: { inviteCode: code },
     });
 
     socketRef.current = socket;
@@ -41,6 +50,9 @@ export function useSocket() {
 
     socket.on(WS_EVENTS.SERVER_ERROR, (payload) => {
       console.error('[WS] Server error:', payload.code, payload.message);
+      if (payload.code === 'INVALID_INVITE_CODE') {
+        setAuthError(payload.message);
+      }
       setProcessing(false);
     });
 
@@ -62,12 +74,24 @@ export function useSocket() {
     socket.io.on('reconnect_failed', () => {
       console.error('[WS] Reconnection failed after all attempts');
     });
+  }, [setConnected, setDisconnected, applyStateUpdate, setProcessing, setAuthError]);
 
+  // Auto-connect if we have a stored invite code
+  useEffect(() => {
+    if (inviteCode && !socketRef.current) {
+      connect(inviteCode);
+    }
+  }, [inviteCode, connect]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      socket.disconnect();
-      socketRef.current = null;
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
     };
-  }, [setConnected, setDisconnected, applyStateUpdate, setProcessing]);
+  }, []);
 
-  return socketRef;
+  return { socketRef, connect };
 }

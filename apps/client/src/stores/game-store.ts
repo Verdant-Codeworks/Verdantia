@@ -21,6 +21,10 @@ interface GameStore {
   isConnected: boolean;
   isProcessingCommand: boolean;
 
+  // Authentication
+  inviteCode: string | null;
+  authError: string | null;
+
   // Game state (mirrors server GameState)
   phase: GamePhase;
   playerName: string;
@@ -45,6 +49,8 @@ interface GameStore {
   applyStateUpdate: (state: GameState) => void;
   setProcessing: (processing: boolean) => void;
   resetToTitle: () => void;
+  setInviteCode: (code: string | null) => void;
+  setAuthError: (error: string | null) => void;
 }
 
 export const useGameStore = create<GameStore>((set) => ({
@@ -52,6 +58,9 @@ export const useGameStore = create<GameStore>((set) => ({
   hasSavedGame: false,
   isConnected: false,
   isProcessingCommand: false,
+
+  inviteCode: null,
+  authError: null,
 
   phase: GamePhase.TITLE,
   playerName: '',
@@ -114,4 +123,10 @@ export const useGameStore = create<GameStore>((set) => ({
       skillDefinitions: {},
       currentRoomResources: [],
     }),
+
+  setInviteCode: (code) =>
+    set({ inviteCode: code, authError: null }),
+
+  setAuthError: (error) =>
+    set({ authError: error }),
 }));

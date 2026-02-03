@@ -4,7 +4,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const port = process.env.SERVER_PORT || 3001;
+  // Railway provides PORT, fall back to SERVER_PORT for local dev
+  const port = process.env.PORT || process.env.SERVER_PORT || 3001;
   const corsOrigin = process.env.SERVER_CORS_ORIGIN || 'http://localhost:5173';
 
   app.enableCors({
