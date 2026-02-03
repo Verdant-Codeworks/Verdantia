@@ -64,6 +64,27 @@ The server runs without a database (save/load commands won't work, but everythin
 - PostgreSQL (optional, for save/load)
 - Copy `.env.example` → `.env` and configure if using database
 
+## Git Workflow
+
+**Branching Strategy:**
+- Always branch off of `main`
+- Use `feature/[feature-name]` as the branch naming convention
+- Make changes on the feature branch
+- Push to origin and create a pull request to `main`
+- Wait for review before merging — this gives control over deployments
+
+**Example:**
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/add-magic-system
+# ... make changes ...
+git add .
+git commit -m "Add magic system"
+git push -u origin feature/add-magic-system
+gh pr create --base main
+```
+
 ## How to Add Content
 
 ### New Rooms
