@@ -32,6 +32,7 @@
     ],
     "items": ["iron_sword", "leather_armor", "pickaxe"],
     "enemies": [],
+    "isShop": true,
     "tags": ["forge"]
   },
   {

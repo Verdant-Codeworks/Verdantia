@@ -134,6 +134,50 @@ describe('InventorySystem', () => {
       const result = inventory.take(session, 'healing_herb');
       expect(result).toBe(false);
     });
+
+    it('requires gold to take items from a shop', () => {
+      session.currentRoomId = 'blacksmith';
+      session.gold = 100;
+      const result = inventory.take(session, 'iron_sword');
+      expect(result).toBe(true);
+      expect(session.hasItem('iron_sword')).toBe(true);
+      expect(session.gold).toBe(70); // 100 - 30 (iron_sword value)
+    });
+
+    it('shows purchase message when buying from shop', () => {
+      session.currentRoomId = 'blacksmith';
+      session.gold = 100;
+      inventory.take(session, 'iron_sword');
+      const state = session.toGameState(TEST_ROOMS.blacksmith, {});
+      expect(state.messages[0].text).toContain('purchase');
+      expect(state.messages[0].text).toContain('30 gold');
+    });
+
+    it('prevents taking shop items without enough gold', () => {
+      session.currentRoomId = 'blacksmith';
+      session.gold = 5;
+      const result = inventory.take(session, 'iron_sword');
+      expect(result).toBe(false);
+      expect(session.hasItem('iron_sword')).toBe(false);
+      expect(session.gold).toBe(5); // unchanged
+    });
+
+    it('shows insufficient gold message for shop items', () => {
+      session.currentRoomId = 'blacksmith';
+      session.gold = 5;
+      inventory.take(session, 'iron_sword');
+      const state = session.toGameState(TEST_ROOMS.blacksmith, {});
+      expect(state.messages[0].text).toContain('costs 30 gold');
+      expect(state.messages[0].text).toContain('only have 5');
+    });
+
+    it('does not convert tool-type items to gold', () => {
+      session.currentRoomId = 'blacksmith';
+      session.gold = 100;
+      inventory.take(session, 'pickaxe');
+      expect(session.hasItem('pickaxe')).toBe(true);
+      expect(session.gold).toBe(85); // 100 - 15 (pickaxe value, purchased)
+    });
   });
 
   // ── drop ────────────────────────────────────────────────────────────

@@ -139,7 +139,7 @@
     "id": "pickaxe",
     "name": "Pickaxe",
     "description": "A sturdy iron pickaxe, essential for mining ore from rock veins.",
-    "type": "misc",
+    "type": "tool",
     "value": 15
   },
   {

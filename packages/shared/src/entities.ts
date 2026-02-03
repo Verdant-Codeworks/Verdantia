@@ -26,7 +26,7 @@ export interface RoomDefinition {
   tags?: string[];
 }
 
-export type ItemType = 'consumable' | 'weapon' | 'armor' | 'key' | 'misc' | 'material';
+export type ItemType = 'consumable' | 'weapon' | 'armor' | 'key' | 'misc' | 'material' | 'tool';
 
 export type EquipmentSlot = 'weapon' | 'armor';
 

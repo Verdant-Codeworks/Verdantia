@@ -26,6 +26,26 @@ export class InventorySystem {
     }
 
     const itemDef = this.worldLoader.getItem(itemId);
+
+    // Shop items must be purchased with gold
+    if (room.isShop && itemDef?.value) {
+      if (session.gold < itemDef.value) {
+        session.addMessage(
+          `The ${itemDef.name} costs ${itemDef.value} gold. You only have ${session.gold}.`,
+          'system',
+        );
+        return false;
+      }
+      session.gold -= itemDef.value;
+      session.removeRoomItem(room.id, itemId);
+      session.addToInventory(itemId);
+      session.addMessage(
+        `You purchase the ${itemDef.name} for ${itemDef.value} gold. (${session.gold} gold remaining)`,
+        'loot',
+      );
+      return true;
+    }
+
     session.removeRoomItem(room.id, itemId);
     session.addToInventory(itemId);
 

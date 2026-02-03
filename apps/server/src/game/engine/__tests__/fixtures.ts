@@ -37,8 +37,10 @@ export const TEST_ROOMS: Record<string, RoomDefinition> = {
     name: "Blacksmith's Forge",
     description: 'Heat radiates from a roaring forge.',
     exits: [{ direction: 'east', roomId: 'village_square' }],
-    items: ['iron_sword', 'leather_armor'],
+    items: ['iron_sword', 'leather_armor', 'pickaxe'],
     enemies: [],
+    isShop: true,
+    tags: ['forge'],
   },
   deep_forest: {
     id: 'deep_forest',
@@ -120,6 +122,13 @@ export const TEST_ITEMS: Record<string, ItemDefinition> = {
     description: 'A thick gray wolf pelt.',
     type: 'misc',
     value: 20,
+  },
+  pickaxe: {
+    id: 'pickaxe',
+    name: 'Pickaxe',
+    description: 'A sturdy iron pickaxe, essential for mining ore from rock veins.',
+    type: 'tool',
+    value: 15,
   },
 };
 
