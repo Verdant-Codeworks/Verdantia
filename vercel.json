@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @verdantia/shared build && pnpm --filter @verdantia/client build",
+  "outputDirectory": "apps/client/dist",
+  "installCommand": "pnpm install",
+  "framework": "vite"
+}
