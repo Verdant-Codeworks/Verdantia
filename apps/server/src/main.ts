@@ -1,3 +1,7 @@
+// Load .env BEFORE importing modules that check process.env at load time
+import { config } from 'dotenv';
+config({ path: '../../.env' });
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
