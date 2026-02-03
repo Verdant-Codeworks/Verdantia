@@ -91,6 +91,50 @@ git push -u origin feature/add-magic-system
 gh pr create --base main
 ```
 
+## Testing Requirements
+
+**IMPORTANT: Write tests for new functionality BEFORE moving to the next step.**
+
+### Workflow
+
+When implementing new functionality in `apps/server/src/`:
+
+1. Create or locate the test file first:
+   - Pattern: `<directory>/__tests__/<filename>.spec.ts`
+   - Example: `game/engine/magic-system.ts` → `game/engine/__tests__/magic-system.spec.ts`
+
+2. Write failing tests that describe expected behavior
+
+3. Implement functionality to make tests pass
+
+4. Run `pnpm test` before considering the task complete
+
+### What Requires Tests
+
+| Change Type | Tests Required? |
+|-------------|----------------|
+| New system/module | Yes |
+| New command type | Yes (add to command-processor.spec.ts) |
+| New game mechanic | Yes |
+| Bug fix | Recommended (regression test) |
+| Refactoring | No, but run `pnpm test` |
+| Config/JSON data | No |
+
+### Test Patterns
+
+Follow existing patterns in `apps/server/src/game/engine/__tests__/`:
+- Use `createMockWorldLoader()` from `fixtures.ts`
+- Use `createCombatSession()` for combat tests
+- Group tests with `describe()` blocks
+- Test both success and error paths
+
+### Verification Checklist
+
+Before marking server-side functionality complete:
+- [ ] Test file exists in `__tests__/` directory
+- [ ] Tests cover happy path and error cases
+- [ ] `pnpm test` passes
+
 ## How to Add Content
 
 ### New Rooms
