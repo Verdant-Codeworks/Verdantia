@@ -36,7 +36,8 @@ export interface GameCommand {
 }
 
 export interface MovePayload {
-  direction: string;
+  direction?: string;
+  location?: string;
 }
 
 export interface TakePayload {
