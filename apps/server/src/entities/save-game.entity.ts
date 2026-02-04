@@ -12,7 +12,7 @@ export class SaveGame {
   @PrimaryKey()
   id: string = v4();
 
-  @OneToOne(() => Player, { unique: true })
+  @OneToOne(() => Player, { owner: true })
   player!: Player;
 
   @Property({ type: 'json' })

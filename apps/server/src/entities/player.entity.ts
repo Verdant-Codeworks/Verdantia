@@ -17,7 +17,7 @@ export class Player {
   @Unique()
   name!: string;
 
-  @OneToOne(() => SaveGame, (save) => save.player)
+  @OneToOne(() => SaveGame, { mappedBy: 'player' })
   save?: SaveGame;
 
   @Property({ onCreate: () => new Date() })

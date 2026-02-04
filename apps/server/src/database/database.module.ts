@@ -48,7 +48,15 @@ export class DatabaseModule implements OnModuleInit {
   async onModuleInit() {
     const generator = this.orm.getSchemaGenerator();
     // Use safe mode to only create missing tables, never drop/alter existing ones
-    await generator.updateSchema({ safe: true, dropTables: false });
-    this.logger.log('Database schema updated');
+    try {
+      await generator.updateSchema({ safe: true, dropTables: false });
+      this.logger.log('Database schema updated');
+    } catch (error) {
+      this.logger.error(
+        'Schema update failed',
+        error instanceof Error ? error.stack : error,
+      );
+      this.logger.warn('Database may need manual migration. See README.');
+    }
   }
 }
