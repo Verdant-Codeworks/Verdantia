@@ -37,7 +37,10 @@ export class SaveService {
       this.logger.log(`Game saved for ${playerName}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to save game: ${error}`);
+      this.logger.error(
+        'Failed to save game',
+        error instanceof Error ? error.stack : error,
+      );
       return false;
     }
   }
@@ -53,7 +56,10 @@ export class SaveService {
 
       return save.gameData;
     } catch (error) {
-      this.logger.error(`Failed to load game: ${error}`);
+      this.logger.error(
+        'Failed to load game',
+        error instanceof Error ? error.stack : error,
+      );
       return null;
     }
   }
