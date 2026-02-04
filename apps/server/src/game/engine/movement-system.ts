@@ -72,11 +72,18 @@ export class MovementSystem {
       }
     }
 
-    // Show items on ground
+    // Show items on ground (with prices if in a shop)
     const availableItems = session.getAvailableRoomItems(room);
     if (availableItems.length > 0) {
       const itemNames = availableItems
-        .map((id) => this.worldLoader.getItem(id)?.name || id)
+        .map((id) => {
+          const item = this.worldLoader.getItem(id);
+          if (!item) return id;
+          if (room.isShop && item.value !== undefined) {
+            return `${item.name} (${item.value}g)`;
+          }
+          return item.name;
+        })
         .join(', ');
       session.addMessage(`\nYou see: ${itemNames}`, 'loot');
     }

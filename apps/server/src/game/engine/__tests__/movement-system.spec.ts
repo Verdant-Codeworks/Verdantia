@@ -157,6 +157,26 @@ describe('MovementSystem', () => {
       const state = session.toGameState({} as any, {});
       expect(state.messages[0].text).toContain('unknown place');
     });
+
+    it('shows item prices in shop rooms', () => {
+      session.currentRoomId = 'blacksmith';
+      movement.look(session);
+      const state = session.toGameState(TEST_ROOMS.blacksmith, {});
+      const texts = state.messages.map((m) => m.text);
+      const itemLine = texts.find((t) => t.includes('You see:'));
+      expect(itemLine).toContain('Iron Sword (30g)');
+      expect(itemLine).toContain('Leather Armor (25g)');
+      expect(itemLine).toContain('Pickaxe (15g)');
+    });
+
+    it('does not show prices in non-shop rooms', () => {
+      movement.look(session);
+      const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
+      const texts = state.messages.map((m) => m.text);
+      const itemLine = texts.find((t) => t.includes('You see:'));
+      expect(itemLine).toContain('Healing Herb');
+      expect(itemLine).not.toContain('(5g)');
+    });
   });
 
   // ── startCombat ─────────────────────────────────────────────────────
