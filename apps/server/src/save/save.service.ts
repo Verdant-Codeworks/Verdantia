@@ -33,7 +33,11 @@ export class SaveService {
         fork.persist(save);
       }
 
+      this.logger.debug(
+        `Attempting to save: player=${player.id}, save=${save.id}`,
+      );
       await fork.flush();
+      this.logger.debug('Flush succeeded');
       this.logger.log(`Game saved for ${playerName}`);
       return true;
     } catch (error) {

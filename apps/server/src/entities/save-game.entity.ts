@@ -15,6 +15,10 @@ export class SaveGame {
   @OneToOne(() => Player, { owner: true })
   player!: Player;
 
+  // Legacy column - kept for backwards compatibility with existing database schema
+  @Property({ default: '' })
+  slotName: string = '';
+
   @Property({ type: 'json' })
   gameData!: string;
 
