@@ -327,4 +327,145 @@ describe('MovementSystem', () => {
       expect(visited.enemiesSeen).toEqual([]);
     });
   });
+
+  // ── Location-Based Navigation ────────────────────────────────────────
+
+  describe('location-based navigation', () => {
+    it('moves to exact name match', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      // From forest_clearing, go to "Village Square"
+      const result = movement.move(session, undefined, 'Village Square');
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('village_square');
+    });
+
+    it('moves to partial match (case-insensitive)', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      // From forest_clearing, "village" should match "Village Square"
+      const result = movement.move(session, undefined, 'village');
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('village_square');
+    });
+
+    it('moves to word match ("blacksmith" matches "Blacksmith\'s Forge")', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      // First move to village_square
+      movement.move(session, 'north');
+      // From village_square, "blacksmith" should match "Blacksmith's Forge"
+      const result = movement.move(session, undefined, 'blacksmith');
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('blacksmith');
+    });
+
+    it('shows error when location not reachable from current room', () => {
+      // From forest_clearing, can't reach blacksmith directly
+      const result = movement.move(session, undefined, 'blacksmith');
+      expect(result).toBe(false);
+      expect(session.currentRoomId).toBe('forest_clearing');
+      const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
+      const messages = state.messages.map((m) => m.text);
+      expect(messages.some((t) => t.includes("can't get to"))).toBe(true);
+    });
+
+    it('shows available destinations in error message', () => {
+      const result = movement.move(session, undefined, 'nonexistent');
+      expect(result).toBe(false);
+      const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
+      const messages = state.messages.map((m) => m.text);
+      expect(messages.some((t) => t.includes('Available destinations:'))).toBe(true);
+      expect(messages.some((t) => t.includes('Village Square'))).toBe(true);
+      expect(messages.some((t) => t.includes('Deep Forest'))).toBe(true);
+    });
+
+    it('direction-based movement still works when location not provided', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      const result = movement.move(session, 'north', undefined);
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('village_square');
+    });
+
+    it('prefers exact match over partial match', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      // From forest_clearing, "deep forest" should match exactly
+      const result = movement.move(session, undefined, 'deep forest');
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('deep_forest');
+    });
+
+    it('prefers starts-with match over contains match', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      // "deep" starts with "Deep Forest"
+      const result = movement.move(session, undefined, 'deep');
+      expect(result).toBe(true);
+      expect(session.currentRoomId).toBe('deep_forest');
+    });
+
+    it('triggers encounters when moving by location', () => {
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(ENCOUNTER_CHANCE - 0.01) // triggers encounter
+        .mockReturnValueOnce(0); // picks first enemy
+      movement.move(session, undefined, 'deep forest');
+
+      expect(session.phase).toBe(GamePhase.COMBAT);
+      expect(session.combat).not.toBeNull();
+    });
+
+    it('shows error when no direction or location provided', () => {
+      const result = movement.move(session, undefined, undefined);
+      expect(result).toBe(false);
+      const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
+      expect(state.messages[0].text).toContain('Go where?');
+    });
+
+    it('shows ambiguous match error when multiple exits have same score', () => {
+      // Create a room with two similarly-named destinations
+      const ambiguousRoom = {
+        id: 'test_hub',
+        name: 'Test Hub',
+        description: 'A hub with multiple forest exits.',
+        exits: [
+          { direction: 'north', roomId: 'forest_north' },
+          { direction: 'south', roomId: 'forest_south' },
+        ],
+        items: [],
+        enemies: [],
+        coordinates: { x: 0, y: 0 },
+      };
+      const forestNorth = {
+        id: 'forest_north',
+        name: 'Forest Path North',
+        description: 'A northern forest path.',
+        exits: [],
+        items: [],
+        enemies: [],
+        coordinates: { x: 0, y: -1 },
+      };
+      const forestSouth = {
+        id: 'forest_south',
+        name: 'Forest Path South',
+        description: 'A southern forest path.',
+        exits: [],
+        items: [],
+        enemies: [],
+        coordinates: { x: 0, y: 1 },
+      };
+
+      mockWorldLoader.getRoom.mockImplementation((id: string) => {
+        if (id === 'test_hub') return ambiguousRoom;
+        if (id === 'forest_north') return forestNorth;
+        if (id === 'forest_south') return forestSouth;
+        return TEST_ROOMS[id];
+      });
+
+      session.currentRoomId = 'test_hub';
+      const result = movement.move(session, undefined, 'forest path');
+
+      expect(result).toBe(false);
+      const state = session.toGameState(ambiguousRoom as any, {});
+      const messages = state.messages.map((m) => m.text);
+      expect(messages.some((t) => t.includes('Multiple matches'))).toBe(true);
+      expect(messages.some((t) => t.includes('Forest Path North (north)'))).toBe(true);
+      expect(messages.some((t) => t.includes('Forest Path South (south)'))).toBe(true);
+    });
+  });
 });

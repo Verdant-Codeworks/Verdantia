@@ -111,7 +111,7 @@ describe('CommandProcessor', () => {
     it('MOVE dispatches to movement.move with direction', () => {
       const cmd: GameCommand = { type: CommandType.MOVE, payload: { direction: 'north' } };
       processor.process(session, cmd);
-      expect(mocks.movement.move).toHaveBeenCalledWith(session, 'north');
+      expect(mocks.movement.move).toHaveBeenCalledWith(session, 'north', undefined);
     });
 
     it('MOVE without direction adds error message', () => {

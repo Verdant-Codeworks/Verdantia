@@ -46,12 +46,12 @@ export class CommandProcessor {
   private processExploration(session: GameSession, command: GameCommand): void {
     switch (command.type) {
       case CommandType.MOVE: {
-        const direction = (command.payload as { direction: string })?.direction;
-        if (!direction) {
-          session.addMessage('Go where? Specify a direction.', 'system');
+        const payload = command.payload as { direction?: string; location?: string };
+        if (!payload?.direction && !payload?.location) {
+          session.addMessage('Go where? Specify a direction or location.', 'system');
           return;
         }
-        this.movement.move(session, direction);
+        this.movement.move(session, payload.direction, payload.location);
         break;
       }
 
@@ -197,7 +197,7 @@ export class CommandProcessor {
 
   private showHelp(session: GameSession): void {
     session.addMessage('\n--- Commands ---', 'system');
-    session.addMessage('Movement: north/south/east/west (or n/s/e/w), look (l), go (l), move (l)', 'system');
+    session.addMessage('Movement: north/south/east/west (or n/s/e/w), go to [location], look (l)', 'system');
     session.addMessage('Combat: attack (a), defend, flee', 'system');
     session.addMessage('Items: take [item], drop [item], use [item], equip [item], unequip [slot]', 'system');
     session.addMessage('Skills: mine [node], smith [recipe], recipes, skills', 'system');

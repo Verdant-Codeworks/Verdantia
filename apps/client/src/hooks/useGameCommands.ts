@@ -32,6 +32,11 @@ function parseRawInput(raw: string): GameCommand | null {
     case 'go':
     case 'move':
     case 'walk': {
+      // Check for "go to [location]" pattern
+      if (rest.startsWith('to ')) {
+        const location = rest.slice(3).trim();
+        return location ? { type: CommandType.MOVE, payload: { location } } : null;
+      }
       const dir = DIRECTION_ALIASES[rest] || rest;
       return dir ? { type: CommandType.MOVE, payload: { direction: dir } } : null;
     }

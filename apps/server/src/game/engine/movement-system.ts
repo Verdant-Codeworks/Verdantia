@@ -8,10 +8,21 @@ import type { EnemyDefinition, RoomDefinition } from '@verdantia/shared';
 export class MovementSystem {
   constructor(private readonly worldLoader: WorldLoaderService) {}
 
-  move(session: GameSession, direction: string): boolean {
+  move(session: GameSession, direction?: string, location?: string): boolean {
     const currentRoom = this.worldLoader.getRoom(session.currentRoomId);
     if (!currentRoom) {
       session.addMessage('Error: Current room not found.', 'error');
+      return false;
+    }
+
+    // Handle location-based navigation
+    if (location) {
+      return this.moveToLocation(session, currentRoom, location);
+    }
+
+    // Handle direction-based navigation
+    if (!direction) {
+      session.addMessage('Go where? Specify a direction or location.', 'system');
       return false;
     }
 
@@ -24,7 +35,90 @@ export class MovementSystem {
       return false;
     }
 
-    const nextRoom = this.worldLoader.getRoom(exit.roomId);
+    return this.moveToRoom(session, exit.roomId);
+  }
+
+  private moveToLocation(
+    session: GameSession,
+    currentRoom: RoomDefinition,
+    location: string,
+  ): boolean {
+    const query = location.toLowerCase();
+
+    // Score each exit based on how well its destination name matches the query
+    const scoredExits: Array<{
+      exit: RoomDefinition['exits'][0];
+      room: RoomDefinition;
+      score: number;
+    }> = [];
+
+    for (const exit of currentRoom.exits) {
+      const destRoom = this.worldLoader.getRoom(exit.roomId);
+      if (!destRoom) continue;
+
+      const score = this.matchLocationScore(destRoom.name, query);
+      if (score > 0) {
+        scoredExits.push({ exit, room: destRoom, score });
+      }
+    }
+
+    if (scoredExits.length === 0) {
+      const availableDestinations = currentRoom.exits
+        .map((e) => this.worldLoader.getRoom(e.roomId)?.name)
+        .filter((name): name is string => !!name)
+        .join(', ');
+      session.addMessage(
+        `You can't get to "${location}" from here. Available destinations: ${availableDestinations || 'none'}`,
+        'system',
+      );
+      return false;
+    }
+
+    // Sort by score (highest first)
+    scoredExits.sort((a, b) => b.score - a.score);
+
+    // Check for ambiguous matches (multiple exits with the same top score)
+    const topScore = scoredExits[0].score;
+    const topMatches = scoredExits.filter((e) => e.score === topScore);
+
+    if (topMatches.length > 1) {
+      const matchList = topMatches
+        .map((m) => `${m.room.name} (${m.exit.direction})`)
+        .join(', ');
+      session.addMessage(
+        `Multiple matches for "${location}": ${matchList}. Please be more specific.`,
+        'system',
+      );
+      return false;
+    }
+
+    return this.moveToRoom(session, topMatches[0].exit.roomId);
+  }
+
+  private matchLocationScore(roomName: string, query: string): number {
+    const name = roomName.toLowerCase();
+
+    // Exact match
+    if (name === query) return 100;
+
+    // Starts with query
+    if (name.startsWith(query)) return 80;
+
+    // Contains query as substring
+    if (name.includes(query)) return 60;
+
+    // Word match: split on spaces and apostrophes
+    const words = name.split(/[\s']+/);
+    for (const word of words) {
+      if (word === query) return 40;
+      if (word.startsWith(query)) return 30;
+    }
+
+    return 0;
+  }
+
+  private moveToRoom(session: GameSession, roomId: string): boolean {
+    const nextRoom = this.worldLoader.getRoom(roomId);
     if (!nextRoom) {
       session.addMessage('Error: Destination room not found.', 'error');
       return false;
