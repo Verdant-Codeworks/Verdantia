@@ -197,7 +197,7 @@ export class CommandProcessor {
 
   private showHelp(session: GameSession): void {
     session.addMessage('\n--- Commands ---', 'system');
-    session.addMessage('Movement: north/south/east/west (or n/s/e/w), look (l)', 'system');
+    session.addMessage('Movement: north/south/east/west (or n/s/e/w), look (l), go (l), move (l)', 'system');
     session.addMessage('Combat: attack (a), defend, flee', 'system');
     session.addMessage('Items: take [item], drop [item], use [item], equip [item], unequip [slot]', 'system');
     session.addMessage('Skills: mine [node], smith [recipe], recipes, skills', 'system');
