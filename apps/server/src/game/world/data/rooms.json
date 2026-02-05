@@ -145,7 +145,7 @@
     ],
     "items": ["enchanted_blade", "health_potion", "gold_pile"],
     "enemies": [],
-    "coordinates": { "x": 3, "y": 1 }
+    "coordinates": { "x": 3, "y": -2 }
   },
   {
     "id": "village_gate",
