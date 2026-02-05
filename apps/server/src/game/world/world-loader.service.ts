@@ -81,7 +81,8 @@ export class WorldLoaderService implements OnModuleInit {
     if (isProcedural(id) && this.proceduralRoomService) {
       const coords = parseCoords(id);
       if (coords) {
-        return await this.proceduralRoomService.getOrGenerateRoom(coords.x, coords.y, coords.z);
+        // Use new method that pre-generates adjacent rooms for better exit descriptions
+        return await this.proceduralRoomService.getOrGenerateRoomWithAdjacent(coords.x, coords.y, coords.z);
       }
     }
 
