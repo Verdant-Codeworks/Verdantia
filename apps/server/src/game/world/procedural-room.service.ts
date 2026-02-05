@@ -127,7 +127,11 @@ export class ProceduralRoomService {
     const description = this.selectRandomSeeded(biome.descriptionTemplates, rng);
 
     // Generate exits using seeded RNG
-    const exits = this.wfcService.generateExits(x, y, z, biome, adjacentRooms, rng);
+    let exits = this.wfcService.generateExits(x, y, z, biome, adjacentRooms, rng);
+
+    // Ensure bidirectional exits: if an adjacent cached room has an exit to this room,
+    // we must have a return exit to maintain consistency
+    exits = this.ensureBidirectionalExits(x, y, z, exits);
 
     // Select room contents
     const items = await this.selectItems(selectedBiomeId, difficulty, seed);
@@ -608,6 +612,64 @@ export class ProceduralRoomService {
       state = (state * 1664525 + 1013904223) % 4294967296;
       return state / 4294967296;
     };
+  }
+
+  /**
+   * Ensure bidirectional exits by checking if adjacent cached rooms have exits pointing to this room.
+   * If an adjacent room has an exit to us, we must have a return exit to maintain navigation consistency.
+   */
+  private ensureBidirectionalExits(
+    x: number,
+    y: number,
+    z: number,
+    exits: Array<{ direction: string; destinationRoomId?: string; description?: string }>,
+  ): Array<{ direction: string; destinationRoomId?: string; description?: string }> {
+    const directionOffsets: Record<string, { dx: number; dy: number; dz: number; opposite: string }> = {
+      north: { dx: 0, dy: -1, dz: 0, opposite: 'south' },
+      south: { dx: 0, dy: 1, dz: 0, opposite: 'north' },
+      east: { dx: 1, dy: 0, dz: 0, opposite: 'west' },
+      west: { dx: -1, dy: 0, dz: 0, opposite: 'east' },
+      up: { dx: 0, dy: 0, dz: 1, opposite: 'down' },
+      down: { dx: 0, dy: 0, dz: -1, opposite: 'up' },
+    };
+
+    const currentRoomId = makeRoomId(x, y, z);
+    const resultExits = [...exits];
+
+    // Check each direction for adjacent cached rooms
+    for (const [direction, { dx, dy, dz, opposite }] of Object.entries(directionOffsets)) {
+      const adjX = x + dx;
+      const adjY = y + dy;
+      const adjZ = z + dz;
+      const adjRoomId = makeRoomId(adjX, adjY, adjZ);
+
+      // Check if this adjacent room is in the cache
+      const cachedRoom = this.roomCache.get(adjRoomId);
+      if (!cachedRoom) {
+        continue;
+      }
+
+      // Check if the cached room has an exit pointing to the current room
+      const hasExitToUs = cachedRoom.exits.some(
+        (exit) => exit.roomId === currentRoomId || exit.direction === opposite,
+      );
+
+      if (hasExitToUs) {
+        // Check if we already have an exit in this direction
+        const hasExitInDirection = resultExits.some((e) => e.direction === direction);
+
+        if (!hasExitInDirection) {
+          // Add the return exit
+          resultExits.push({
+            direction,
+            destinationRoomId: adjRoomId,
+            description: `A path leading ${direction}`,
+          });
+        }
+      }
+    }
+
+    return resultExits;
   }
 
   private async buildRoomDefinition(room: ProceduralRoom): Promise<CurrentRoomData> {
