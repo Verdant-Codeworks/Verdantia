@@ -143,7 +143,7 @@ export const useGameStore = create<GameStore>((set) => ({
         skillDefinitions: { ...prev.skillDefinitions, ...state.skillDefinitions },
         currentRoomResources: state.currentRoomResources,
         visitedRooms: { ...prev.visitedRooms, ...state.visitedRooms },
-        roomCoordinates: state.roomCoordinates,
+        roomCoordinates: { ...prev.roomCoordinates, ...state.roomCoordinates },
         proceduralViewport: newViewport,
         messageHistory: [...prev.messageHistory, ...state.messages],
         isProcessingCommand: false,

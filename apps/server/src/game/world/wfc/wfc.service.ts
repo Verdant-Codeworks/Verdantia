@@ -125,15 +125,25 @@ export class WFCService {
   ): BiomeExit[] {
     const exits: BiomeExit[] = [];
 
+    // Only caves biome can have vertical exits
+    const allowVertical = biome.id === 'caves';
+
     // Map of direction to coordinate changes
-    const directions = {
+    const horizontalDirections = {
       north: { dx: 0, dy: -1, dz: 0 },
       south: { dx: 0, dy: 1, dz: 0 },
       east: { dx: 1, dy: 0, dz: 0 },
       west: { dx: -1, dy: 0, dz: 0 },
+    };
+
+    const verticalDirections = {
       up: { dx: 0, dy: 0, dz: 1 },
       down: { dx: 0, dy: 0, dz: -1 },
     };
+
+    const directions = allowVertical
+      ? { ...horizontalDirections, ...verticalDirections }
+      : horizontalDirections;
 
     // Create bidirectional exits to adjacent rooms
     for (const adj of adjacentRooms) {

@@ -4,7 +4,7 @@ import { CommandProcessor } from './engine/command-processor';
 import { MovementSystem } from './engine/movement-system';
 import { GameSession } from './engine/game-state';
 import { SaveService } from '../save/save.service';
-import { CommandType } from '@verdantia/shared';
+import { CommandType, isProcedural, parseCoords } from '@verdantia/shared';
 import type { GameCommand, GameState, ItemDefinition, SkillDefinition, RoomResourceNode, RoomCoordinates } from '@verdantia/shared';
 
 @Injectable()
@@ -182,6 +182,24 @@ export class GameService {
     for (const [roomId, roomDef] of this.worldLoader.getAllRooms()) {
       if (roomDef.coordinates) {
         roomCoordinates[roomId] = roomDef.coordinates;
+      }
+    }
+
+    // Add coordinates for procedural rooms from visited rooms
+    for (const roomId of Object.keys(session.visitedRooms)) {
+      if (isProcedural(roomId) && !roomCoordinates[roomId]) {
+        const coords = parseCoords(roomId);
+        if (coords) {
+          roomCoordinates[roomId] = coords;
+        }
+      }
+    }
+
+    // Add coordinates for current room if procedural
+    if (isProcedural(session.currentRoomId) && !roomCoordinates[session.currentRoomId]) {
+      const coords = parseCoords(session.currentRoomId);
+      if (coords) {
+        roomCoordinates[session.currentRoomId] = coords;
       }
     }
 
