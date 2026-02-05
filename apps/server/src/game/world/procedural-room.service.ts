@@ -318,7 +318,7 @@ export class ProceduralRoomService {
   }
 
   /**
-   * Generate a contextual exit description based on what's in that direction.
+   * Generate a contextual exit description based on what's actually in that direction.
    */
   private generateExitDescription(
     fromX: number,
@@ -330,50 +330,59 @@ export class ProceduralRoomService {
     direction: string,
     seed: number,
   ): string {
-    const rng = this.seededRandom(seed);
-
     // Check if destination is a settlement
     const destIsSettlement = this.worldRegionService.isSettlementLocation(toX, toY, toZ);
     const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(toX, toY, toZ) : null;
 
-    // Check if we're leaving a settlement
-    const fromIsSettlement = this.worldRegionService.isSettlementLocation(fromX, fromY, fromZ);
+    // Check if destination room is already cached (we know what's there)
+    const destRoomId = makeRoomId(toX, toY, toZ);
+    const cachedRoom = this.roomCache.get(destRoomId);
 
-    // Generate description based on context
+    // Generate description based on what's actually there
     if (destIsSettlement && destSize) {
-      // Heading toward another settlement
-      const settlementHints = [
-        `Smoke rises from chimneys to the ${direction}`,
-        `A well-worn road leads ${direction} toward signs of civilization`,
-        `The ${direction}ern road shows heavy cart tracks`,
-        `Distant buildings can be seen to the ${direction}`,
-        `A signpost points ${direction} toward a settlement`,
-      ];
-      return settlementHints[Math.floor(rng() * settlementHints.length)];
+      // Generate the settlement name deterministically to preview it
+      const settlementSeed = this.generateSeed(toX, toY, toZ);
+      const settlementName = cachedRoom?.name || this.previewSettlementName(toX, toY, toZ, settlementSeed);
+      return `To the ${direction} lies ${settlementName}, a ${destSize}`;
     }
 
-    if (fromIsSettlement) {
-      // Leaving a settlement into wilderness
-      const wildernessHints = [
-        `The road thins as it heads ${direction} into the wilds`,
-        `Open countryside stretches to the ${direction}`,
-        `A dusty trail leads ${direction} away from the settlement`,
-        `The ${direction}ern gate opens onto untamed lands`,
-        `Wild terrain awaits to the ${direction}`,
-        `The path ${direction} leads into the wilderness`,
-      ];
-      return wildernessHints[Math.floor(rng() * wildernessHints.length)];
+    if (cachedRoom) {
+      // We've been there - show its name
+      return `${cachedRoom.name} lies to the ${direction}`;
     }
 
-    // Wilderness to wilderness (generic but varied)
-    const genericHints = [
-      `A rough path continues ${direction}`,
-      `The way ${direction} looks passable`,
-      `You can travel ${direction} from here`,
-      `A trail winds ${direction}ward`,
-      `The terrain opens up to the ${direction}`,
-    ];
-    return genericHints[Math.floor(rng() * genericHints.length)];
+    // Unknown wilderness - give a hint about the terrain
+    return `Unexplored wilderness to the ${direction}`;
+  }
+
+  /**
+   * Preview a settlement name without fully generating the settlement.
+   * Uses the same logic as SettlementGeneratorService for consistency.
+   */
+  private previewSettlementName(x: number, y: number, z: number, seed: number): string {
+    // Simple name generation matching the settlement generator's approach
+    const rng = this.seededRandom(seed);
+
+    const prefixes = ['North', 'South', 'East', 'West', 'Old', 'New', 'Fort', 'High', 'Low'];
+    const roots = ['haven', 'ford', 'bridge', 'dale', 'vale', 'brook', 'field', 'wood', 'stone', 'mill'];
+    const suffixes = ['ton', 'ville', 'bury', 'ham', 'stead', ''];
+
+    const usePrefix = rng() < 0.4;
+    const useSuffix = rng() < 0.5;
+
+    let name = '';
+    if (usePrefix) {
+      name = prefixes[Math.floor(rng() * prefixes.length)] + ' ';
+    }
+
+    const root = roots[Math.floor(rng() * roots.length)];
+    name += root.charAt(0).toUpperCase() + root.slice(1);
+
+    if (useSuffix) {
+      name += suffixes[Math.floor(rng() * suffixes.length)];
+    }
+
+    return name;
   }
 
   /**
@@ -436,69 +445,41 @@ export class ProceduralRoomService {
     destZ: number,
     seed: number,
   ): string {
-    const rng = this.seededRandom(seed);
-
     // Check if destination is a settlement
     const destIsSettlement = this.worldRegionService.isSettlementLocation(destX, destY, destZ);
+    const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(destX, destY, destZ) : null;
 
-    if (destIsSettlement) {
-      const hints = [
-        `Smoke rises in the distance to the ${direction}`,
-        `A worn road leads ${direction} toward civilization`,
-        `You see signs of habitation to the ${direction}`,
-        `The ${direction}ern path shows signs of regular travel`,
-      ];
-      return hints[Math.floor(rng() * hints.length)];
+    // Check if destination room is already cached
+    const destRoomId = makeRoomId(destX, destY, destZ);
+    const cachedRoom = this.roomCache.get(destRoomId);
+
+    if (destIsSettlement && destSize) {
+      const settlementSeed = this.generateSeed(destX, destY, destZ);
+      const settlementName = cachedRoom?.name || this.previewSettlementName(destX, destY, destZ, settlementSeed);
+      return `${settlementName} (${destSize}) to the ${direction}`;
+    }
+
+    if (cachedRoom) {
+      return `${cachedRoom.name} to the ${direction}`;
     }
 
     // Handle vertical exits specially
     if (direction === 'up') {
-      const upHints = [
-        'A rocky passage climbs upward',
-        'Stone steps ascend into darkness above',
-        'A narrow shaft leads up',
-        'You can climb up here',
-      ];
-      return upHints[Math.floor(rng() * upHints.length)];
+      return 'A passage leads upward';
     }
 
     if (direction === 'down') {
-      const downHints = [
-        'A dark passage descends deeper',
-        'Rough-hewn steps lead down into shadow',
-        'A hole opens into darkness below',
-        'You can descend here',
-      ];
-      return downHints[Math.floor(rng() * downHints.length)];
+      return 'A passage descends into darkness';
     }
 
-    // Biome-specific descriptions
-    const biomeDescriptions: Record<string, string[]> = {
-      wilderness: [
-        `The wilderness stretches ${direction}ward`,
-        `Open terrain continues to the ${direction}`,
-        `A game trail leads ${direction}`,
-        `The land opens up to the ${direction}`,
-        `You can push through the brush ${direction}ward`,
-      ],
-      caves: [
-        `A dark tunnel continues ${direction}`,
-        `The cavern extends ${direction}ward`,
-        `A narrow passage leads ${direction}`,
-        `Echoes come from the ${direction}`,
-        `The cave branches ${direction}ward`,
-      ],
-      ruins: [
-        `Crumbling passages lead ${direction}`,
-        `Ancient stonework continues ${direction}ward`,
-        `A collapsed archway opens to the ${direction}`,
-        `Rubble-strewn corridors extend ${direction}`,
-        `Faded carvings mark the ${direction}ern passage`,
-      ],
+    // Unknown wilderness - brief hint based on current biome
+    const biomeHints: Record<string, string> = {
+      wilderness: `Wilderness to the ${direction}`,
+      caves: `Dark tunnels to the ${direction}`,
+      ruins: `More ruins to the ${direction}`,
     };
 
-    const descriptions = biomeDescriptions[currentBiomeId] || biomeDescriptions.wilderness;
-    return descriptions[Math.floor(rng() * descriptions.length)];
+    return biomeHints[currentBiomeId] || `Unexplored terrain to the ${direction}`;
   }
 
   private generateSettlementDescription(
