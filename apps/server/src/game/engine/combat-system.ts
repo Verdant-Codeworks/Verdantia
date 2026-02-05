@@ -7,8 +7,8 @@ import {
   DAMAGE_VARIANCE_MAX,
   FLEE_BASE_CHANCE,
   FLEE_SPEED_BONUS,
-  XP_PER_LEVEL,
-  STAT_GAINS_PER_LEVEL,
+  getXpForLevel,
+  getStatGains,
 } from '@verdantia/shared';
 
 @Injectable()
@@ -127,25 +127,24 @@ export class CombatSystem {
 
   private checkLevelUp(session: GameSession): void {
     const nextLevel = session.stats.level + 1;
-    if (nextLevel >= XP_PER_LEVEL.length) return;
-
-    const xpNeeded = XP_PER_LEVEL[nextLevel];
-    if (xpNeeded === undefined) return;
+    const xpNeeded = getXpForLevel(nextLevel);
 
     if (session.stats.xp >= xpNeeded) {
+      const gains = getStatGains(nextLevel);
+
       session.stats.level = nextLevel;
-      session.stats.maxHp += STAT_GAINS_PER_LEVEL.maxHp;
+      session.stats.maxHp += gains.maxHp;
       session.stats.hp = session.stats.maxHp; // Full heal on level up
-      session.stats.attack += STAT_GAINS_PER_LEVEL.attack;
-      session.stats.defense += STAT_GAINS_PER_LEVEL.defense;
-      session.stats.speed += STAT_GAINS_PER_LEVEL.speed;
+      session.stats.attack += gains.attack;
+      session.stats.defense += gains.defense;
+      session.stats.speed += gains.speed;
 
       session.addMessage(
         `\nLevel Up! You are now level ${session.stats.level}!`,
         'levelup',
       );
       session.addMessage(
-        `HP: ${session.stats.maxHp} | ATK: ${session.stats.attack} | DEF: ${session.stats.defense} | SPD: ${session.stats.speed}`,
+        `+${gains.maxHp} HP | +${gains.attack} ATK | +${gains.defense} DEF | +${gains.speed} SPD`,
         'levelup',
       );
 

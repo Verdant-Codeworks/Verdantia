@@ -145,6 +145,9 @@ importers:
       typescript:
         specifier: ^5.4.0
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@20.19.30)(jiti@2.6.1)(terser@5.46.0)
 
 packages:
 
