@@ -133,6 +133,9 @@ export class ProceduralRoomService {
     // we must have a return exit to maintain consistency
     exits = this.ensureBidirectionalExits(x, y, z, exits);
 
+    // Add contextual descriptions to exits
+    exits = this.addExitDescriptions(x, y, z, exits, selectedBiomeId, seed);
+
     // Select room contents
     const items = await this.selectItems(selectedBiomeId, difficulty, seed);
     const enemies = await this.selectEnemies(selectedBiomeId, difficulty, seed);
@@ -290,14 +293,212 @@ export class ProceduralRoomService {
   }
 
   private generateSettlementExits(x: number, y: number, z: number) {
-    const exits = [
-      { direction: 'north', destinationRoomId: makeRoomId(x, y - 1, z), description: 'A road leading north' },
-      { direction: 'south', destinationRoomId: makeRoomId(x, y + 1, z), description: 'A road leading south' },
-      { direction: 'east', destinationRoomId: makeRoomId(x + 1, y, z), description: 'A road leading east' },
-      { direction: 'west', destinationRoomId: makeRoomId(x - 1, y, z), description: 'A road leading west' },
+    const seed = this.generateSeed(x, y, z);
+    const directions = [
+      { dir: 'north', dx: 0, dy: -1 },
+      { dir: 'south', dx: 0, dy: 1 },
+      { dir: 'east', dx: 1, dy: 0 },
+      { dir: 'west', dx: -1, dy: 0 },
     ];
 
+    const exits = directions.map(({ dir, dx, dy }, index) => {
+      const destX = x + dx;
+      const destY = y + dy;
+      const destRoomId = makeRoomId(destX, destY, z);
+      const description = this.generateExitDescription(x, y, z, destX, destY, z, dir, seed + index);
+
+      return {
+        direction: dir,
+        destinationRoomId: destRoomId,
+        description,
+      };
+    });
+
     return exits;
+  }
+
+  /**
+   * Generate a contextual exit description based on what's in that direction.
+   */
+  private generateExitDescription(
+    fromX: number,
+    fromY: number,
+    fromZ: number,
+    toX: number,
+    toY: number,
+    toZ: number,
+    direction: string,
+    seed: number,
+  ): string {
+    const rng = this.seededRandom(seed);
+
+    // Check if destination is a settlement
+    const destIsSettlement = this.worldRegionService.isSettlementLocation(toX, toY, toZ);
+    const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(toX, toY, toZ) : null;
+
+    // Check if we're leaving a settlement
+    const fromIsSettlement = this.worldRegionService.isSettlementLocation(fromX, fromY, fromZ);
+
+    // Generate description based on context
+    if (destIsSettlement && destSize) {
+      // Heading toward another settlement
+      const settlementHints = [
+        `Smoke rises from chimneys to the ${direction}`,
+        `A well-worn road leads ${direction} toward signs of civilization`,
+        `The ${direction}ern road shows heavy cart tracks`,
+        `Distant buildings can be seen to the ${direction}`,
+        `A signpost points ${direction} toward a settlement`,
+      ];
+      return settlementHints[Math.floor(rng() * settlementHints.length)];
+    }
+
+    if (fromIsSettlement) {
+      // Leaving a settlement into wilderness
+      const wildernessHints = [
+        `The road thins as it heads ${direction} into the wilds`,
+        `Open countryside stretches to the ${direction}`,
+        `A dusty trail leads ${direction} away from the settlement`,
+        `The ${direction}ern gate opens onto untamed lands`,
+        `Wild terrain awaits to the ${direction}`,
+        `The path ${direction} leads into the wilderness`,
+      ];
+      return wildernessHints[Math.floor(rng() * wildernessHints.length)];
+    }
+
+    // Wilderness to wilderness (generic but varied)
+    const genericHints = [
+      `A rough path continues ${direction}`,
+      `The way ${direction} looks passable`,
+      `You can travel ${direction} from here`,
+      `A trail winds ${direction}ward`,
+      `The terrain opens up to the ${direction}`,
+    ];
+    return genericHints[Math.floor(rng() * genericHints.length)];
+  }
+
+  /**
+   * Add biome-aware descriptions to wilderness exits.
+   */
+  private addExitDescriptions(
+    x: number,
+    y: number,
+    z: number,
+    exits: Array<{ direction: string; destinationRoomId?: string; description?: string }>,
+    currentBiomeId: string,
+    seed: number,
+  ): Array<{ direction: string; destinationRoomId?: string; description?: string }> {
+    const directionOffsets: Record<string, { dx: number; dy: number; dz: number }> = {
+      north: { dx: 0, dy: -1, dz: 0 },
+      south: { dx: 0, dy: 1, dz: 0 },
+      east: { dx: 1, dy: 0, dz: 0 },
+      west: { dx: -1, dy: 0, dz: 0 },
+      up: { dx: 0, dy: 0, dz: 1 },
+      down: { dx: 0, dy: 0, dz: -1 },
+    };
+
+    return exits.map((exit, index) => {
+      // If exit already has a good description, keep it
+      if (exit.description && !exit.description.includes('A path leading')) {
+        return exit;
+      }
+
+      const offset = directionOffsets[exit.direction];
+      if (!offset) {
+        return exit;
+      }
+
+      const destX = x + offset.dx;
+      const destY = y + offset.dy;
+      const destZ = z + offset.dz;
+
+      // Generate contextual description
+      const description = this.generateWildernessExitDescription(
+        exit.direction,
+        currentBiomeId,
+        destX,
+        destY,
+        destZ,
+        seed + index,
+      );
+
+      return { ...exit, description };
+    });
+  }
+
+  /**
+   * Generate a description for a wilderness exit based on biome and destination.
+   */
+  private generateWildernessExitDescription(
+    direction: string,
+    currentBiomeId: string,
+    destX: number,
+    destY: number,
+    destZ: number,
+    seed: number,
+  ): string {
+    const rng = this.seededRandom(seed);
+
+    // Check if destination is a settlement
+    const destIsSettlement = this.worldRegionService.isSettlementLocation(destX, destY, destZ);
+
+    if (destIsSettlement) {
+      const hints = [
+        `Smoke rises in the distance to the ${direction}`,
+        `A worn road leads ${direction} toward civilization`,
+        `You see signs of habitation to the ${direction}`,
+        `The ${direction}ern path shows signs of regular travel`,
+      ];
+      return hints[Math.floor(rng() * hints.length)];
+    }
+
+    // Handle vertical exits specially
+    if (direction === 'up') {
+      const upHints = [
+        'A rocky passage climbs upward',
+        'Stone steps ascend into darkness above',
+        'A narrow shaft leads up',
+        'You can climb up here',
+      ];
+      return upHints[Math.floor(rng() * upHints.length)];
+    }
+
+    if (direction === 'down') {
+      const downHints = [
+        'A dark passage descends deeper',
+        'Rough-hewn steps lead down into shadow',
+        'A hole opens into darkness below',
+        'You can descend here',
+      ];
+      return downHints[Math.floor(rng() * downHints.length)];
+    }
+
+    // Biome-specific descriptions
+    const biomeDescriptions: Record<string, string[]> = {
+      wilderness: [
+        `The wilderness stretches ${direction}ward`,
+        `Open terrain continues to the ${direction}`,
+        `A game trail leads ${direction}`,
+        `The land opens up to the ${direction}`,
+        `You can push through the brush ${direction}ward`,
+      ],
+      caves: [
+        `A dark tunnel continues ${direction}`,
+        `The cavern extends ${direction}ward`,
+        `A narrow passage leads ${direction}`,
+        `Echoes come from the ${direction}`,
+        `The cave branches ${direction}ward`,
+      ],
+      ruins: [
+        `Crumbling passages lead ${direction}`,
+        `Ancient stonework continues ${direction}ward`,
+        `A collapsed archway opens to the ${direction}`,
+        `Rubble-strewn corridors extend ${direction}`,
+        `Faded carvings mark the ${direction}ern passage`,
+      ],
+    };
+
+    const descriptions = biomeDescriptions[currentBiomeId] || biomeDescriptions.wilderness;
+    return descriptions[Math.floor(rng() * descriptions.length)];
   }
 
   private generateSettlementDescription(
@@ -659,11 +860,13 @@ export class ProceduralRoomService {
         const hasExitInDirection = resultExits.some((e) => e.direction === direction);
 
         if (!hasExitInDirection) {
-          // Add the return exit
+          // Add the return exit with contextual description
+          const exitSeed = this.generateSeed(x, y, z) + direction.length;
+          const description = this.generateExitDescription(x, y, z, adjX, adjY, adjZ, direction, exitSeed);
           resultExits.push({
             direction,
             destinationRoomId: adjRoomId,
-            description: `A path leading ${direction}`,
+            description,
           });
         }
       }
