@@ -16,7 +16,7 @@ export class CommandProcessor {
     private readonly skills: SkillSystem,
   ) {}
 
-  process(session: GameSession, command: GameCommand): void {
+  async process(session: GameSession, command: GameCommand): Promise<void> {
     // Commands available in any phase
     switch (command.type) {
       case CommandType.HELP:
@@ -30,7 +30,7 @@ export class CommandProcessor {
     // Phase-specific commands
     switch (session.phase) {
       case GamePhase.EXPLORATION:
-        this.processExploration(session, command);
+        await this.processExploration(session, command);
         break;
       case GamePhase.COMBAT:
         this.processCombat(session, command);
@@ -43,7 +43,7 @@ export class CommandProcessor {
     }
   }
 
-  private processExploration(session: GameSession, command: GameCommand): void {
+  private async processExploration(session: GameSession, command: GameCommand): Promise<void> {
     switch (command.type) {
       case CommandType.MOVE: {
         const payload = command.payload as { direction?: string; location?: string };
@@ -51,12 +51,12 @@ export class CommandProcessor {
           session.addMessage('Go where? Specify a direction or location.', 'system');
           return;
         }
-        this.movement.move(session, payload.direction, payload.location);
+        await this.movement.move(session, payload.direction, payload.location);
         break;
       }
 
       case CommandType.LOOK:
-        this.movement.look(session);
+        await this.movement.look(session);
         break;
 
       case CommandType.TAKE: {
@@ -65,7 +65,7 @@ export class CommandProcessor {
           session.addMessage('Take what?', 'system');
           return;
         }
-        this.inventory.take(session, itemId);
+        await this.inventory.take(session, itemId);
         break;
       }
 
@@ -115,7 +115,7 @@ export class CommandProcessor {
           session.addMessage('Gather what? Specify a resource node.', 'system');
           return;
         }
-        this.skills.gather(session, nodeId);
+        await this.skills.gather(session, nodeId);
         break;
       }
 
@@ -125,12 +125,12 @@ export class CommandProcessor {
           session.addMessage('Craft what? Specify a recipe name.', 'system');
           return;
         }
-        this.skills.craft(session, recipeId);
+        await this.skills.craft(session, recipeId);
         break;
       }
 
       case CommandType.RECIPES:
-        this.skills.showRecipes(session);
+        await this.skills.showRecipes(session);
         break;
 
       case CommandType.SKILLS:

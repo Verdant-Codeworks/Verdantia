@@ -1,7 +1,9 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Optional } from '@nestjs/common';
 import type { RoomDefinition, ItemDefinition, EnemyDefinition, SkillDefinition, ResourceNodeDefinition, RecipeDefinition } from '@verdantia/shared';
+import { isProcedural, parseCoords } from '@verdantia/shared';
 import * as path from 'path';
 import * as fs from 'fs';
+import { ProceduralRoomService } from './procedural-room.service';
 
 @Injectable()
 export class WorldLoaderService implements OnModuleInit {
@@ -13,6 +15,10 @@ export class WorldLoaderService implements OnModuleInit {
   private skills = new Map<string, SkillDefinition>();
   private resources = new Map<string, ResourceNodeDefinition>();
   private recipes = new Map<string, RecipeDefinition>();
+
+  constructor(
+    @Optional() private readonly proceduralRoomService?: ProceduralRoomService,
+  ) {}
 
   onModuleInit() {
     this.loadData();
@@ -70,7 +76,16 @@ export class WorldLoaderService implements OnModuleInit {
     this.logger.log(`Loaded ${this.recipes.size} recipes`);
   }
 
-  getRoom(id: string): RoomDefinition | undefined {
+  async getRoom(id: string): Promise<RoomDefinition | undefined> {
+    // Check if this is a procedural room
+    if (isProcedural(id) && this.proceduralRoomService) {
+      const coords = parseCoords(id);
+      if (coords) {
+        return await this.proceduralRoomService.getOrGenerateRoom(coords.x, coords.y, coords.z);
+      }
+    }
+
+    // Return static room
     return this.rooms.get(id);
   }
 

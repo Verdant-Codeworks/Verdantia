@@ -23,52 +23,52 @@ describe('MovementSystem', () => {
   // ── move ────────────────────────────────────────────────────────────
 
   describe('move', () => {
-    it('moves to valid direction and updates currentRoomId', () => {
+    it('moves to valid direction and updates currentRoomId', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter
-      const result = movement.move(session, 'north');
+      const result = await movement.move(session, 'north');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('village_square');
     });
 
-    it('adds room description messages after moving', () => {
+    it('adds room description messages after moving', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
-      movement.move(session, 'north');
+      await movement.move(session, 'north');
       const state = session.toGameState(TEST_ROOMS.village_square, {});
       const texts = state.messages.map((m) => m.text);
       expect(texts.some((t) => t.includes('Village Square'))).toBe(true);
     });
 
-    it('returns false for invalid direction', () => {
-      const result = movement.move(session, 'west');
+    it('returns false for invalid direction', async () => {
+      const result = await movement.move(session, 'west');
       expect(result).toBe(false);
       expect(session.currentRoomId).toBe('forest_clearing');
     });
 
-    it('adds error message for invalid direction', () => {
-      movement.move(session, 'west');
+    it('adds error message for invalid direction', async () => {
+      await movement.move(session, 'west');
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       expect(state.messages[0].text).toContain("can't go west");
     });
 
-    it('returns false when current room not found', () => {
+    it('returns false when current room not found', async () => {
       session.currentRoomId = 'nonexistent_room';
-      const result = movement.move(session, 'north');
+      const result = await movement.move(session, 'north');
       expect(result).toBe(false);
     });
 
-    it('returns false when destination room not found', () => {
+    it('returns false when destination room not found', async () => {
       // Make getRoom return undefined for the destination
-      mockWorldLoader.getRoom.mockImplementation((id: string) => {
+      mockWorldLoader.getRoom.mockImplementation(async (id: string) => {
         if (id === 'forest_clearing') return TEST_ROOMS.forest_clearing;
         return undefined;
       });
-      const result = movement.move(session, 'north');
+      const result = await movement.move(session, 'north');
       expect(result).toBe(false);
     });
 
-    it('is case-insensitive for direction matching', () => {
+    it('is case-insensitive for direction matching', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
-      const result = movement.move(session, 'NORTH');
+      const result = await movement.move(session, 'NORTH');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('village_square');
     });
@@ -77,39 +77,39 @@ describe('MovementSystem', () => {
   // ── Random Encounters ───────────────────────────────────────────────
 
   describe('random encounters', () => {
-    it('triggers encounter when random < ENCOUNTER_CHANCE and room has enemies', () => {
+    it('triggers encounter when random < ENCOUNTER_CHANCE and room has enemies', async () => {
       // Move to deep_forest (has enemies)
       vi.spyOn(Math, 'random')
         .mockReturnValueOnce(ENCOUNTER_CHANCE - 0.01) // triggers encounter
         .mockReturnValueOnce(0); // picks first enemy
-      movement.move(session, 'east');
+      await movement.move(session, 'east');
 
       expect(session.phase).toBe(GamePhase.COMBAT);
       expect(session.combat).not.toBeNull();
       expect(session.combat!.enemyId).toBe('forest_spider');
     });
 
-    it('does not trigger encounter when random >= ENCOUNTER_CHANCE', () => {
+    it('does not trigger encounter when random >= ENCOUNTER_CHANCE', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(ENCOUNTER_CHANCE + 0.01);
-      movement.move(session, 'east');
+      await movement.move(session, 'east');
 
       expect(session.phase).toBe(GamePhase.EXPLORATION);
       expect(session.combat).toBeNull();
     });
 
-    it('does not trigger encounter in rooms with no enemies', () => {
+    it('does not trigger encounter in rooms with no enemies', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0); // would trigger if enemies existed
-      movement.move(session, 'north'); // village_square has no enemies
+      await movement.move(session, 'north'); // village_square has no enemies
 
       expect(session.phase).toBe(GamePhase.EXPLORATION);
       expect(session.combat).toBeNull();
     });
 
-    it('selects a random enemy from the room enemy list', () => {
+    it('selects a random enemy from the room enemy list', async () => {
       vi.spyOn(Math, 'random')
         .mockReturnValueOnce(0.1) // triggers encounter
         .mockReturnValueOnce(0.9); // picks second enemy (wild_wolf)
-      movement.move(session, 'east');
+      await movement.move(session, 'east');
 
       expect(session.combat).not.toBeNull();
       expect(session.combat!.enemyId).toBe('wild_wolf');
@@ -119,48 +119,48 @@ describe('MovementSystem', () => {
   // ── look ────────────────────────────────────────────────────────────
 
   describe('look', () => {
-    it('shows room name and description', () => {
-      movement.look(session);
+    it('shows room name and description', async () => {
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const texts = state.messages.map((m) => m.text);
       expect(texts.some((t) => t.includes('Forest Clearing'))).toBe(true);
       expect(texts.some((t) => t.includes('sunlit clearing'))).toBe(true);
     });
 
-    it('shows available exits', () => {
-      movement.look(session);
+    it('shows available exits', async () => {
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const texts = state.messages.map((m) => m.text);
       expect(texts.some((t) => t.includes('north'))).toBe(true);
       expect(texts.some((t) => t.includes('east'))).toBe(true);
     });
 
-    it('shows items on the ground', () => {
-      movement.look(session);
+    it('shows items on the ground', async () => {
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const texts = state.messages.map((m) => m.text);
       expect(texts.some((t) => t.includes('Healing Herb'))).toBe(true);
     });
 
-    it('does not show removed items', () => {
+    it('does not show removed items', async () => {
       session.removeRoomItem('forest_clearing', 'healing_herb');
-      movement.look(session);
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const texts = state.messages.map((m) => m.text);
       // Should not have any "You see:" message since the only item was removed
       expect(texts.some((t) => t.includes('You see:'))).toBe(false);
     });
 
-    it('handles unknown room gracefully', () => {
+    it('handles unknown room gracefully', async () => {
       session.currentRoomId = 'nonexistent';
-      movement.look(session);
+      await movement.look(session);
       const state = session.toGameState({} as any, {});
       expect(state.messages[0].text).toContain('unknown place');
     });
 
-    it('shows item prices in shop rooms', () => {
+    it('shows item prices in shop rooms', async () => {
       session.currentRoomId = 'blacksmith';
-      movement.look(session);
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.blacksmith, {});
       const texts = state.messages.map((m) => m.text);
       const itemLine = texts.find((t) => t.includes('You see:'));
@@ -169,8 +169,8 @@ describe('MovementSystem', () => {
       expect(itemLine).toContain('Pickaxe (15g)');
     });
 
-    it('does not show prices in non-shop rooms', () => {
-      movement.look(session);
+    it('does not show prices in non-shop rooms', async () => {
+      await movement.look(session);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const texts = state.messages.map((m) => m.text);
       const itemLine = texts.find((t) => t.includes('You see:'));
@@ -217,33 +217,33 @@ describe('MovementSystem', () => {
   // ── Room Visited Tracking (Map Feature) ────────────────────────────────
 
   describe('room visited tracking', () => {
-    it('marks starting room as visited when look is called', () => {
+    it('marks starting room as visited when look is called', async () => {
       expect(session.hasVisitedRoom('forest_clearing')).toBe(false);
 
-      movement.look(session);
+      await movement.look(session);
 
       expect(session.hasVisitedRoom('forest_clearing')).toBe(true);
     });
 
-    it('marks new room as visited when moving', () => {
+    it('marks new room as visited when moving', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter
       expect(session.hasVisitedRoom('village_square')).toBe(false);
 
-      movement.move(session, 'north');
+      await movement.move(session, 'north');
 
       expect(session.hasVisitedRoom('village_square')).toBe(true);
     });
 
-    it('captures room name and description in visited snapshot', () => {
-      movement.look(session);
+    it('captures room name and description in visited snapshot', async () => {
+      await movement.look(session);
 
       const visited = session.visitedRooms['forest_clearing'];
       expect(visited.name).toBe('Forest Clearing');
       expect(visited.description).toContain('sunlit clearing');
     });
 
-    it('captures exits in visited snapshot', () => {
-      movement.look(session);
+    it('captures exits in visited snapshot', async () => {
+      await movement.look(session);
 
       const visited = session.visitedRooms['forest_clearing'];
       expect(visited.exits).toHaveLength(2);
@@ -251,33 +251,33 @@ describe('MovementSystem', () => {
       expect(visited.exits.some((e) => e.direction === 'east')).toBe(true);
     });
 
-    it('captures item names seen in room', () => {
-      movement.look(session);
+    it('captures item names seen in room', async () => {
+      await movement.look(session);
 
       const visited = session.visitedRooms['forest_clearing'];
       expect(visited.itemsSeen).toContain('Healing Herb');
     });
 
-    it('does not include items that were already taken', () => {
+    it('does not include items that were already taken', async () => {
       session.removeRoomItem('forest_clearing', 'healing_herb');
-      movement.look(session);
+      await movement.look(session);
 
       const visited = session.visitedRooms['forest_clearing'];
       expect(visited.itemsSeen).toEqual([]);
     });
 
-    it('captures enemy names that can spawn in room', () => {
+    it('captures enemy names that can spawn in room', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99); // no encounter
-      movement.move(session, 'east'); // deep_forest has enemies
+      await movement.move(session, 'east'); // deep_forest has enemies
 
       const visited = session.visitedRooms['deep_forest'];
       expect(visited.enemiesSeen).toContain('Forest Spider');
       expect(visited.enemiesSeen).toContain('Wild Wolf');
     });
 
-    it('does not duplicate enemy names', () => {
+    it('does not duplicate enemy names', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
-      movement.move(session, 'east');
+      await movement.move(session, 'east');
 
       const visited = session.visitedRooms['deep_forest'];
       // Each enemy name should appear only once
@@ -285,22 +285,22 @@ describe('MovementSystem', () => {
       expect(visited.enemiesSeen.length).toBe(uniqueNames.length);
     });
 
-    it('does not overwrite visited data on subsequent visits', () => {
-      movement.look(session);
+    it('does not overwrite visited data on subsequent visits', async () => {
+      await movement.look(session);
       const originalTimestamp = session.visitedRooms['forest_clearing'].firstVisited;
 
       // Remove an item and look again
       session.removeRoomItem('forest_clearing', 'healing_herb');
-      movement.look(session);
+      await movement.look(session);
 
       // Should still have the original itemsSeen
       expect(session.visitedRooms['forest_clearing'].itemsSeen).toContain('Healing Herb');
       expect(session.visitedRooms['forest_clearing'].firstVisited).toBe(originalTimestamp);
     });
 
-    it('records firstVisited timestamp', () => {
+    it('records firstVisited timestamp', async () => {
       const beforeTime = Date.now();
-      movement.look(session);
+      await movement.look(session);
       const afterTime = Date.now();
 
       const visited = session.visitedRooms['forest_clearing'];
@@ -308,19 +308,19 @@ describe('MovementSystem', () => {
       expect(visited.firstVisited).toBeLessThanOrEqual(afterTime);
     });
 
-    it('marks room as visited even when encounter triggers', () => {
+    it('marks room as visited even when encounter triggers', async () => {
       vi.spyOn(Math, 'random')
         .mockReturnValueOnce(0.01) // triggers encounter
         .mockReturnValueOnce(0); // picks first enemy
-      movement.move(session, 'east');
+      await movement.move(session, 'east');
 
       expect(session.hasVisitedRoom('deep_forest')).toBe(true);
       expect(session.phase).toBe(GamePhase.COMBAT);
     });
 
-    it('handles rooms with no items or enemies', () => {
+    it('handles rooms with no items or enemies', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
-      movement.move(session, 'north'); // village_square has no items/enemies
+      await movement.move(session, 'north'); // village_square has no items/enemies
 
       const visited = session.visitedRooms['village_square'];
       expect(visited.itemsSeen).toEqual([]);
@@ -331,35 +331,35 @@ describe('MovementSystem', () => {
   // ── Location-Based Navigation ────────────────────────────────────────
 
   describe('location-based navigation', () => {
-    it('moves to exact name match', () => {
+    it('moves to exact name match', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       // From forest_clearing, go to "Village Square"
-      const result = movement.move(session, undefined, 'Village Square');
+      const result = await movement.move(session, undefined, 'Village Square');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('village_square');
     });
 
-    it('moves to partial match (case-insensitive)', () => {
+    it('moves to partial match (case-insensitive)', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       // From forest_clearing, "village" should match "Village Square"
-      const result = movement.move(session, undefined, 'village');
+      const result = await movement.move(session, undefined, 'village');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('village_square');
     });
 
-    it('moves to word match ("blacksmith" matches "Blacksmith\'s Forge")', () => {
+    it('moves to word match ("blacksmith" matches "Blacksmith\'s Forge")', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       // First move to village_square
-      movement.move(session, 'north');
+      await movement.move(session, 'north');
       // From village_square, "blacksmith" should match "Blacksmith's Forge"
-      const result = movement.move(session, undefined, 'blacksmith');
+      const result = await movement.move(session, undefined, 'blacksmith');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('blacksmith');
     });
 
-    it('shows error when location not reachable from current room', () => {
+    it('shows error when location not reachable from current room', async () => {
       // From forest_clearing, can't reach blacksmith directly
-      const result = movement.move(session, undefined, 'blacksmith');
+      const result = await movement.move(session, undefined, 'blacksmith');
       expect(result).toBe(false);
       expect(session.currentRoomId).toBe('forest_clearing');
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
@@ -367,8 +367,8 @@ describe('MovementSystem', () => {
       expect(messages.some((t) => t.includes("can't get to"))).toBe(true);
     });
 
-    it('shows available destinations in error message', () => {
-      const result = movement.move(session, undefined, 'nonexistent');
+    it('shows available destinations in error message', async () => {
+      const result = await movement.move(session, undefined, 'nonexistent');
       expect(result).toBe(false);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       const messages = state.messages.map((m) => m.text);
@@ -377,47 +377,47 @@ describe('MovementSystem', () => {
       expect(messages.some((t) => t.includes('Deep Forest'))).toBe(true);
     });
 
-    it('direction-based movement still works when location not provided', () => {
+    it('direction-based movement still works when location not provided', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
-      const result = movement.move(session, 'north', undefined);
+      const result = await movement.move(session, 'north', undefined);
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('village_square');
     });
 
-    it('prefers exact match over partial match', () => {
+    it('prefers exact match over partial match', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       // From forest_clearing, "deep forest" should match exactly
-      const result = movement.move(session, undefined, 'deep forest');
+      const result = await movement.move(session, undefined, 'deep forest');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('deep_forest');
     });
 
-    it('prefers starts-with match over contains match', () => {
+    it('prefers starts-with match over contains match', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       // "deep" starts with "Deep Forest"
-      const result = movement.move(session, undefined, 'deep');
+      const result = await movement.move(session, undefined, 'deep');
       expect(result).toBe(true);
       expect(session.currentRoomId).toBe('deep_forest');
     });
 
-    it('triggers encounters when moving by location', () => {
+    it('triggers encounters when moving by location', async () => {
       vi.spyOn(Math, 'random')
         .mockReturnValueOnce(ENCOUNTER_CHANCE - 0.01) // triggers encounter
         .mockReturnValueOnce(0); // picks first enemy
-      movement.move(session, undefined, 'deep forest');
+      await movement.move(session, undefined, 'deep forest');
 
       expect(session.phase).toBe(GamePhase.COMBAT);
       expect(session.combat).not.toBeNull();
     });
 
-    it('shows error when no direction or location provided', () => {
-      const result = movement.move(session, undefined, undefined);
+    it('shows error when no direction or location provided', async () => {
+      const result = await movement.move(session, undefined, undefined);
       expect(result).toBe(false);
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       expect(state.messages[0].text).toContain('Go where?');
     });
 
-    it('shows ambiguous match error when multiple exits have same score', () => {
+    it('shows ambiguous match error when multiple exits have same score', async () => {
       // Create a room with two similarly-named destinations
       const ambiguousRoom = {
         id: 'test_hub',
@@ -450,7 +450,7 @@ describe('MovementSystem', () => {
         coordinates: { x: 0, y: 1 },
       };
 
-      mockWorldLoader.getRoom.mockImplementation((id: string) => {
+      mockWorldLoader.getRoom.mockImplementation(async (id: string) => {
         if (id === 'test_hub') return ambiguousRoom;
         if (id === 'forest_north') return forestNorth;
         if (id === 'forest_south') return forestSouth;
@@ -458,7 +458,7 @@ describe('MovementSystem', () => {
       });
 
       session.currentRoomId = 'test_hub';
-      const result = movement.move(session, undefined, 'forest path');
+      const result = await movement.move(session, undefined, 'forest path');
 
       expect(result).toBe(false);
       const state = session.toGameState(ambiguousRoom as any, {});

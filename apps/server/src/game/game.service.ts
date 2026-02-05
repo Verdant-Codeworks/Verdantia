@@ -44,9 +44,9 @@ export class GameService {
       session.addMessage('Type "help" to see available commands.\n', 'system');
 
       // Show initial room
-      this.movementSystem.look(session);
+      await this.movementSystem.look(session);
 
-      return this.buildGameState(session);
+      return await this.buildGameState(session);
     }
 
     // Handle save
@@ -54,13 +54,13 @@ export class GameService {
       const session = this.sessions.get(socketId);
       if (!session) return null;
       await this.handleSave(session);
-      return this.buildGameState(session);
+      return await this.buildGameState(session);
     }
 
     // Handle load
     if (command.type === CommandType.LOAD) {
       const playerName = (command.payload as { playerName?: string })?.playerName;
-      return this.handleLoad(socketId, playerName);
+      return await this.handleLoad(socketId, playerName);
     }
 
     const session = this.sessions.get(socketId);
@@ -69,8 +69,8 @@ export class GameService {
       return null;
     }
 
-    this.commandProcessor.process(session, command);
-    return this.buildGameState(session);
+    await this.commandProcessor.process(session, command);
+    return await this.buildGameState(session);
   }
 
   private async handleSave(session: GameSession): Promise<void> {
@@ -94,7 +94,7 @@ export class GameService {
       const tempSession = this.sessions.get(socketId);
       if (tempSession) {
         tempSession.addMessage('Load system is not available (no database configured).', 'error');
-        return this.buildGameState(tempSession);
+        return await this.buildGameState(tempSession);
       }
       return null;
     }
@@ -110,7 +110,7 @@ export class GameService {
     if (!gameData) {
       if (existingSession) {
         existingSession.addMessage('No saved game found.', 'error');
-        return this.buildGameState(existingSession);
+        return await this.buildGameState(existingSession);
       }
       return null;
     }
@@ -119,19 +119,19 @@ export class GameService {
     this.sessions.set(socketId, session);
 
     session.addMessage(`Game loaded. Welcome back, ${session.playerName}!`, 'system');
-    this.movementSystem.look(session);
+    await this.movementSystem.look(session);
 
-    return this.buildGameState(session);
+    return await this.buildGameState(session);
   }
 
-  getState(socketId: string): GameState | null {
+  async getState(socketId: string): Promise<GameState | null> {
     const session = this.sessions.get(socketId);
     if (!session) return null;
-    return this.buildGameState(session);
+    return await this.buildGameState(session);
   }
 
-  private buildGameState(session: GameSession): GameState {
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+  private async buildGameState(session: GameSession): Promise<GameState> {
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     if (!room) {
       throw new Error(`Room not found: ${session.currentRoomId}`);
     }

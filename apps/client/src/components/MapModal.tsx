@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useGameStore } from '../stores/game-store';
+import { useGameStore, isProcedural, parseCoords } from '../stores/game-store';
 import type { VisitedRoomSnapshot } from '@verdantia/shared';
 
 const CELL_SIZE = 48;
 const PADDING = 24;
+const PROCEDURAL_VIEWPORT_SIZE = 20; // Show 20x20 grid in procedural world
 
 export function MapModal() {
   const visitedRooms = useGameStore((s) => s.visitedRooms);
@@ -13,18 +14,60 @@ export function MapModal() {
   const setMapModalOpen = useGameStore((s) => s.setMapModalOpen);
 
   const [selectedRoom, setSelectedRoom] = useState<VisitedRoomSnapshot | null>(null);
+  const [viewportCenter, setViewportCenter] = useState({ x: 0, y: 0, z: 0 });
 
-  // Close on Escape key
+  // Check if we're in a procedural world
+  const isInProceduralWorld = currentRoomId && isProcedural(currentRoomId);
+
+  // Initialize viewport center when entering procedural world
+  useEffect(() => {
+    if (isInProceduralWorld && currentRoomId) {
+      const coords = parseCoords(currentRoomId);
+      if (coords) {
+        setViewportCenter({ x: coords.x, y: coords.y, z: coords.z });
+      }
+    } else {
+      // Reset to default when leaving procedural world
+      setViewportCenter({ x: 0, y: 0, z: 0 });
+    }
+  }, [isInProceduralWorld, currentRoomId]);
+
+  // Handle keyboard navigation (Escape to close, Arrow keys to pan in procedural world)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMapModalOpen) {
+      if (!isMapModalOpen) return;
+
+      if (e.key === 'Escape') {
         setMapModalOpen(false);
         setSelectedRoom(null);
+        return;
+      }
+
+      // Pan viewport with arrow keys in procedural world
+      if (isInProceduralWorld) {
+        switch (e.key) {
+          case 'ArrowUp':
+            e.preventDefault();
+            setViewportCenter((c) => ({ ...c, y: c.y - 1 }));
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            setViewportCenter((c) => ({ ...c, y: c.y + 1 }));
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            setViewportCenter((c) => ({ ...c, x: c.x - 1 }));
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            setViewportCenter((c) => ({ ...c, x: c.x + 1 }));
+            break;
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMapModalOpen, setMapModalOpen]);
+  }, [isMapModalOpen, setMapModalOpen, isInProceduralWorld, setSelectedRoom]);
 
   // Reset selected room when modal closes
   useEffect(() => {
@@ -38,9 +81,23 @@ export function MapModal() {
   }
 
   // Get visited room IDs with coordinates
-  const visitedWithCoords = Object.keys(visitedRooms).filter(
+  let visitedWithCoords = Object.keys(visitedRooms).filter(
     (roomId) => roomCoordinates[roomId]
   );
+
+  // Filter to viewport if in procedural world
+  if (isInProceduralWorld) {
+    visitedWithCoords = visitedWithCoords.filter((roomId) => {
+      if (!isProcedural(roomId)) return false;
+      const coords = parseCoords(roomId);
+      if (!coords) return false;
+      return (
+        Math.abs(coords.x - viewportCenter.x) <= PROCEDURAL_VIEWPORT_SIZE / 2 &&
+        Math.abs(coords.y - viewportCenter.y) <= PROCEDURAL_VIEWPORT_SIZE / 2 &&
+        coords.z === viewportCenter.z // Same floor
+      );
+    });
+  }
 
   if (visitedWithCoords.length === 0) {
     return (
@@ -60,11 +117,22 @@ export function MapModal() {
   }
 
   // Calculate bounds
-  const coords = visitedWithCoords.map((id) => roomCoordinates[id]);
-  const minX = Math.min(...coords.map((c) => c.x));
-  const maxX = Math.max(...coords.map((c) => c.x));
-  const minY = Math.min(...coords.map((c) => c.y));
-  const maxY = Math.max(...coords.map((c) => c.y));
+  let minX: number, maxX: number, minY: number, maxY: number;
+
+  if (isInProceduralWorld) {
+    // Fixed viewport in procedural world
+    minX = viewportCenter.x - PROCEDURAL_VIEWPORT_SIZE / 2;
+    maxX = viewportCenter.x + PROCEDURAL_VIEWPORT_SIZE / 2;
+    minY = viewportCenter.y - PROCEDURAL_VIEWPORT_SIZE / 2;
+    maxY = viewportCenter.y + PROCEDURAL_VIEWPORT_SIZE / 2;
+  } else {
+    // Dynamic bounds in static world
+    const coords = visitedWithCoords.map((id) => roomCoordinates[id]);
+    minX = Math.min(...coords.map((c) => c.x));
+    maxX = Math.max(...coords.map((c) => c.x));
+    minY = Math.min(...coords.map((c) => c.y));
+    maxY = Math.max(...coords.map((c) => c.y));
+  }
 
   const mapWidth = (maxX - minX + 1) * CELL_SIZE + PADDING * 2;
   const mapHeight = (maxY - minY + 1) * CELL_SIZE + PADDING * 2;
@@ -117,7 +185,16 @@ export function MapModal() {
         {/* Map section */}
         <div className="flex-1 p-4 overflow-auto">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-verdant-400">World Map</h2>
+            <div>
+              <h2 className="text-xl font-bold text-verdant-400">
+                {isInProceduralWorld ? 'Procedural World' : 'World Map'}
+              </h2>
+              {isInProceduralWorld && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Floor {viewportCenter.z} | Center: ({viewportCenter.x}, {viewportCenter.y})
+                </p>
+              )}
+            </div>
             <button
               onClick={() => setMapModalOpen(false)}
               className="text-gray-400 hover:text-white transition-colors"
@@ -145,6 +222,36 @@ export function MapModal() {
               height={Math.max(mapHeight, 200)}
               viewBox={`0 0 ${mapWidth} ${mapHeight}`}
             >
+              {/* Grid background for procedural world */}
+              {isInProceduralWorld && (
+                <g opacity={0.2}>
+                  {Array.from({ length: maxY - minY + 1 }, (_, i) => minY + i).map((y) => (
+                    <line
+                      key={`h-${y}`}
+                      x1={PADDING}
+                      y1={(y - minY) * CELL_SIZE + PADDING + CELL_SIZE / 2}
+                      x2={mapWidth - PADDING}
+                      y2={(y - minY) * CELL_SIZE + PADDING + CELL_SIZE / 2}
+                      stroke="#4b5563"
+                      strokeWidth={1}
+                      strokeDasharray="4 4"
+                    />
+                  ))}
+                  {Array.from({ length: maxX - minX + 1 }, (_, i) => minX + i).map((x) => (
+                    <line
+                      key={`v-${x}`}
+                      x1={(x - minX) * CELL_SIZE + PADDING + CELL_SIZE / 2}
+                      y1={PADDING}
+                      x2={(x - minX) * CELL_SIZE + PADDING + CELL_SIZE / 2}
+                      y2={mapHeight - PADDING}
+                      stroke="#4b5563"
+                      strokeWidth={1}
+                      strokeDasharray="4 4"
+                    />
+                  ))}
+                </g>
+              )}
+
               {/* Connections */}
               {connections.map((conn, i) => (
                 <line
@@ -186,6 +293,19 @@ export function MapModal() {
                     {isCurrent && (
                       <circle cx={pos.x} cy={pos.y} r={4} fill="#ffffff" />
                     )}
+                    {/* Show coordinates in procedural world */}
+                    {isInProceduralWorld && (
+                      <text
+                        x={pos.x}
+                        y={pos.y + 3}
+                        fontSize="10"
+                        fill="#9ca3af"
+                        textAnchor="middle"
+                        className="pointer-events-none select-none"
+                      >
+                        {coord.x},{coord.y}
+                      </text>
+                    )}
                     {/* Room name tooltip on hover */}
                     <title>{room.name}</title>
                   </g>
@@ -194,9 +314,64 @@ export function MapModal() {
             </svg>
           </div>
 
-          <p className="text-xs text-gray-500 mt-2">
-            Click a room to see details. Green = current location.
-          </p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-gray-500">
+              Click a room to see details. Green = current location.
+            </p>
+            {isInProceduralWorld && (
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-400">Pan:</p>
+                <div className="grid grid-cols-3 gap-1">
+                  <div className="col-start-2">
+                    <button
+                      onClick={() => setViewportCenter((c) => ({ ...c, y: c.y - 1 }))}
+                      className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs flex items-center justify-center transition-colors"
+                      title="Pan North"
+                    >
+                      ↑
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setViewportCenter((c) => ({ ...c, x: c.x - 1 }))}
+                    className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs flex items-center justify-center transition-colors"
+                    title="Pan West"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (currentRoomId) {
+                        const coords = parseCoords(currentRoomId);
+                        if (coords) {
+                          setViewportCenter({ x: coords.x, y: coords.y, z: coords.z });
+                        }
+                      }
+                    }}
+                    className="w-6 h-6 bg-verdant-700 hover:bg-verdant-600 rounded text-xs flex items-center justify-center transition-colors"
+                    title="Center on Player"
+                  >
+                    ●
+                  </button>
+                  <button
+                    onClick={() => setViewportCenter((c) => ({ ...c, x: c.x + 1 }))}
+                    className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs flex items-center justify-center transition-colors"
+                    title="Pan East"
+                  >
+                    →
+                  </button>
+                  <div className="col-start-2">
+                    <button
+                      onClick={() => setViewportCenter((c) => ({ ...c, y: c.y + 1 }))}
+                      className="w-6 h-6 bg-gray-700 hover:bg-gray-600 rounded text-xs flex items-center justify-center transition-colors"
+                      title="Pan South"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Details panel */}

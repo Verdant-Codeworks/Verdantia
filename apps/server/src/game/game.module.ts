@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
 import { WorldLoaderService } from './world/world-loader.service';
+import { DefinitionService } from './world/definition.service';
+import { ProceduralRoomService } from './world/procedural-room.service';
+import { WFCService } from './world/wfc/wfc.service';
 import { CommandProcessor } from './engine/command-processor';
 import { MovementSystem } from './engine/movement-system';
 import { CombatSystem } from './engine/combat-system';
@@ -17,6 +20,9 @@ const isDatabaseConfigured = !!(process.env.DATABASE_URL || process.env.DATABASE
     GameGateway,
     GameService,
     WorldLoaderService,
+    DefinitionService,
+    ProceduralRoomService,
+    WFCService,
     CommandProcessor,
     MovementSystem,
     CombatSystem,

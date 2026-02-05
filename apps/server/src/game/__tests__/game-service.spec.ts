@@ -157,13 +157,13 @@ describe('GameService', () => {
     it('returns GameState for known session', async () => {
       await service.processCommand('socket1', { type: CommandType.NEW_GAME, payload: { playerName: 'Hero' } });
 
-      const state = service.getState('socket1');
+      const state = await service.getState('socket1');
       expect(state).not.toBeNull();
       expect(state!.playerName).toBe('Hero');
     });
 
-    it('returns null for unknown session', () => {
-      const state = service.getState('unknown');
+    it('returns null for unknown session', async () => {
+      const state = await service.getState('unknown');
       expect(state).toBeNull();
     });
   });
@@ -182,7 +182,7 @@ describe('GameService', () => {
       });
       await service.processCommand('socket1', { type: CommandType.TAKE, payload: { itemId: 'healing_herb' } });
 
-      const state = service.getState('socket1');
+      const state = await service.getState('socket1');
       expect(state!.itemDefinitions).toHaveProperty('healing_herb');
     });
 
@@ -195,7 +195,7 @@ describe('GameService', () => {
       });
       await service.processCommand('socket1', { type: CommandType.EQUIP, payload: { itemId: 'iron_sword' } });
 
-      const state = service.getState('socket1');
+      const state = await service.getState('socket1');
       expect(state!.itemDefinitions).toHaveProperty('iron_sword');
     });
 
@@ -203,7 +203,7 @@ describe('GameService', () => {
       await service.processCommand('socket1', { type: CommandType.NEW_GAME, payload: { playerName: 'Hero' } });
 
       // forest_clearing has healing_herb
-      const state = service.getState('socket1');
+      const state = await service.getState('socket1');
       expect(state!.itemDefinitions).toHaveProperty('healing_herb');
     });
   });

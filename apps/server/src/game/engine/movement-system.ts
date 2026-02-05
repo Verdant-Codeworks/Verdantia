@@ -8,8 +8,8 @@ import type { EnemyDefinition, RoomDefinition } from '@verdantia/shared';
 export class MovementSystem {
   constructor(private readonly worldLoader: WorldLoaderService) {}
 
-  move(session: GameSession, direction?: string, location?: string): boolean {
-    const currentRoom = this.worldLoader.getRoom(session.currentRoomId);
+  async move(session: GameSession, direction?: string, location?: string): Promise<boolean> {
+    const currentRoom = await this.worldLoader.getRoom(session.currentRoomId);
     if (!currentRoom) {
       session.addMessage('Error: Current room not found.', 'error');
       return false;
@@ -17,7 +17,7 @@ export class MovementSystem {
 
     // Handle location-based navigation
     if (location) {
-      return this.moveToLocation(session, currentRoom, location);
+      return await this.moveToLocation(session, currentRoom, location);
     }
 
     // Handle direction-based navigation
@@ -35,14 +35,14 @@ export class MovementSystem {
       return false;
     }
 
-    return this.moveToRoom(session, exit.roomId);
+    return await this.moveToRoom(session, exit.roomId);
   }
 
-  private moveToLocation(
+  private async moveToLocation(
     session: GameSession,
     currentRoom: RoomDefinition,
     location: string,
-  ): boolean {
+  ): Promise<boolean> {
     const query = location.toLowerCase();
 
     // Score each exit based on how well its destination name matches the query
@@ -53,7 +53,7 @@ export class MovementSystem {
     }> = [];
 
     for (const exit of currentRoom.exits) {
-      const destRoom = this.worldLoader.getRoom(exit.roomId);
+      const destRoom = await this.worldLoader.getRoom(exit.roomId);
       if (!destRoom) continue;
 
       const score = this.matchLocationScore(destRoom.name, query);
@@ -63,8 +63,12 @@ export class MovementSystem {
     }
 
     if (scoredExits.length === 0) {
-      const availableDestinations = currentRoom.exits
-        .map((e) => this.worldLoader.getRoom(e.roomId)?.name)
+      const destinationPromises = currentRoom.exits.map(async (e) => {
+        const room = await this.worldLoader.getRoom(e.roomId);
+        return room?.name;
+      });
+      const destinations = await Promise.all(destinationPromises);
+      const availableDestinations = destinations
         .filter((name): name is string => !!name)
         .join(', ');
       session.addMessage(
@@ -92,7 +96,7 @@ export class MovementSystem {
       return false;
     }
 
-    return this.moveToRoom(session, topMatches[0].exit.roomId);
+    return await this.moveToRoom(session, topMatches[0].exit.roomId);
   }
 
   private matchLocationScore(roomName: string, query: string): number {
@@ -117,8 +121,8 @@ export class MovementSystem {
     return 0;
   }
 
-  private moveToRoom(session: GameSession, roomId: string): boolean {
-    const nextRoom = this.worldLoader.getRoom(roomId);
+  private async moveToRoom(session: GameSession, roomId: string): Promise<boolean> {
+    const nextRoom = await this.worldLoader.getRoom(roomId);
     if (!nextRoom) {
       session.addMessage('Error: Destination room not found.', 'error');
       return false;
@@ -126,7 +130,7 @@ export class MovementSystem {
 
     session.currentRoomId = nextRoom.id;
     session.clearGatheredNodesForRoom(nextRoom.id);
-    this.describeLook(session);
+    await this.describeLook(session);
 
     // Check for random encounter
     if (nextRoom.enemies && nextRoom.enemies.length > 0) {
@@ -138,12 +142,12 @@ export class MovementSystem {
     return true;
   }
 
-  look(session: GameSession): void {
-    this.describeLook(session);
+  async look(session: GameSession): Promise<void> {
+    await this.describeLook(session);
   }
 
-  private describeLook(session: GameSession): void {
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+  private async describeLook(session: GameSession): Promise<void> {
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     if (!room) {
       session.addMessage('You are in an unknown place.', 'error');
       return;

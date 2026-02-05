@@ -8,8 +8,8 @@ import type { ResourceNodeDefinition, RecipeDefinition } from '@verdantia/shared
 export class SkillSystem {
   constructor(private readonly worldLoader: WorldLoaderService) {}
 
-  gather(session: GameSession, nodeQuery: string): void {
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+  async gather(session: GameSession, nodeQuery: string): Promise<void> {
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     if (!room || !room.resourceNodes || room.resourceNodes.length === 0) {
       session.addMessage('There is nothing to gather here.', 'system');
       return;
@@ -78,7 +78,7 @@ export class SkillSystem {
     session.markNodeGathered(session.currentRoomId, nodeDef.id);
   }
 
-  craft(session: GameSession, recipeQuery: string): void {
+  async craft(session: GameSession, recipeQuery: string): Promise<void> {
     const recipe = this.findRecipe(recipeQuery);
     if (!recipe) {
       session.addMessage(`Unknown recipe: "${recipeQuery}". Type "recipes" to see available recipes.`, 'system');
@@ -86,7 +86,7 @@ export class SkillSystem {
     }
 
     // Check crafting station
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     if (!room || !room.tags || !room.tags.includes(recipe.craftingStation)) {
       session.addMessage(`You need to be at a ${recipe.craftingStation} to craft ${recipe.name}.`, 'system');
       return;
@@ -134,14 +134,14 @@ export class SkillSystem {
     this.awardSkillXp(session, recipe.skill, recipe.xpReward);
   }
 
-  showRecipes(session: GameSession): void {
+  async showRecipes(session: GameSession): Promise<void> {
     const allRecipes = this.worldLoader.getAllRecipes();
     if (allRecipes.size === 0) {
       session.addMessage('No recipes available.', 'system');
       return;
     }
 
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     const roomTags = room?.tags || [];
 
     session.addMessage('\n--- Recipes ---', 'skill');

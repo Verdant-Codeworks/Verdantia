@@ -83,9 +83,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(WS_EVENTS.CLIENT_REQUEST_STATE)
-  handleRequestState(@ConnectedSocket() client: Socket) {
+  async handleRequestState(@ConnectedSocket() client: Socket) {
     try {
-      const state = this.gameService.getState(client.id);
+      const state = await this.gameService.getState(client.id);
       if (state) {
         client.emit(WS_EVENTS.SERVER_STATE_UPDATE, { state });
       }

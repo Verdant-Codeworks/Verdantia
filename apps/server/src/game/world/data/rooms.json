@@ -150,14 +150,27 @@
   {
     "id": "village_gate",
     "name": "Village Gate",
-    "description": "A sturdy wooden gate marks the northern boundary of the village. Beyond it, a dirt road stretches into rolling hills dotted with farmsteads. Guards once manned the watchtowers flanking the gate, but they stand empty now. A notice warns travelers of dangers in the northern wilds.",
+    "description": "A sturdy wooden gate marks the northern boundary of the village. Beyond it, a dirt road stretches into rolling hills dotted with farmsteads. Guards once manned the watchtowers flanking the gate, but they stand empty now. A notice warns travelers of dangers in the northern wilds. To the east, a shimmering portal pulses with otherworldly energy.",
     "exits": [
       { "direction": "south", "roomId": "village_square", "description": "The village square is to the south." },
-      { "direction": "north", "roomId": "northern_road", "description": "The road continues north into the hills." }
+      { "direction": "north", "roomId": "northern_road", "description": "The road continues north into the hills." },
+      { "direction": "east", "roomId": "wilderness_portal", "description": "A shimmering portal beckons to the east." }
     ],
     "items": [],
     "enemies": [],
     "coordinates": { "x": 0, "y": -2 }
+  },
+  {
+    "id": "wilderness_portal",
+    "name": "Wilderness Portal",
+    "description": "You stand before a massive stone archway crackling with arcane energy. The portal within swirls with colors that hurt to look at directly. Ancient runes carved into the stonework seem to shift and rearrange themselves. Through the portal, you catch glimpses of an endless wilderness — forests, caves, ruins, and places yet unknown. This gateway leads to the procedurally generated wilderness beyond the known world.",
+    "exits": [
+      { "direction": "west", "roomId": "village_gate", "description": "The village gate is to the west." },
+      { "direction": "north", "roomId": "proc_0_0_0", "description": "Step through the portal into the wilderness." }
+    ],
+    "items": [],
+    "enemies": [],
+    "coordinates": { "x": 1, "y": -2 }
   },
   {
     "id": "northern_road",
