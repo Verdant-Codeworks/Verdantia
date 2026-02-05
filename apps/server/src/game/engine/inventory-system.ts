@@ -7,8 +7,8 @@ import { MAX_INVENTORY_SIZE } from '@verdantia/shared';
 export class InventorySystem {
   constructor(private readonly worldLoader: WorldLoaderService) {}
 
-  take(session: GameSession, itemQuery: string): boolean {
-    const room = this.worldLoader.getRoom(session.currentRoomId);
+  async take(session: GameSession, itemQuery: string): Promise<boolean> {
+    const room = await this.worldLoader.getRoom(session.currentRoomId);
     if (!room) return false;
 
     const availableItems = session.getAvailableRoomItems(room);

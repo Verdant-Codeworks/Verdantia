@@ -172,7 +172,7 @@ export const TEST_ENEMIES: Record<string, EnemyDefinition> = {
 
 export function createMockWorldLoader() {
   return {
-    getRoom: vi.fn((id: string) => TEST_ROOMS[id]),
+    getRoom: vi.fn(async (id: string) => TEST_ROOMS[id]),
     getItem: vi.fn((id: string) => TEST_ITEMS[id]),
     getEnemy: vi.fn((id: string) => TEST_ENEMIES[id]),
     getAllRooms: vi.fn(() => new Map(Object.entries(TEST_ROOMS))),

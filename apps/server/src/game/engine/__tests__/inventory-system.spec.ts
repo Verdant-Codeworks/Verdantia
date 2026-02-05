@@ -22,37 +22,37 @@ describe('InventorySystem', () => {
   // ── take ────────────────────────────────────────────────────────────
 
   describe('take', () => {
-    it('picks up item by exact ID', () => {
-      const result = inventory.take(session, 'healing_herb');
+    it('picks up item by exact ID', async () => {
+      const result = await inventory.take(session, 'healing_herb');
       expect(result).toBe(true);
       expect(session.hasItem('healing_herb')).toBe(true);
     });
 
-    it('picks up item by name (fuzzy match)', () => {
-      const result = inventory.take(session, 'healing');
+    it('picks up item by name (fuzzy match)', async () => {
+      const result = await inventory.take(session, 'healing');
       expect(result).toBe(true);
       expect(session.hasItem('healing_herb')).toBe(true);
     });
 
-    it('picks up item by partial ID match', () => {
-      const result = inventory.take(session, 'herb');
+    it('picks up item by partial ID match', async () => {
+      const result = await inventory.take(session, 'herb');
       expect(result).toBe(true);
       expect(session.hasItem('healing_herb')).toBe(true);
     });
 
-    it('marks item as removed from room', () => {
-      inventory.take(session, 'healing_herb');
+    it('marks item as removed from room', async () => {
+      await inventory.take(session, 'healing_herb');
       const removed = session.roomItemsRemoved['forest_clearing'];
       expect(removed).toContain('healing_herb');
     });
 
-    it('adds take message', () => {
-      inventory.take(session, 'healing_herb');
+    it('adds take message', async () => {
+      await inventory.take(session, 'healing_herb');
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       expect(state.messages[0].text).toContain('take the Healing Herb');
     });
 
-    it('converts misc items with value and no effect to gold', () => {
+    it('converts misc items with value and no effect to gold', async () => {
       // Move to a room with gold_ring
       session.currentRoomId = 'spider_den';
       // Mock the spider_den room
@@ -64,17 +64,17 @@ describe('InventorySystem', () => {
         items: ['gold_ring'],
         enemies: [],
       };
-      mockWorldLoader.getRoom.mockImplementation((id: string) => {
+      mockWorldLoader.getRoom.mockImplementation(async (id: string) => {
         if (id === 'spider_den') return spiderDen;
         return TEST_ROOMS[id];
       });
 
-      inventory.take(session, 'gold_ring');
+      await inventory.take(session, 'gold_ring');
       expect(session.gold).toBe(40); // gold_ring value
       expect(session.hasItem('gold_ring')).toBe(false); // removed from inventory, converted to gold
     });
 
-    it('shows gold message for misc conversion', () => {
+    it('shows gold message for misc conversion', async () => {
       session.currentRoomId = 'spider_den';
       const spiderDen = {
         id: 'spider_den',
@@ -84,97 +84,97 @@ describe('InventorySystem', () => {
         items: ['gold_ring'],
         enemies: [],
       };
-      mockWorldLoader.getRoom.mockImplementation((id: string) => {
+      mockWorldLoader.getRoom.mockImplementation(async (id: string) => {
         if (id === 'spider_den') return spiderDen;
         return TEST_ROOMS[id];
       });
 
-      inventory.take(session, 'gold_ring');
+      await inventory.take(session, 'gold_ring');
       const state = session.toGameState(spiderDen as any, {});
       expect(state.messages[0].text).toContain('+40 gold');
     });
 
-    it('returns false when item not found in room', () => {
-      const result = inventory.take(session, 'nonexistent_item');
+    it('returns false when item not found in room', async () => {
+      const result = await inventory.take(session, 'nonexistent_item');
       expect(result).toBe(false);
     });
 
-    it('shows error message when item not found', () => {
-      inventory.take(session, 'nonexistent_item');
+    it('shows error message when item not found', async () => {
+      await inventory.take(session, 'nonexistent_item');
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       expect(state.messages[0].text).toContain('nonexistent_item');
     });
 
-    it('returns false when room not found', () => {
+    it('returns false when room not found', async () => {
       session.currentRoomId = 'nonexistent_room';
-      const result = inventory.take(session, 'healing_herb');
+      const result = await inventory.take(session, 'healing_herb');
       expect(result).toBe(false);
     });
 
-    it('fails when inventory is full', () => {
+    it('fails when inventory is full', async () => {
       // Fill inventory to MAX_INVENTORY_SIZE
       for (let i = 0; i < MAX_INVENTORY_SIZE; i++) {
         session.inventory.push({ itemId: `item_${i}`, quantity: 1 });
       }
-      const result = inventory.take(session, 'healing_herb');
+      const result = await inventory.take(session, 'healing_herb');
       expect(result).toBe(false);
     });
 
-    it('shows full inventory message', () => {
+    it('shows full inventory message', async () => {
       for (let i = 0; i < MAX_INVENTORY_SIZE; i++) {
         session.inventory.push({ itemId: `item_${i}`, quantity: 1 });
       }
-      inventory.take(session, 'healing_herb');
+      await inventory.take(session, 'healing_herb');
       const state = session.toGameState(TEST_ROOMS.forest_clearing, {});
       expect(state.messages[0].text).toContain('inventory is full');
     });
 
-    it('cannot take an already-removed item', () => {
+    it('cannot take an already-removed item', async () => {
       session.removeRoomItem('forest_clearing', 'healing_herb');
-      const result = inventory.take(session, 'healing_herb');
+      const result = await inventory.take(session, 'healing_herb');
       expect(result).toBe(false);
     });
 
-    it('requires gold to take items from a shop', () => {
+    it('requires gold to take items from a shop', async () => {
       session.currentRoomId = 'blacksmith';
       session.gold = 100;
-      const result = inventory.take(session, 'iron_sword');
+      const result = await inventory.take(session, 'iron_sword');
       expect(result).toBe(true);
       expect(session.hasItem('iron_sword')).toBe(true);
       expect(session.gold).toBe(70); // 100 - 30 (iron_sword value)
     });
 
-    it('shows purchase message when buying from shop', () => {
+    it('shows purchase message when buying from shop', async () => {
       session.currentRoomId = 'blacksmith';
       session.gold = 100;
-      inventory.take(session, 'iron_sword');
+      await inventory.take(session, 'iron_sword');
       const state = session.toGameState(TEST_ROOMS.blacksmith, {});
       expect(state.messages[0].text).toContain('purchase');
       expect(state.messages[0].text).toContain('30 gold');
     });
 
-    it('prevents taking shop items without enough gold', () => {
+    it('prevents taking shop items without enough gold', async () => {
       session.currentRoomId = 'blacksmith';
       session.gold = 5;
-      const result = inventory.take(session, 'iron_sword');
+      const result = await inventory.take(session, 'iron_sword');
       expect(result).toBe(false);
       expect(session.hasItem('iron_sword')).toBe(false);
       expect(session.gold).toBe(5); // unchanged
     });
 
-    it('shows insufficient gold message for shop items', () => {
+    it('shows insufficient gold message for shop items', async () => {
       session.currentRoomId = 'blacksmith';
       session.gold = 5;
-      inventory.take(session, 'iron_sword');
+      await inventory.take(session, 'iron_sword');
       const state = session.toGameState(TEST_ROOMS.blacksmith, {});
       expect(state.messages[0].text).toContain('costs 30 gold');
       expect(state.messages[0].text).toContain('only have 5');
     });
 
-    it('does not convert tool-type items to gold', () => {
+    it('does not convert tool-type items to gold', async () => {
       session.currentRoomId = 'blacksmith';
       session.gold = 100;
-      inventory.take(session, 'pickaxe');
+      await inventory.take(session, 'pickaxe');
       expect(session.hasItem('pickaxe')).toBe(true);
       expect(session.gold).toBe(85); // 100 - 15 (pickaxe value, purchased)
     });

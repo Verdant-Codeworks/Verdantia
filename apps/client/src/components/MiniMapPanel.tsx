@@ -1,7 +1,8 @@
-import { useGameStore } from '../stores/game-store';
+import { useGameStore, isProcedural, parseCoords } from '../stores/game-store';
 
 const CELL_SIZE = 24;
 const PADDING = 12;
+const PROCEDURAL_RADIUS = 3; // Show 3 rooms in each direction
 
 export function MiniMapPanel() {
   const visitedRooms = useGameStore((s) => s.visitedRooms);
@@ -9,10 +10,34 @@ export function MiniMapPanel() {
   const currentRoomId = useGameStore((s) => s.currentRoomId);
   const setMapModalOpen = useGameStore((s) => s.setMapModalOpen);
 
+  // Check if we're in a procedural world
+  const isInProceduralWorld = currentRoomId && isProcedural(currentRoomId);
+
   // Get visited room IDs with coordinates
-  const visitedWithCoords = Object.keys(visitedRooms).filter(
+  let visitedWithCoords = Object.keys(visitedRooms).filter(
     (roomId) => roomCoordinates[roomId]
   );
+
+  if (visitedWithCoords.length === 0) {
+    return null;
+  }
+
+  // Filter to nearby rooms if in procedural world
+  if (isInProceduralWorld) {
+    const currentCoords = parseCoords(currentRoomId);
+    if (currentCoords) {
+      visitedWithCoords = visitedWithCoords.filter((roomId) => {
+        if (!isProcedural(roomId)) return false;
+        const coords = parseCoords(roomId);
+        if (!coords) return false;
+        return (
+          Math.abs(coords.x - currentCoords.x) <= PROCEDURAL_RADIUS &&
+          Math.abs(coords.y - currentCoords.y) <= PROCEDURAL_RADIUS &&
+          coords.z === currentCoords.z // Same floor
+        );
+      });
+    }
+  }
 
   if (visitedWithCoords.length === 0) {
     return null;

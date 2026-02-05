@@ -14,7 +14,11 @@ import type {
   RoomResourceNode,
   VisitedRoomSnapshot,
 } from '@verdantia/shared';
-import { GamePhase } from '@verdantia/shared';
+import {
+  GamePhase,
+  isProcedural,
+  parseCoords,
+} from '@verdantia/shared';
 
 interface GameStore {
   // Connection
@@ -47,6 +51,13 @@ interface GameStore {
   // Map modal state
   isMapModalOpen: boolean;
 
+  // Procedural world viewport
+  proceduralViewport: {
+    centerX: number;
+    centerY: number;
+    centerZ: number;
+  } | null;
+
   // Client-side accumulated message history
   messageHistory: NarrativeMessage[];
 
@@ -61,6 +72,9 @@ interface GameStore {
   setMapModalOpen: (open: boolean) => void;
   addCommandEcho: (commandText: string) => void;
 }
+
+// Re-export procedural helpers from shared package for convenience
+export { isProcedural, parseCoords } from '@verdantia/shared';
 
 export const useGameStore = create<GameStore>((set) => ({
   sessionId: null,
@@ -89,6 +103,8 @@ export const useGameStore = create<GameStore>((set) => ({
 
   isMapModalOpen: false,
 
+  proceduralViewport: null,
+
   messageHistory: [],
 
   setConnected: (sessionId, hasSavedGame) =>
@@ -98,25 +114,41 @@ export const useGameStore = create<GameStore>((set) => ({
     set({ isConnected: false, sessionId: null }),
 
   applyStateUpdate: (state) =>
-    set((prev) => ({
-      phase: state.phase,
-      playerName: state.playerName,
-      stats: state.stats,
-      currentRoomId: state.currentRoomId,
-      currentRoom: state.currentRoom,
-      inventory: state.inventory,
-      equipment: state.equipment,
-      combat: state.combat,
-      gold: state.gold,
-      itemDefinitions: { ...prev.itemDefinitions, ...state.itemDefinitions },
-      skills: state.skills,
-      skillDefinitions: { ...prev.skillDefinitions, ...state.skillDefinitions },
-      currentRoomResources: state.currentRoomResources,
-      visitedRooms: { ...prev.visitedRooms, ...state.visitedRooms },
-      roomCoordinates: state.roomCoordinates,
-      messageHistory: [...prev.messageHistory, ...state.messages],
-      isProcessingCommand: false,
-    })),
+    set((prev) => {
+      // Update procedural viewport if entering a procedural room
+      let newViewport = prev.proceduralViewport;
+      if (state.currentRoomId && isProcedural(state.currentRoomId)) {
+        const coords = parseCoords(state.currentRoomId);
+        if (coords) {
+          newViewport = {
+            centerX: coords.x,
+            centerY: coords.y,
+            centerZ: coords.z,
+          };
+        }
+      }
+
+      return {
+        phase: state.phase,
+        playerName: state.playerName,
+        stats: state.stats,
+        currentRoomId: state.currentRoomId,
+        currentRoom: state.currentRoom,
+        inventory: state.inventory,
+        equipment: state.equipment,
+        combat: state.combat,
+        gold: state.gold,
+        itemDefinitions: { ...prev.itemDefinitions, ...state.itemDefinitions },
+        skills: state.skills,
+        skillDefinitions: { ...prev.skillDefinitions, ...state.skillDefinitions },
+        currentRoomResources: state.currentRoomResources,
+        visitedRooms: { ...prev.visitedRooms, ...state.visitedRooms },
+        roomCoordinates: { ...prev.roomCoordinates, ...state.roomCoordinates },
+        proceduralViewport: newViewport,
+        messageHistory: [...prev.messageHistory, ...state.messages],
+        isProcessingCommand: false,
+      };
+    }),
 
   setProcessing: (processing) =>
     set({ isProcessingCommand: processing }),
@@ -140,6 +172,7 @@ export const useGameStore = create<GameStore>((set) => ({
       visitedRooms: {},
       roomCoordinates: {},
       isMapModalOpen: false,
+      proceduralViewport: null,
     }),
 
   setInviteCode: (code) =>
