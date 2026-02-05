@@ -1,0 +1,11 @@
+{
+  "settlement_entrance": {
+    "template": "You {$stand at|arrive at|approach} the {settlement.size} {settlement.type} of {settlement.name}. {?settlement.problem:{$Worried villagers|Anxious townsfolk} speak in hushed tones about {settlement.problem.shortDesc}.|The settlement appears peaceful.}"
+  },
+  "settlement_square": {
+    "template": "The {$bustling|quiet|modest} {?settlement.size === 'city':plaza|square} of {settlement.name} {$spreads|opens|extends} before you. {@settlement_atmosphere}"
+  },
+  "settlement_atmosphere": {
+    "template": "{?settlement.economy.includes('trading'):Merchants call out their wares from colorful stalls.|}{?settlement.economy.includes('farming'):The smell of fresh hay drifts from nearby barns.|}"
+  }
+}
