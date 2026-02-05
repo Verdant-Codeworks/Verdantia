@@ -161,12 +161,10 @@ export class MovementSystem {
 
     // Show exits
     if (room.exits.length > 0) {
-      const exitDescriptions = room.exits
-        .map((e) => e.description || `${e.direction}`)
-        .join(' ');
-      session.addMessage(`\nExits: ${room.exits.map((e) => e.direction).join(', ')}`, 'system');
-      if (room.exits.some((e) => e.description)) {
-        session.addMessage(exitDescriptions);
+      session.addMessage(`\nExits:`, 'system');
+      for (const exit of room.exits) {
+        const desc = exit.description || exit.direction;
+        session.addMessage(`  ${exit.direction}: ${desc}`, 'system');
       }
     }
 

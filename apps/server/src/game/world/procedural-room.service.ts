@@ -127,7 +127,14 @@ export class ProceduralRoomService {
     const description = this.selectRandomSeeded(biome.descriptionTemplates, rng);
 
     // Generate exits using seeded RNG
-    const exits = this.wfcService.generateExits(x, y, z, biome, adjacentRooms, rng);
+    let exits = this.wfcService.generateExits(x, y, z, biome, adjacentRooms, rng);
+
+    // Ensure bidirectional exits: if an adjacent cached room has an exit to this room,
+    // we must have a return exit to maintain consistency
+    exits = this.ensureBidirectionalExits(x, y, z, exits);
+
+    // Add contextual descriptions to exits
+    exits = this.addExitDescriptions(x, y, z, exits, selectedBiomeId, seed);
 
     // Select room contents
     const items = await this.selectItems(selectedBiomeId, difficulty, seed);
@@ -286,14 +293,193 @@ export class ProceduralRoomService {
   }
 
   private generateSettlementExits(x: number, y: number, z: number) {
-    const exits = [
-      { direction: 'north', destinationRoomId: makeRoomId(x, y - 1, z), description: 'A road leading north' },
-      { direction: 'south', destinationRoomId: makeRoomId(x, y + 1, z), description: 'A road leading south' },
-      { direction: 'east', destinationRoomId: makeRoomId(x + 1, y, z), description: 'A road leading east' },
-      { direction: 'west', destinationRoomId: makeRoomId(x - 1, y, z), description: 'A road leading west' },
+    const seed = this.generateSeed(x, y, z);
+    const directions = [
+      { dir: 'north', dx: 0, dy: -1 },
+      { dir: 'south', dx: 0, dy: 1 },
+      { dir: 'east', dx: 1, dy: 0 },
+      { dir: 'west', dx: -1, dy: 0 },
     ];
 
+    const exits = directions.map(({ dir, dx, dy }, index) => {
+      const destX = x + dx;
+      const destY = y + dy;
+      const destRoomId = makeRoomId(destX, destY, z);
+      const description = this.generateExitDescription(x, y, z, destX, destY, z, dir, seed + index);
+
+      return {
+        direction: dir,
+        destinationRoomId: destRoomId,
+        description,
+      };
+    });
+
     return exits;
+  }
+
+  /**
+   * Generate a contextual exit description based on what's actually in that direction.
+   */
+  private generateExitDescription(
+    fromX: number,
+    fromY: number,
+    fromZ: number,
+    toX: number,
+    toY: number,
+    toZ: number,
+    direction: string,
+    seed: number,
+  ): string {
+    // Check if destination is a settlement
+    const destIsSettlement = this.worldRegionService.isSettlementLocation(toX, toY, toZ);
+    const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(toX, toY, toZ) : null;
+
+    // Check if destination room is already cached (we know what's there)
+    const destRoomId = makeRoomId(toX, toY, toZ);
+    const cachedRoom = this.roomCache.get(destRoomId);
+
+    // Generate description based on what's actually there
+    if (destIsSettlement && destSize) {
+      // Generate the settlement name deterministically to preview it
+      const settlementSeed = this.generateSeed(toX, toY, toZ);
+      const settlementName = cachedRoom?.name || this.previewSettlementName(toX, toY, toZ, settlementSeed);
+      return `To the ${direction} lies ${settlementName}, a ${destSize}`;
+    }
+
+    if (cachedRoom) {
+      // We've been there - show its name
+      return `${cachedRoom.name} lies to the ${direction}`;
+    }
+
+    // Unknown wilderness - give a hint about the terrain
+    return `Unexplored wilderness to the ${direction}`;
+  }
+
+  /**
+   * Preview a settlement name without fully generating the settlement.
+   * Uses the same logic as SettlementGeneratorService for consistency.
+   */
+  private previewSettlementName(x: number, y: number, z: number, seed: number): string {
+    // Simple name generation matching the settlement generator's approach
+    const rng = this.seededRandom(seed);
+
+    const prefixes = ['North', 'South', 'East', 'West', 'Old', 'New', 'Fort', 'High', 'Low'];
+    const roots = ['haven', 'ford', 'bridge', 'dale', 'vale', 'brook', 'field', 'wood', 'stone', 'mill'];
+    const suffixes = ['ton', 'ville', 'bury', 'ham', 'stead', ''];
+
+    const usePrefix = rng() < 0.4;
+    const useSuffix = rng() < 0.5;
+
+    let name = '';
+    if (usePrefix) {
+      name = prefixes[Math.floor(rng() * prefixes.length)] + ' ';
+    }
+
+    const root = roots[Math.floor(rng() * roots.length)];
+    name += root.charAt(0).toUpperCase() + root.slice(1);
+
+    if (useSuffix) {
+      name += suffixes[Math.floor(rng() * suffixes.length)];
+    }
+
+    return name;
+  }
+
+  /**
+   * Add biome-aware descriptions to wilderness exits.
+   */
+  private addExitDescriptions(
+    x: number,
+    y: number,
+    z: number,
+    exits: Array<{ direction: string; destinationRoomId?: string; description?: string }>,
+    currentBiomeId: string,
+    seed: number,
+  ): Array<{ direction: string; destinationRoomId?: string; description?: string }> {
+    const directionOffsets: Record<string, { dx: number; dy: number; dz: number }> = {
+      north: { dx: 0, dy: -1, dz: 0 },
+      south: { dx: 0, dy: 1, dz: 0 },
+      east: { dx: 1, dy: 0, dz: 0 },
+      west: { dx: -1, dy: 0, dz: 0 },
+      up: { dx: 0, dy: 0, dz: 1 },
+      down: { dx: 0, dy: 0, dz: -1 },
+    };
+
+    return exits.map((exit, index) => {
+      // If exit already has a good description, keep it
+      if (exit.description && !exit.description.includes('A path leading')) {
+        return exit;
+      }
+
+      const offset = directionOffsets[exit.direction];
+      if (!offset) {
+        return exit;
+      }
+
+      const destX = x + offset.dx;
+      const destY = y + offset.dy;
+      const destZ = z + offset.dz;
+
+      // Generate contextual description
+      const description = this.generateWildernessExitDescription(
+        exit.direction,
+        currentBiomeId,
+        destX,
+        destY,
+        destZ,
+        seed + index,
+      );
+
+      return { ...exit, description };
+    });
+  }
+
+  /**
+   * Generate a description for a wilderness exit based on biome and destination.
+   */
+  private generateWildernessExitDescription(
+    direction: string,
+    currentBiomeId: string,
+    destX: number,
+    destY: number,
+    destZ: number,
+    seed: number,
+  ): string {
+    // Check if destination is a settlement
+    const destIsSettlement = this.worldRegionService.isSettlementLocation(destX, destY, destZ);
+    const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(destX, destY, destZ) : null;
+
+    // Check if destination room is already cached
+    const destRoomId = makeRoomId(destX, destY, destZ);
+    const cachedRoom = this.roomCache.get(destRoomId);
+
+    if (destIsSettlement && destSize) {
+      const settlementSeed = this.generateSeed(destX, destY, destZ);
+      const settlementName = cachedRoom?.name || this.previewSettlementName(destX, destY, destZ, settlementSeed);
+      return `${settlementName} (${destSize}) to the ${direction}`;
+    }
+
+    if (cachedRoom) {
+      return `${cachedRoom.name} to the ${direction}`;
+    }
+
+    // Handle vertical exits specially
+    if (direction === 'up') {
+      return 'A passage leads upward';
+    }
+
+    if (direction === 'down') {
+      return 'A passage descends into darkness';
+    }
+
+    // Unknown wilderness - brief hint based on current biome
+    const biomeHints: Record<string, string> = {
+      wilderness: `Wilderness to the ${direction}`,
+      caves: `Dark tunnels to the ${direction}`,
+      ruins: `More ruins to the ${direction}`,
+    };
+
+    return biomeHints[currentBiomeId] || `Unexplored terrain to the ${direction}`;
   }
 
   private generateSettlementDescription(
@@ -608,6 +794,66 @@ export class ProceduralRoomService {
       state = (state * 1664525 + 1013904223) % 4294967296;
       return state / 4294967296;
     };
+  }
+
+  /**
+   * Ensure bidirectional exits by checking if adjacent cached rooms have exits pointing to this room.
+   * If an adjacent room has an exit to us, we must have a return exit to maintain navigation consistency.
+   */
+  private ensureBidirectionalExits(
+    x: number,
+    y: number,
+    z: number,
+    exits: Array<{ direction: string; destinationRoomId?: string; description?: string }>,
+  ): Array<{ direction: string; destinationRoomId?: string; description?: string }> {
+    const directionOffsets: Record<string, { dx: number; dy: number; dz: number; opposite: string }> = {
+      north: { dx: 0, dy: -1, dz: 0, opposite: 'south' },
+      south: { dx: 0, dy: 1, dz: 0, opposite: 'north' },
+      east: { dx: 1, dy: 0, dz: 0, opposite: 'west' },
+      west: { dx: -1, dy: 0, dz: 0, opposite: 'east' },
+      up: { dx: 0, dy: 0, dz: 1, opposite: 'down' },
+      down: { dx: 0, dy: 0, dz: -1, opposite: 'up' },
+    };
+
+    const currentRoomId = makeRoomId(x, y, z);
+    const resultExits = [...exits];
+
+    // Check each direction for adjacent cached rooms
+    for (const [direction, { dx, dy, dz, opposite }] of Object.entries(directionOffsets)) {
+      const adjX = x + dx;
+      const adjY = y + dy;
+      const adjZ = z + dz;
+      const adjRoomId = makeRoomId(adjX, adjY, adjZ);
+
+      // Check if this adjacent room is in the cache
+      const cachedRoom = this.roomCache.get(adjRoomId);
+      if (!cachedRoom) {
+        continue;
+      }
+
+      // Check if the cached room has an exit pointing to the current room
+      const hasExitToUs = cachedRoom.exits.some(
+        (exit) => exit.roomId === currentRoomId || exit.direction === opposite,
+      );
+
+      if (hasExitToUs) {
+        // Check if we already have an exit in this direction
+        const hasExitInDirection = resultExits.some((e) => e.direction === direction);
+
+        if (!hasExitInDirection) {
+          // Add the return exit with contextual description
+          const exitSeed = this.generateSeed(x, y, z) + direction.length;
+          const description = this.generateExitDescription(x, y, z, adjX, adjY, adjZ, direction, exitSeed);
+          resultExits.push({
+            direction,
+            destinationRoomId: adjRoomId,
+            description,
+          });
+        }
+      }
+    }
+
+    return resultExits;
   }
 
   private async buildRoomDefinition(room: ProceduralRoom): Promise<CurrentRoomData> {

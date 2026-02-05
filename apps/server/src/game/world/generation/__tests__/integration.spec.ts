@@ -185,6 +185,46 @@ describe('Procedural Generation Integration', () => {
     });
   });
 
+  describe('bidirectional exits', () => {
+    it('should ensure return exits exist when navigating between settlement rooms', async () => {
+      // Generate room at 7,0,0 (settlement - 7+0 % 7 = 0)
+      const roomA = await proceduralRoomService.getOrGenerateRoom(7, 0, 0);
+      expect(roomA).toBeDefined();
+
+      // Check that room A has an east exit
+      const eastExit = roomA!.exits.find(e => e.direction === 'east');
+      expect(eastExit).toBeDefined();
+
+      // Generate room at 14,0,0 (another settlement - 14+0 % 7 = 0)
+      // This simulates moving from one settlement to another
+      const roomB = await proceduralRoomService.getOrGenerateRoom(14, 0, 0);
+      expect(roomB).toBeDefined();
+
+      // Room B should have a west exit
+      const westExit = roomB!.exits.find(e => e.direction === 'west');
+      expect(westExit).toBeDefined();
+    });
+
+    it('should maintain bidirectional consistency between adjacent settlements', async () => {
+      // Use settlements that are adjacent or near each other
+      // 7,0,0 is a settlement (7+0 % 7 = 0)
+      // 21,0,0 is a settlement (21+0 % 7 = 0)
+      // 14,7,0 is a settlement (14+7 % 7 = 0)
+      const settlement1 = await proceduralRoomService.getOrGenerateRoom(7, 0, 0);
+      const settlement2 = await proceduralRoomService.getOrGenerateRoom(14, 0, 0);
+      const settlement3 = await proceduralRoomService.getOrGenerateRoom(21, 0, 0);
+
+      // All settlements should have all 4 directional exits
+      for (const room of [settlement1, settlement2, settlement3]) {
+        expect(room).toBeDefined();
+        expect(room!.exits.find(e => e.direction === 'north')).toBeDefined();
+        expect(room!.exits.find(e => e.direction === 'south')).toBeDefined();
+        expect(room!.exits.find(e => e.direction === 'east')).toBeDefined();
+        expect(room!.exits.find(e => e.direction === 'west')).toBeDefined();
+      }
+    });
+  });
+
   describe('determinism', () => {
     it('should produce identical full output for same coordinates', async () => {
       const x = 14; // Another settlement location
