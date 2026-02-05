@@ -39,6 +39,20 @@ export class WFCService {
     z: number,
     adjacentRooms: AdjacentRoom[],
   ): Promise<string[]> {
+    // Vertical levels (z != 0) must match the biome of the vertically adjacent room
+    // This ensures location continuity - going "down" from a cave stays in caves
+    if (z !== 0) {
+      // Find the room we came from vertically (same x,y but adjacent z)
+      const verticalNeighbor = adjacentRooms.find(
+        r => r.x === x && r.y === y && (r.z === z + 1 || r.z === z - 1)
+      );
+      if (verticalNeighbor) {
+        return [verticalNeighbor.biomeId];
+      }
+      // Fallback to caves if no vertical neighbor found (shouldn't happen normally)
+      return ['caves'];
+    }
+
     if (adjacentRooms.length === 0) {
       // No constraints, return all biomes
       if (!this.em) {
