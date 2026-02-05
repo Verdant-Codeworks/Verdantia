@@ -36,7 +36,7 @@ export interface CombatState {
 export interface NarrativeMessage {
   id: string;
   text: string;
-  type: 'narrative' | 'combat' | 'system' | 'error' | 'loot' | 'levelup' | 'skill';
+  type: 'narrative' | 'combat' | 'system' | 'error' | 'loot' | 'levelup' | 'skill' | 'command';
   timestamp: number;
 }
 

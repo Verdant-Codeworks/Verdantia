@@ -59,6 +59,7 @@ interface GameStore {
   setInviteCode: (code: string | null) => void;
   setAuthError: (error: string | null) => void;
   setMapModalOpen: (open: boolean) => void;
+  addCommandEcho: (commandText: string) => void;
 }
 
 export const useGameStore = create<GameStore>((set) => ({
@@ -149,4 +150,17 @@ export const useGameStore = create<GameStore>((set) => ({
 
   setMapModalOpen: (open) =>
     set({ isMapModalOpen: open }),
+
+  addCommandEcho: (commandText) =>
+    set((prev) => ({
+      messageHistory: [
+        ...prev.messageHistory,
+        {
+          id: `cmd-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          text: `> ${commandText}`,
+          type: 'command' as const,
+          timestamp: Date.now(),
+        },
+      ],
+    })),
 }));

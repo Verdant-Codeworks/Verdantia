@@ -10,6 +10,7 @@ const messageColors: Record<NarrativeMessage['type'], string> = {
   loot: 'text-yellow-300',
   levelup: 'text-purple-300',
   skill: 'text-cyan-300',
+  command: 'text-gray-400 italic',
 };
 
 export function NarrativeOutput() {
