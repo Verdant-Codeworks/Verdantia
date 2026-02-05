@@ -93,3 +93,40 @@ export interface Equipment {
   weapon?: string; // item ID
   armor?: string; // item ID
 }
+
+// Procedural generation types for client-side display
+
+export interface SettlementInfo {
+  id: string;
+  name: string;
+  size: 'hamlet' | 'village' | 'town' | 'city';
+  population: number;
+  culture: string;
+  problemSummary?: string;  // Short description of current problem
+}
+
+export interface NPCInfo {
+  id: string;
+  name: string;
+  role: string;
+  greeting: string;
+  location?: string;  // Building name
+}
+
+export interface BuildingInfo {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  hasShop: boolean;
+}
+
+export interface QuestInfo {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  giverName: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  status: 'available' | 'active' | 'completed' | 'failed';
+}

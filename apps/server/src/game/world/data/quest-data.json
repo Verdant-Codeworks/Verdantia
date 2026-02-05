@@ -1,0 +1,370 @@
+{
+  "questTemplates": {
+    "bandit_raids": {
+      "name": [
+        "The {$Bandit|Highwayman|Outlaw} Problem",
+        "Clear the {$Northern|Southern|Eastern|Western} Road",
+        "{$Bandit|Outlaw} Menace"
+      ],
+      "type": "kill",
+      "description": [
+        "The people of {settlement.name} are plagued by bandits. {giverNpc.name} needs someone to deal with the threat.",
+        "Bandits have been raiding {settlement.name} for weeks. {giverNpc.name} asks you to put an end to it.",
+        "{giverNpc.name} says the bandits are terrorizing the roads around {settlement.name}. Someone must stop them."
+      ],
+      "objectives": [
+        { "type": "find", "target": "bandit_camp", "description": "Find the bandit camp" },
+        { "type": "kill", "target": "bandit_leader", "description": "Defeat the bandit leader" }
+      ],
+      "difficulty": "medium"
+    },
+    "monster_threat": {
+      "name": [
+        "Hunt the {$Beast|Monster|Creature}",
+        "The {$Beast|Monster|Creature} Menace",
+        "{$Slay|Kill|Defeat} the {$Beast|Monster|Creature}"
+      ],
+      "type": "kill",
+      "description": [
+        "A {$dangerous beast|vicious monster|terrifying creature} has been terrorizing {settlement.name}. {giverNpc.name} asks you to hunt it down.",
+        "The people of {settlement.name} live in fear of a {$beast|monster|creature}. {giverNpc.name} begs you to slay it.",
+        "{giverNpc.name} tells you a {$beast|monster|creature} has killed several people. It must be stopped."
+      ],
+      "objectives": [
+        { "type": "find", "target": "monster_lair", "description": "Track the beast to its lair" },
+        { "type": "kill", "target": "monster", "description": "Slay the beast" }
+      ],
+      "difficulty": "hard"
+    },
+    "missing_persons": {
+      "name": [
+        "The Missing {$Merchant|Traveler|Child}",
+        "Search for {$the Lost|the Missing}",
+        "Find {$the Lost One|the Missing Person}"
+      ],
+      "type": "rescue",
+      "description": [
+        "Someone has gone missing near {settlement.name}. {giverNpc.name} is desperate to find them.",
+        "{giverNpc.name} fears the worst - someone close to them hasn't returned. Will you search for them?",
+        "A {$merchant|traveler|villager} vanished days ago. {giverNpc.name} asks you to investigate their disappearance."
+      ],
+      "objectives": [
+        { "type": "find", "target": "missing_person", "description": "Search for clues about the missing person" },
+        { "type": "reach", "target": "rescue_location", "description": "Find where they're being held" },
+        { "type": "protect", "target": "missing_person", "description": "Rescue and escort them to safety" }
+      ],
+      "difficulty": "medium"
+    },
+    "plague": {
+      "name": [
+        "Cure for {settlement.name}",
+        "The Healing Herbs",
+        "{$Find|Gather} the Remedy"
+      ],
+      "type": "fetch",
+      "description": [
+        "A plague has struck {settlement.name}. {giverNpc.name} needs rare herbs to create a cure.",
+        "The village healer, {giverNpc.name}, desperately needs healing herbs for a medicine. Many lives depend on it.",
+        "{giverNpc.name} says only rare herbs can cure the sickness spreading through {settlement.name}."
+      ],
+      "objectives": [
+        { "type": "collect", "target": "healing_herb", "quantity": 5, "description": "Gather 5 healing herbs" },
+        { "type": "talk", "target": "healer", "description": "Return the herbs to the healer" }
+      ],
+      "difficulty": "easy"
+    },
+    "famine": {
+      "name": [
+        "{$Food|Supplies} for {settlement.name}",
+        "The {$Hunger|Famine}",
+        "Deliver {$Food|Supplies}"
+      ],
+      "type": "deliver",
+      "description": [
+        "{settlement.name} is suffering from famine. {giverNpc.name} needs you to bring food supplies from a nearby settlement.",
+        "The crops have failed and people are starving. {giverNpc.name} asks you to fetch supplies before it's too late.",
+        "{giverNpc.name} begs you to bring food from {$nearby villages|the next town} - {settlement.name} won't last much longer."
+      ],
+      "objectives": [
+        { "type": "reach", "target": "supply_settlement", "description": "Travel to a nearby settlement" },
+        { "type": "collect", "target": "food_supplies", "quantity": 10, "description": "Obtain food supplies" },
+        { "type": "talk", "target": "mayor", "description": "Deliver supplies to the mayor" }
+      ],
+      "difficulty": "medium"
+    },
+    "corruption": {
+      "name": [
+        "{$Corruption|Treachery} in {settlement.name}",
+        "The {$Corrupt|Treacherous} Official",
+        "Expose the {$Corruption|Conspiracy}"
+      ],
+      "type": "investigate",
+      "description": [
+        "{giverNpc.name} suspects corruption among the officials of {settlement.name}. They need proof.",
+        "Something is wrong in {settlement.name}. {giverNpc.name} asks you to investigate the suspicious behavior of certain officials.",
+        "{giverNpc.name} whispers about corruption and asks you to uncover the truth."
+      ],
+      "objectives": [
+        { "type": "find", "target": "evidence", "description": "Find evidence of corruption" },
+        { "type": "talk", "target": "corrupt_official", "description": "Confront the corrupt official" }
+      ],
+      "difficulty": "medium"
+    },
+    "haunting": {
+      "name": [
+        "The {$Haunted|Cursed} {$Manor|House|Mill}",
+        "{$Exorcise|Banish} the {$Spirit|Ghost}",
+        "The {$Restless|Vengeful} Spirit"
+      ],
+      "type": "investigate",
+      "description": [
+        "Strange occurrences plague {settlement.name}. {giverNpc.name} believes a spirit haunts the old {$manor|mill|house}.",
+        "{giverNpc.name} tells you of ghostly apparitions terrifying the townsfolk. Someone must put the spirit to rest.",
+        "A {$ghost|spirit|specter} has been seen near {settlement.name}. {giverNpc.name} needs your help dealing with it."
+      ],
+      "objectives": [
+        { "type": "find", "target": "haunted_location", "description": "Find the haunted location" },
+        { "type": "collect", "target": "spirit_artifact", "description": "Discover what binds the spirit" },
+        { "type": "kill", "target": "vengeful_spirit", "description": "Put the spirit to rest" }
+      ],
+      "difficulty": "hard"
+    },
+    "drought": {
+      "name": [
+        "The {$Drought|Dry Season}",
+        "{$Find|Locate} Water for {settlement.name}",
+        "The {$Well|Spring} Has Run Dry"
+      ],
+      "type": "investigate",
+      "description": [
+        "The wells have run dry in {settlement.name}. {giverNpc.name} asks you to find a new water source.",
+        "{giverNpc.name} fears the settlement won't survive without water. Perhaps there's an underground spring nearby?",
+        "Without water, {settlement.name} is doomed. {giverNpc.name} needs you to investigate possible solutions."
+      ],
+      "objectives": [
+        { "type": "find", "target": "water_source", "description": "Find a new water source" },
+        { "type": "kill", "target": "guardian_creature", "description": "Deal with any creatures guarding it" }
+      ],
+      "difficulty": "medium"
+    }
+  },
+  "secretQuests": {
+    "debt": {
+      "name": [
+        "A Debt Repaid",
+        "{npc.name}'s Burden",
+        "The {$Debt|Loan} Collector"
+      ],
+      "type": "fetch",
+      "description": [
+        "{npc.name} owes a dangerous sum to {$a crime boss|a wealthy merchant|loan sharks}. Help them pay it off... or deal with their creditors.",
+        "{npc.name} confides that they're in deep debt and the collectors are coming. Can you help?",
+        "In desperation, {npc.name} reveals their debt. They need {$gold|help|protection} before it's too late."
+      ],
+      "objectives": [
+        { "type": "collect", "target": "gold", "quantity": 100, "description": "Gather 100 gold for the debt" }
+      ],
+      "difficulty": "easy"
+    },
+    "hidden_past": {
+      "name": [
+        "Secrets Unearthed",
+        "The Past Catches Up",
+        "{npc.name}'s {$Secret|Hidden Past}"
+      ],
+      "type": "investigate",
+      "description": [
+        "Someone from {npc.name}'s past has come looking for them. They need your help to {$deal with|confront|hide from} this threat.",
+        "{npc.name} reveals they've been living under a false identity. Their old life has caught up with them.",
+        "{npc.name} used to be {$a criminal|a noble|someone else entirely}. Now their past threatens to destroy their new life."
+      ],
+      "objectives": [
+        { "type": "find", "target": "pursuer", "description": "Find who's hunting them" },
+        { "type": "talk", "target": "pursuer", "description": "Deal with the threat" }
+      ],
+      "difficulty": "medium"
+    },
+    "stolen_item": {
+      "name": [
+        "The Stolen {$Heirloom|Treasure|Artifact}",
+        "Return What Was Lost",
+        "Recover the {$Heirloom|Treasure}"
+      ],
+      "type": "fetch",
+      "description": [
+        "{npc.name} confides that something precious was stolen from them. Can you recover it?",
+        "A {$family heirloom|valuable item|precious artifact} was taken from {npc.name}. They desperately want it back.",
+        "{npc.name} trusts you enough to reveal that thieves stole their most treasured possession."
+      ],
+      "objectives": [
+        { "type": "find", "target": "thief", "description": "Track down the thief" },
+        { "type": "collect", "target": "stolen_item", "description": "Recover the stolen item" }
+      ],
+      "difficulty": "medium"
+    },
+    "forbidden_love": {
+      "name": [
+        "Star-Crossed Lovers",
+        "The {$Secret|Forbidden} Romance",
+        "Love {$Forbidden|Denied}"
+      ],
+      "type": "deliver",
+      "description": [
+        "{npc.name} is secretly in love with someone forbidden to them. They need you to deliver a message.",
+        "{npc.name} reveals their heart belongs to another, but they can't be seen together. Will you help them?",
+        "A forbidden romance has blossomed. {npc.name} asks you to act as messenger between the lovers."
+      ],
+      "objectives": [
+        { "type": "talk", "target": "lover", "description": "Deliver the message to their love" },
+        { "type": "protect", "target": "lovers", "description": "Help them meet in secret" }
+      ],
+      "difficulty": "easy"
+    },
+    "crime_witness": {
+      "name": [
+        "A Dangerous Witness",
+        "What {npc.name} Saw",
+        "The {$Witness|Truth}"
+      ],
+      "type": "investigate",
+      "description": [
+        "{npc.name} witnessed a terrible crime but fears speaking out. They need your protection to testify.",
+        "{npc.name} saw something they shouldn't have. Now they're in danger and need your help.",
+        "A crime was committed and {npc.name} knows the truth. But telling it could cost them their life."
+      ],
+      "objectives": [
+        { "type": "protect", "target": "witness", "description": "Protect the witness" },
+        { "type": "talk", "target": "authority", "description": "Help them testify" }
+      ],
+      "difficulty": "hard"
+    },
+    "cult_member": {
+      "name": [
+        "The {$Cult|Secret Society}",
+        "{npc.name}'s {$Dark|Terrible} Secret",
+        "The {$Forbidden|Dark} Ritual"
+      ],
+      "type": "investigate",
+      "description": [
+        "{npc.name} reveals they're part of a secret cult. They want out, but it's not that simple.",
+        "{npc.name} has been involved in {$dark rituals|forbidden practices}. They need your help escaping the cult.",
+        "A secret society has ensnared {npc.name}. They beg you to help them break free."
+      ],
+      "objectives": [
+        { "type": "find", "target": "cult_location", "description": "Find the cult's meeting place" },
+        { "type": "collect", "target": "cult_evidence", "description": "Gather evidence of their activities" }
+      ],
+      "difficulty": "hard"
+    },
+    "treasure_map": {
+      "name": [
+        "The Treasure Map",
+        "{npc.name}'s Secret Fortune",
+        "Hidden {$Treasure|Riches}"
+      ],
+      "type": "fetch",
+      "description": [
+        "{npc.name} shows you an old map leading to buried treasure. They'll split it with you if you can find it.",
+        "{npc.name} has a treasure map but can't go after it themselves. Will you retrieve it?",
+        "An inheritance map has fallen into {npc.name}'s hands. The treasure is yours if you can claim it."
+      ],
+      "objectives": [
+        { "type": "find", "target": "treasure_location", "description": "Find the treasure location" },
+        { "type": "collect", "target": "treasure", "description": "Retrieve the treasure" }
+      ],
+      "difficulty": "medium"
+    },
+    "double_identity": {
+      "name": [
+        "Two Lives",
+        "{npc.name}'s Other Life",
+        "The {$Double|Secret} Identity"
+      ],
+      "type": "investigate",
+      "description": [
+        "{npc.name} lives a double life. By day a {$respectable citizen|merchant|craftsman}, by night something else entirely.",
+        "{npc.name} trusts you with their secret - they're not who everyone thinks they are.",
+        "Two identities, two lives. {npc.name} needs your help keeping them separate."
+      ],
+      "objectives": [
+        { "type": "find", "target": "evidence", "description": "Prevent discovery of their secret" },
+        { "type": "talk", "target": "blackmailer", "description": "Deal with anyone who knows" }
+      ],
+      "difficulty": "medium"
+    }
+  },
+  "sideQuests": {
+    "fetch": [
+      {
+        "name": [
+          "{$Gather|Collect} {item.name}",
+          "{npc.name}'s Request",
+          "In Need of {item.name}"
+        ],
+        "description": [
+          "{npc.name} needs you to {$gather|collect|find} some {item.name}.",
+          "{npc.name} asks if you could bring them {item.name}. They'll pay for it.",
+          "{npc.name} is looking for {item.name}. Can you help?"
+        ],
+        "objectives": [
+          { "type": "collect", "target": "herb", "quantity": 5, "description": "Gather 5 {item.name}" }
+        ],
+        "difficulty": "easy"
+      }
+    ],
+    "deliver": [
+      {
+        "name": [
+          "Delivery to {destination.name}",
+          "The {$Important|Urgent} Package",
+          "{npc.name}'s {$Delivery|Package}"
+        ],
+        "description": [
+          "{npc.name} needs a package delivered to {destination.name}.",
+          "{npc.name} has an important delivery for {destination.name}. Can you take it?",
+          "{npc.name} asks you to deliver something to {destination.name}. It's urgent."
+        ],
+        "objectives": [
+          { "type": "reach", "target": "destination", "description": "Travel to {destination.name}" },
+          { "type": "talk", "target": "recipient", "description": "Deliver the package" }
+        ],
+        "difficulty": "easy"
+      }
+    ],
+    "gather": [
+      {
+        "name": [
+          "Hunt for {$Food|Meat}",
+          "{$Hunting|Trapping} Request",
+          "{npc.name} Needs {$Meat|Game}"
+        ],
+        "description": [
+          "{npc.name} needs fresh meat. Can you hunt some game for them?",
+          "{npc.name} asks if you could bring back some meat from your travels.",
+          "The settlement needs food. {npc.name} asks you to hunt some game."
+        ],
+        "objectives": [
+          { "type": "kill", "target": "wild_game", "quantity": 3, "description": "Hunt 3 animals" }
+        ],
+        "difficulty": "easy"
+      }
+    ]
+  },
+  "rewardScaling": {
+    "easy": { "baseGold": 20, "baseXp": 50 },
+    "medium": { "baseGold": 50, "baseXp": 150 },
+    "hard": { "baseGold": 100, "baseXp": 300 }
+  },
+  "wealthMultiplier": {
+    "1": 0.5,
+    "2": 0.6,
+    "3": 0.7,
+    "4": 0.8,
+    "5": 1.0,
+    "6": 1.2,
+    "7": 1.4,
+    "8": 1.6,
+    "9": 1.8,
+    "10": 2.0
+  }
+}

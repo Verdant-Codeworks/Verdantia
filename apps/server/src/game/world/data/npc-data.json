@@ -1,0 +1,354 @@
+{
+  "greetings": {
+    "innkeeper": {
+      "friendly": [
+        "Welcome, traveler! {$Pull up a chair|Take a seat|Come on in}, the fire's warm and the ale's cold.",
+        "Ah, a new face! What can I get for you?",
+        "Welcome to my establishment! {$Room or refreshment|What brings you here}?"
+      ],
+      "gruff": [
+        "{$Hmph|Aye}. What'll you have?",
+        "Another one. {$Room or drink|Bed or ale|What do you want}?",
+        "We've got rooms and ale. Pick one."
+      ],
+      "cheerful": [
+        "Hello there, friend! You look like you've traveled far!",
+        "Welcome, welcome! Come in from the cold and rest your feet!"
+      ],
+      "suspicious": [
+        "What's your business here, stranger?",
+        "We don't see many travelers these days. What brings you?"
+      ]
+    },
+    "blacksmith": {
+      "friendly": [
+        "Good day! Looking for something sturdy and well-made?",
+        "Welcome to my forge. I can craft whatever you need."
+      ],
+      "gruff": [
+        "What do you want? Can't you see I'm busy?",
+        "Hmph. Need something repaired or forged?"
+      ],
+      "boastful": [
+        "You've come to the finest smith in the region! What do you need?",
+        "My work is known throughout the land. What can I make for you?"
+      ]
+    },
+    "merchant": {
+      "friendly": [
+        "Good day! Browse my wares, finest quality guaranteed!",
+        "Welcome, welcome! I have exactly what you're looking for."
+      ],
+      "gruff": [
+        "You buying or just looking?",
+        "What do you want? I haven't got all day."
+      ],
+      "talkative": [
+        "Ah, a customer! Let me tell you about my latest acquisitions...",
+        "Welcome! I've just received a shipment from {$the capital|the east|across the mountains}..."
+      ]
+    },
+    "guard": {
+      "friendly": [
+        "Welcome to {settlement.name}. Keep your nose clean and you'll be fine.",
+        "Good day. What brings you to our settlement?"
+      ],
+      "gruff": [
+        "State your business.",
+        "Keep moving. Nothing to see here."
+      ],
+      "nervous": [
+        "Ah, hello. Everything's... everything's fine here. Perfectly normal.",
+        "New face, eh? Well, welcome, I suppose."
+      ]
+    },
+    "mayor": {
+      "friendly": [
+        "Welcome to {settlement.name}! I'm the mayor. How may I help you?",
+        "Good day, traveler. I hope you find our settlement hospitable."
+      ],
+      "gruff": [
+        "I'm a busy person. What do you need?",
+        "State your business quickly, I have matters to attend to."
+      ],
+      "boastful": [
+        "Welcome to the finest settlement in the region, under my leadership!",
+        "I've made this settlement what it is today. What brings you here?"
+      ]
+    },
+    "priest": {
+      "friendly": [
+        "Blessings upon you, child. Welcome to our temple.",
+        "May the light guide you. How may I be of service?"
+      ],
+      "gruff": [
+        "Seek you wisdom or merely shelter from the world?",
+        "What brings you to this sacred place?"
+      ],
+      "melancholy": [
+        "Welcome, though I fear these are dark times for all of us.",
+        "Blessings... what few remain in these troubled days."
+      ]
+    },
+    "farmer": {
+      "friendly": [
+        "Good day! {$Just bringing in the harvest|Working the fields as usual}.",
+        "Hello there! Fine weather for {$planting|harvesting|tending the crops}."
+      ],
+      "gruff": [
+        "City folk, eh? Don't see many out here.",
+        "Can't talk long, got work to do."
+      ],
+      "humble": [
+        "Just a simple farmer, but welcome nonetheless.",
+        "Not much to see here, just honest work and honest soil."
+      ]
+    },
+    "miner": {
+      "friendly": [
+        "Ho there! Just up from the mines. Thirsty work, that.",
+        "Good day! The earth has been generous lately."
+      ],
+      "gruff": [
+        "What? Never seen a miner before?",
+        "Aye. What do you want?"
+      ],
+      "secretive": [
+        "Found something interesting in the deep tunnels recently...",
+        "The mines... they hold many secrets."
+      ]
+    },
+    "healer": {
+      "friendly": [
+        "Welcome. Are you hurt or merely weary?",
+        "Good day. I hope you're in good health."
+      ],
+      "nervous": [
+        "Oh! A patient? Or... are you well? I have herbs if you need them.",
+        "I'll do what I can, though resources are limited..."
+      ],
+      "melancholy": [
+        "Welcome. I've seen too much suffering lately, but I'll help if I can.",
+        "Another soul seeking relief from this weary world."
+      ]
+    },
+    "scholar": {
+      "friendly": [
+        "Ah, a visitor! Always pleasant to see a new face.",
+        "Welcome! Are you a fellow seeker of knowledge?"
+      ],
+      "talkative": [
+        "Excellent! Someone new to discuss my research with!",
+        "Do you have a moment? I've been working on a fascinating theory about..."
+      ],
+      "secretive": [
+        "What brings you here? I don't often receive visitors.",
+        "I'm quite busy with my research. What do you need?"
+      ]
+    },
+    "noble": {
+      "boastful": [
+        "Ah, a commoner. I suppose I can spare a moment.",
+        "What business could you possibly have with one of my station?"
+      ],
+      "friendly": [
+        "Good day. I hope the common folk are treating you well.",
+        "Welcome. Not all of noble birth are as... distant as some of my peers."
+      ],
+      "melancholy": [
+        "The weight of title and duty grows heavier each day...",
+        "Once, this position meant something. Now..."
+      ]
+    },
+    "stable_master": {
+      "friendly": [
+        "Need a horse? I've got the finest steeds in the region!",
+        "Welcome to my stables. Looking after these beauties is my life's work."
+      ],
+      "gruff": [
+        "What do you want? Buying or renting?",
+        "Don't have time for chitchat. State your business."
+      ]
+    },
+    "baker": {
+      "friendly": [
+        "Fresh bread, just out of the oven! What can I get for you?",
+        "Welcome! The scent of fresh baking draws everyone in!"
+      ],
+      "cheerful": [
+        "Good morning! Nothing like the smell of fresh bread, eh?",
+        "Hello, hello! Try my pastries, they're famous around here!"
+      ]
+    },
+    "butcher": {
+      "friendly": [
+        "Good cuts, fair prices. What'll you have?",
+        "Fresh meat today! Just got a new delivery."
+      ],
+      "gruff": [
+        "What cut do you want?",
+        "Speak up. I haven't got all day."
+      ]
+    },
+    "hunter": {
+      "friendly": [
+        "Just back from the woods. Good hunting today!",
+        "Tracked a fine deer this morning. What brings you out here?"
+      ],
+      "gruff": [
+        "City type, eh? The forest isn't for everyone.",
+        "What?"
+      ],
+      "secretive": [
+        "The woods hold many secrets for those who know where to look...",
+        "I've seen... strange things in the deep forest lately."
+      ]
+    },
+    "herbalist": {
+      "friendly": [
+        "Welcome! I have remedies for whatever ails you.",
+        "Good day. Looking for herbs, potions, or perhaps wisdom?"
+      ],
+      "secretive": [
+        "My knowledge comes from... unconventional sources.",
+        "The old ways are not forgotten by all."
+      ],
+      "talkative": [
+        "Ah! Let me tell you about this fascinating root I found...",
+        "Plants! Nature's medicine! Each one has a purpose, let me explain..."
+      ]
+    },
+    "tavern_keeper": {
+      "friendly": [
+        "Welcome to the tavern! Ale's cold and the company's warm!",
+        "Come in, come in! What's your poison?"
+      ],
+      "talkative": [
+        "Welcome! You should hear the stories I've heard in this place...",
+        "Ah, a new customer! Let me tell you what happened here just yesterday..."
+      ]
+    },
+    "beggar": {
+      "humble": [
+        "Spare a coin for a poor soul?",
+        "Any charity for the unfortunate?"
+      ],
+      "secretive": [
+        "People don't notice beggars... we see everything...",
+        "I know things. Things people would pay to learn..."
+      ]
+    },
+    "thief": {
+      "suspicious": [
+        "Who's asking?",
+        "What do you want?"
+      ],
+      "friendly": [
+        "Just passing through, like yourself.",
+        "Nice day, isn't it? For... business."
+      ],
+      "secretive": [
+        "You looking to acquire something... difficult to obtain?",
+        "I can get things. For the right price."
+      ]
+    }
+  },
+  "dialogueTopics": {
+    "innkeeper": ["local_rumors", "travelers", "food", "rooms", "settlement_news"],
+    "blacksmith": ["weapons", "armor", "local_rumors", "crafting", "materials"],
+    "merchant": ["goods", "trade_routes", "prices", "local_rumors", "settlement_news"],
+    "guard": ["security", "threats", "settlement_news", "laws", "recent_crimes"],
+    "mayor": ["settlement_history", "current_problems", "politics", "local_rumors"],
+    "priest": ["religion", "blessings", "settlement_history", "moral_guidance"],
+    "farmer": ["crops", "weather", "local_rumors", "harvest"],
+    "miner": ["ore", "mining", "caves", "local_rumors"],
+    "healer": ["medicine", "herbs", "ailments", "local_rumors"],
+    "scholar": ["history", "research", "books", "ancient_lore"],
+    "noble": ["politics", "nobility", "settlement_history", "wealth"],
+    "stable_master": ["horses", "travel", "roads", "local_rumors"],
+    "baker": ["food", "recipes", "local_rumors"],
+    "butcher": ["meat", "hunting", "local_rumors"],
+    "hunter": ["wildlife", "forest", "tracking", "local_rumors"],
+    "herbalist": ["herbs", "potions", "remedies", "nature"],
+    "tavern_keeper": ["rumors", "gossip", "drinks", "travelers"],
+    "beggar": ["secrets", "observations", "charity"],
+    "thief": ["acquisitions", "black_market", "secrets"]
+  },
+  "secrets": {
+    "hidden_past": [
+      "was once a soldier who deserted during a battle",
+      "fled here after a scandal in {$the capital|their hometown|a distant city}",
+      "used to be a thief before settling down",
+      "is actually from a noble family that disowned them"
+    ],
+    "forbidden_love": [
+      "is secretly in love with {$someone married|someone of wrong social class|a rival's family member}",
+      "had a romance that ended badly, haunts them still"
+    ],
+    "debt": [
+      "owes money to {$bandits|a crime lord|a noble|a merchant guild}",
+      "gambling debts threaten their livelihood",
+      "borrowed from the wrong people and can't pay back"
+    ],
+    "crime_witness": [
+      "saw something they shouldn't have and fears for their life",
+      "witnessed {$a murder|a theft|corruption} but dares not speak",
+      "knows who committed the crime everyone talks about"
+    ],
+    "stolen_item": [
+      "possesses an item that doesn't belong to them",
+      "stole something valuable years ago, still has it hidden",
+      "found something precious and kept it secret"
+    ],
+    "double_identity": [
+      "leads a double life that would shock everyone",
+      "isn't who they claim to be",
+      "uses a false name to hide from their past"
+    ],
+    "cult_member": [
+      "secretly worships forbidden powers",
+      "belongs to a secret society with dark purposes",
+      "participates in mysterious nocturnal gatherings"
+    ],
+    "treasure_map": [
+      "possesses a map to hidden treasure",
+      "knows the location of {$buried gold|an ancient cache|a forgotten vault}",
+      "has directions to something valuable, but too afraid to retrieve it alone"
+    ]
+  },
+  "rolesByEconomy": {
+    "farming": ["farmer", "farmer", "farmer", "herbalist"],
+    "mining": ["miner", "miner", "blacksmith"],
+    "trading": ["merchant", "merchant", "stable_master"],
+    "fishing": ["hunter", "merchant"],
+    "logging": ["hunter", "merchant"],
+    "crafting": ["blacksmith", "baker", "butcher"]
+  },
+  "minRoles": {
+    "hamlet": ["innkeeper"],
+    "village": ["innkeeper", "blacksmith", "merchant", "farmer"],
+    "town": ["innkeeper", "blacksmith", "merchant", "guard", "guard", "priest", "healer", "stable_master"],
+    "city": ["innkeeper", "blacksmith", "merchant", "guard", "guard", "guard", "guard", "priest", "healer", "stable_master", "scholar", "noble"]
+  },
+  "personalityByRole": {
+    "innkeeper": ["friendly", "gruff", "cheerful", "talkative"],
+    "blacksmith": ["gruff", "friendly", "boastful", "humble"],
+    "merchant": ["friendly", "gruff", "talkative", "suspicious"],
+    "guard": ["gruff", "friendly", "suspicious", "nervous"],
+    "mayor": ["boastful", "friendly", "gruff", "melancholy"],
+    "priest": ["friendly", "gruff", "melancholy", "humble"],
+    "farmer": ["friendly", "gruff", "humble", "cheerful"],
+    "miner": ["gruff", "friendly", "secretive", "boastful"],
+    "healer": ["friendly", "nervous", "melancholy", "humble"],
+    "scholar": ["talkative", "friendly", "secretive", "humble"],
+    "noble": ["boastful", "melancholy", "friendly", "gruff"],
+    "stable_master": ["friendly", "gruff", "cheerful"],
+    "baker": ["friendly", "cheerful", "talkative"],
+    "butcher": ["gruff", "friendly", "suspicious"],
+    "hunter": ["gruff", "friendly", "secretive"],
+    "herbalist": ["friendly", "secretive", "talkative"],
+    "tavern_keeper": ["friendly", "talkative", "cheerful"],
+    "beggar": ["humble", "secretive", "melancholy"],
+    "thief": ["suspicious", "secretive", "friendly"]
+  }
+}

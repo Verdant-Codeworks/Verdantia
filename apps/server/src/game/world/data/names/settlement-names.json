@@ -1,0 +1,19 @@
+{
+  "prefixes": {
+    "frontier": ["Fort", "Camp", "New", "High", "Low", "North", "South", "East", "West"],
+    "religious": ["Saint", "Holy", "Blessed", "Sacred", "Temple", "Abbey", "Shrine"],
+    "merchant": ["Port", "Market", "Trade", "Gold", "Silver", "Copper"],
+    "military": ["Fort", "Watch", "Guard", "Shield", "Sword", "Iron"],
+    "pastoral": ["Green", "Fair", "Pleasant", "Meadow", "Brook", "Willow"]
+  },
+  "roots": {
+    "frontier": ["ridge", "pass", "crossing", "post", "settlement", "outpost"],
+    "religious": ["haven", "rest", "grace", "peace", "light", "blessing"],
+    "merchant": ["market", "fair", "exchange", "harbor", "landing", "dock"],
+    "military": ["hold", "keep", "tower", "bastion", "garrison", "watch"],
+    "pastoral": ["dale", "vale", "hollow", "glen", "field", "meadow"]
+  },
+  "suffixes": {
+    "common": ["ton", "ville", "ford", "stead", "bury", "ham", "worth", "wood", "bridge"]
+  }
+}

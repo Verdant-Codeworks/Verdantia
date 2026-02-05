@@ -1,6 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
-import type { RoomDefinition } from '@verdantia/shared';
+import type { RoomDefinition, SettlementInfo, NPCInfo, BuildingInfo, QuestInfo, CurrentRoomData } from '@verdantia/shared';
 import { makeRoomId } from '@verdantia/shared';
 import { ProceduralRoom } from '../../entities/procedural-room.entity';
 import { ProceduralRoomExit } from '../../entities/procedural-room-exit.entity';
@@ -16,6 +16,15 @@ import { EnemyDefinition } from '../../entities/enemy-definition.entity';
 import { ResourceNodeDefinition } from '../../entities/resource-node-definition.entity';
 import { DefinitionService } from './definition.service';
 import { WFCService } from './wfc/wfc.service';
+import { WorldRegionService } from './generation/world-region.service';
+import { SettlementGeneratorService } from './generation/settlement-generator.service';
+import { NPCGeneratorService } from './generation/npc-generator.service';
+import { BuildingGeneratorService } from './generation/building-generator.service';
+import { QuestGeneratorService } from './generation/quest-generator.service';
+import type { SettlementData } from './generation/settlement.types';
+import type { NPCData } from './generation/npc.types';
+import type { BuildingData } from './generation/building.types';
+import type { QuestData } from './generation/quest.types';
 
 interface AdjacentRoomData {
   x: number;
@@ -29,15 +38,20 @@ export class ProceduralRoomService {
   private readonly logger = new Logger(ProceduralRoomService.name);
 
   // In-memory cache for generated rooms when no database is available
-  private roomCache = new Map<string, RoomDefinition>();
+  private roomCache = new Map<string, CurrentRoomData>();
 
   constructor(
     @Optional() private readonly em: EntityManager | null,
     private readonly definitionService: DefinitionService,
     private readonly wfcService: WFCService,
+    private readonly worldRegionService: WorldRegionService,
+    private readonly settlementGenerator: SettlementGeneratorService,
+    private readonly npcGenerator: NPCGeneratorService,
+    private readonly buildingGenerator: BuildingGeneratorService,
+    private readonly questGenerator: QuestGeneratorService,
   ) {}
 
-  async getOrGenerateRoom(x: number, y: number, z: number): Promise<RoomDefinition | undefined> {
+  async getOrGenerateRoom(x: number, y: number, z: number): Promise<CurrentRoomData | undefined> {
     const roomId = makeRoomId(x, y, z);
 
     // Check in-memory cache first
@@ -73,7 +87,21 @@ export class ProceduralRoomService {
     return newRoom;
   }
 
-  async generateRoom(x: number, y: number, z: number): Promise<RoomDefinition> {
+  async generateRoom(x: number, y: number, z: number): Promise<CurrentRoomData> {
+    const roomId = makeRoomId(x, y, z);
+
+    // Check region type to determine what to generate
+    const regionType = this.worldRegionService.getRegionType(x, y, z);
+
+    if (regionType === 'settlement') {
+      return await this.generateSettlementRoom(x, y, z);
+    }
+
+    // Generate wilderness room (existing logic)
+    return await this.generateWildernessRoom(x, y, z);
+  }
+
+  private async generateWildernessRoom(x: number, y: number, z: number): Promise<CurrentRoomData> {
     const roomId = makeRoomId(x, y, z);
 
     // Generate deterministic seed and RNG early so all generation is reproducible
@@ -204,6 +232,174 @@ export class ProceduralRoomService {
       items,
       enemies,
       resourceNodes: resources,
+    };
+  }
+
+  private async generateSettlementRoom(x: number, y: number, z: number): Promise<CurrentRoomData> {
+    const roomId = makeRoomId(x, y, z);
+    const seed = this.generateSeed(x, y, z);
+
+    // Get settlement size from world region service
+    const size = this.worldRegionService.getSettlementSize(x, y, z);
+    if (!size) {
+      this.logger.warn(`Settlement location at ${x},${y},${z} has no size, falling back to wilderness`);
+      // Fallback - this should not happen
+      return await this.generateWildernessRoom(x, y, z);
+    }
+
+    // Generate all settlement data
+    const settlement = this.settlementGenerator.generate(x, y, z, size);
+    const npcs = this.npcGenerator.generateForSettlement(settlement);
+    const buildings = this.buildingGenerator.generateForSettlement(settlement, npcs);
+    this.buildingGenerator.assignNPCsToBuildings(buildings, npcs);
+    const quests = this.questGenerator.generateForSettlement(settlement, npcs, seed);
+
+    // Generate exits (standard 4-directional + optional vertical)
+    const exits = this.generateSettlementExits(x, y, z);
+
+    // Generate settlement description
+    const description = this.generateSettlementDescription(settlement, buildings, npcs);
+
+    // Convert to client-safe Info types
+    const settlementInfo = this.toSettlementInfo(settlement);
+    const npcInfos = npcs.map(n => this.toNPCInfo(n, buildings));
+    const buildingInfos = buildings.map(b => this.toBuildingInfo(b));
+    const questInfos = quests.map(q => this.toQuestInfo(q, npcs));
+
+    return {
+      id: roomId,
+      name: settlement.name,
+      description,
+      exits: exits.map(e => ({
+        direction: e.direction,
+        roomId: e.destinationRoomId || '',
+        description: e.description,
+      })),
+      items: [],
+      enemies: [],
+      resourceNodes: [],
+      settlement: settlementInfo,
+      npcs: npcInfos,
+      buildings: buildingInfos,
+      availableQuests: questInfos,
+    };
+  }
+
+  private generateSettlementExits(x: number, y: number, z: number) {
+    const exits = [
+      { direction: 'north', destinationRoomId: makeRoomId(x, y - 1, z), description: 'A road leading north' },
+      { direction: 'south', destinationRoomId: makeRoomId(x, y + 1, z), description: 'A road leading south' },
+      { direction: 'east', destinationRoomId: makeRoomId(x + 1, y, z), description: 'A road leading east' },
+      { direction: 'west', destinationRoomId: makeRoomId(x - 1, y, z), description: 'A road leading west' },
+    ];
+
+    return exits;
+  }
+
+  private generateSettlementDescription(
+    settlement: SettlementData,
+    buildings: BuildingData[],
+    npcs: NPCData[],
+  ): string {
+    let desc = `You ${this.getArrivalPhrase()} ${settlement.name}, `;
+
+    // Add settlement size and culture
+    const cultureDesc = this.getCultureDescription(settlement.culture);
+    desc += `a ${settlement.size} ${cultureDesc}. `;
+
+    // Add problem if exists
+    if (settlement.problem) {
+      desc += `The air is tense - ${settlement.problem.shortDesc}. `;
+    } else {
+      desc += `The settlement seems peaceful. `;
+    }
+
+    // List visible buildings (up to 4)
+    if (buildings.length > 0) {
+      desc += `\n\nYou can see: `;
+      const visibleBuildings = buildings.slice(0, 4);
+      const buildingNames = visibleBuildings.map(b => b.name);
+
+      if (buildingNames.length === 1) {
+        desc += buildingNames[0];
+      } else if (buildingNames.length === 2) {
+        desc += `${buildingNames[0]} and ${buildingNames[1]}`;
+      } else {
+        desc += buildingNames.slice(0, -1).join(', ') + `, and ${buildingNames[buildingNames.length - 1]}`;
+      }
+
+      if (buildings.length > 4) {
+        desc += `, and more`;
+      }
+      desc += `.`;
+    }
+
+    return desc;
+  }
+
+  private getArrivalPhrase(): string {
+    const phrases = ['arrive at', 'stand before', 'approach', 'enter'];
+    // Use a simple deterministic selection (could be randomized with seed if desired)
+    return phrases[0];
+  }
+
+  private getCultureDescription(culture: string): string {
+    const descriptions: Record<string, string> = {
+      frontier: 'on the edge of civilization',
+      religious: 'of devout worshippers',
+      merchant: 'bustling with trade',
+      military: 'fortified and guarded',
+      pastoral: 'of simple folk',
+    };
+    return descriptions[culture] || 'settlement';
+  }
+
+  // Conversion helpers to client-safe Info types
+  private toSettlementInfo(settlement: SettlementData): SettlementInfo {
+    return {
+      id: settlement.id,
+      name: settlement.name,
+      size: settlement.size,
+      population: settlement.population,
+      culture: settlement.culture,
+      problemSummary: settlement.problem?.shortDesc,
+    };
+  }
+
+  private toNPCInfo(npc: NPCData, buildings: BuildingData[]): NPCInfo {
+    // Find building this NPC is in
+    const building = buildings.find(b => b.npcIds.includes(npc.id));
+
+    return {
+      id: npc.id,
+      name: npc.name,
+      role: npc.role,
+      greeting: npc.greeting,
+      location: building?.name,
+    };
+  }
+
+  private toBuildingInfo(building: BuildingData): BuildingInfo {
+    return {
+      id: building.id,
+      name: building.name,
+      type: building.type,
+      description: building.description,
+      hasShop: !!building.inventory && building.inventory.length > 0,
+    };
+  }
+
+  private toQuestInfo(quest: QuestData, npcs: NPCData[]): QuestInfo {
+    const giver = npcs.find(n => n.id === quest.giverNpcId);
+
+    return {
+      id: quest.id,
+      name: quest.name,
+      type: quest.type,
+      description: quest.description,
+      giverName: giver?.name || 'Unknown',
+      difficulty: quest.difficulty,
+      status: quest.status,
     };
   }
 
@@ -414,7 +610,7 @@ export class ProceduralRoomService {
     };
   }
 
-  private async buildRoomDefinition(room: ProceduralRoom): Promise<RoomDefinition> {
+  private async buildRoomDefinition(room: ProceduralRoom): Promise<CurrentRoomData> {
     // This method is only called when em is available (from getOrGenerateRoom)
     if (!this.em) {
       throw new Error('EntityManager required to build room definition from database');

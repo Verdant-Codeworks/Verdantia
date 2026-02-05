@@ -1,0 +1,312 @@
+{
+  "nameTemplates": {
+    "inn": {
+      "patterns": [
+        "The {$Rusty|Golden|Silver|Iron|Brass} {$Tankard|Goblet|Flagon|Mug|Cup}",
+        "The {$Weary|Wandering|Traveling|Drunken} {$Dragon|Wolf|Bear|Stag|Boar}",
+        "{$Traveler's|Pilgrim's|Merchant's|Wanderer's} Rest",
+        "The {$Laughing|Prancing|Sleeping|Dancing} {$Pony|Horse|Mare|Stallion}",
+        "The {$Green|Red|White|Black|Blue} {$Lion|Eagle|Fox|Raven|Owl}"
+      ]
+    },
+    "tavern": {
+      "patterns": [
+        "The {$Jolly|Merry|Happy|Tipsy} {$Sailor|Merchant|Miner|Farmer}",
+        "{$Old|Ancient|Weathered|Sturdy} {$Oak|Barrel|Keg|Cask}",
+        "The {$Foaming|Frothing|Overflowing} {$Tankard|Stein|Flagon|Mug}"
+      ]
+    },
+    "blacksmith": {
+      "patterns": [
+        "{$Iron|Steel|Flame|Anvil|Hammer} & {$Steel|Fire|Forge|Might}",
+        "The {$Sturdy|Strong|Tempered|Forged} {$Blade|Anvil|Hammer|Forge}",
+        "{$Master|Expert} {$Ironworks|Smithy|Forge}"
+      ]
+    },
+    "temple": {
+      "patterns": [
+        "Temple of the {$Sun|Moon|Stars|Light|Dawn}",
+        "Shrine of {$Peace|Hope|Grace|Mercy}",
+        "Chapel of the {$Sacred|Holy|Divine|Blessed} {$Flame|Light|Word|Path}"
+      ]
+    },
+    "general_store": {
+      "patterns": [
+        "{owner}'s Goods",
+        "The Trading Post",
+        "{$Honest|Fair|Best} Deals",
+        "{$General|Village|Town} Provisions",
+        "The {$Well-Stocked|Supplied|Provisioned} {$Shop|Store|Merchant}"
+      ]
+    },
+    "stable": {
+      "patterns": [
+        "The {$Swift|Sure|Strong} {$Horse|Steed|Mount}",
+        "{$Reliable|Trusted|Fine} Stables",
+        "The {$Golden|Silver|White} {$Horseshoe|Saddle|Bridle}"
+      ]
+    },
+    "herbalist_shop": {
+      "patterns": [
+        "The {$Green|Healing|Herbal} {$Leaf|Garden|Remedy}",
+        "{$Ancient|Old|Wise} {$Herb|Root|Remedy} Shop",
+        "The {$Potent|Powerful|Natural} {$Potion|Tincture|Cure}"
+      ]
+    },
+    "bakery": {
+      "patterns": [
+        "The {$Fresh|Warm|Daily} {$Bread|Loaf|Bake}",
+        "{$Golden|Crusty|Hearty} Bakery",
+        "The {$Rising|Kneading|Flour} {$Bowl|Board|House}"
+      ]
+    },
+    "butcher": {
+      "patterns": [
+        "The {$Prime|Choice|Fine} {$Cut|Meat|Joint}",
+        "{$Master|Expert} Butchery",
+        "The {$Cleaver|Knife|Block} & {$Bone|Meat|Chop}"
+      ]
+    },
+    "market_stall": {
+      "patterns": [
+        "{owner}'s Stall",
+        "The {$Busy|Crowded|Popular} Market",
+        "{$Fresh|Daily|Local} Goods"
+      ]
+    },
+    "guard_post": {
+      "patterns": [
+        "The {$North|South|East|West|Central} Guard Post",
+        "{$Town|City|Village} Watch Station",
+        "The {$Vigilant|Alert|Watchful} Tower"
+      ]
+    },
+    "town_hall": {
+      "patterns": [
+        "Town Hall",
+        "The Council Building",
+        "{$Mayor's|Magistrate's} Hall"
+      ]
+    },
+    "manor": {
+      "patterns": [
+        "{owner}'s Estate",
+        "The {$Grand|Noble|Fine} Manor",
+        "{$Rose|Oak|Stone|Hill} Manor"
+      ]
+    },
+    "farm": {
+      "patterns": [
+        "{owner}'s Farm",
+        "The {$Green|Sunny|Fertile} Fields",
+        "{$Wheat|Barley|Corn|Oat} Farm"
+      ]
+    },
+    "mine_entrance": {
+      "patterns": [
+        "The {$Deep|Dark|Old|Rich} Mine",
+        "{$Iron|Copper|Gold|Coal} Mine Entrance",
+        "The {$Abandoned|Active|Prosperous} Shaft"
+      ]
+    },
+    "warehouse": {
+      "patterns": [
+        "{$Trade|Merchant|Storage} Warehouse",
+        "The {$Large|Secure|Stone} Storehouse",
+        "{owner}'s Depot"
+      ]
+    },
+    "mill": {
+      "patterns": [
+        "The {$Old|Water|Wind} Mill",
+        "{$Stone|Grain|Flour} Mill",
+        "{owner}'s Mill"
+      ]
+    },
+    "residence": {
+      "patterns": [
+        "{owner}'s Home",
+        "A {$Small|Modest|Cozy} Dwelling",
+        "The {$Stone|Wood|Brick} Cottage"
+      ]
+    },
+    "well": {
+      "patterns": [
+        "The {$Town|Village|Market} Well",
+        "{$Ancient|Old|Deep} Well",
+        "The {$Stone|Brick|Covered} Well"
+      ]
+    }
+  },
+  "descriptions": {
+    "inn": [
+      "A {$cozy|welcoming|rustic|well-worn} establishment with {$the smell of roasting meat|warm firelight|the sound of laughter|hearty aromas} spilling out.",
+      "The building's {$weathered|sturdy|wooden} exterior promises {$comfortable beds|hot meals|warm hospitality} within.",
+      "This {$two-story|timbered|stone-and-wood} inn looks {$inviting|prosperous|busy} with {$travelers|locals|merchants} coming and going."
+    ],
+    "tavern": [
+      "The smell of {$ale|beer|wine} and {$roasted meat|baked bread|stew} drifts from the open door.",
+      "A {$rowdy|lively|boisterous} establishment where {$music|laughter|conversation} echoes late into the night.",
+      "This {$popular|crowded|bustling} drinking house is {$filled with locals|packed most evenings|known for its atmosphere}."
+    ],
+    "blacksmith": [
+      "The ring of hammer on anvil echoes from within this {$sturdy|soot-covered|brick} workshop.",
+      "Heat and smoke billow from the {$forge|open door|chimney}. {$Weapons|Tools|Iron goods} hang on display.",
+      "A {$well-equipped|busy|prosperous} smithy with the {$glow of the forge|clang of metal|scent of coal smoke} ever-present."
+    ],
+    "temple": [
+      "A {$peaceful|serene|sacred} place of worship dedicated to {$the gods|divine powers|spiritual matters}.",
+      "The {$stone|marble|wooden} structure is adorned with {$holy symbols|candles|offerings} and radiates {$calm|peace|sanctity}.",
+      "{$Incense|Candles|Prayer} fills this {$quiet|contemplative|blessed} sanctuary."
+    ],
+    "general_store": [
+      "A {$well-stocked|cluttered|organized} shop offering {$essential goods|daily necessities|supplies} for {$travelers|residents|adventurers}.",
+      "Shelves line the walls, packed with {$dried goods|tools|rope and supplies|miscellaneous wares}.",
+      "This {$busy|reliable|popular} establishment serves as the {$hub|center|lifeline} of local commerce."
+    ],
+    "stable": [
+      "The smell of {$hay|horses|leather} pervades this {$well-maintained|clean|busy} stable.",
+      "{$Horses|Mounts|Steeds} {$neigh softly|rest in their stalls|are tended by stable hands} inside.",
+      "A {$large|sturdy|reliable} structure housing {$riding horses|draft animals|fine steeds} and {$tack|equipment|gear}."
+    ],
+    "herbalist_shop": [
+      "Bundles of {$dried herbs|flowers|roots} hang from the ceiling, filling the air with {$fragrant|medicinal|earthy} scents.",
+      "This {$small|quaint|aromatic} shop is packed with {$jars|bottles|pouches} of {$herbs|remedies|potions}.",
+      "A {$knowledgeable|wise|skilled} practitioner of {$herbal medicine|natural remedies|healing arts} works here."
+    ],
+    "bakery": [
+      "The {$heavenly|wonderful|inviting} aroma of {$fresh bread|baked goods|pastries} wafts from within.",
+      "{$Golden loaves|Fresh bread|Baked goods} are displayed in the {$window|on shelves|behind the counter}.",
+      "This {$popular|busy|beloved} establishment produces {$daily bread|baked goods|provisions} for the community."
+    ],
+    "butcher": [
+      "Cuts of {$meat|pork|beef|poultry} hang from {$hooks|racks} in this {$clean|well-run|busy} shop.",
+      "The butcher's {$skill|expertise|craft} is evident in the {$precise|quality|fine} cuts on display.",
+      "A {$practical|no-nonsense|efficient} establishment providing {$meat|game|provisions} to the settlement."
+    ],
+    "market_stall": [
+      "A {$busy|colorful|lively} stall offering {$local goods|fresh produce|wares} from {$nearby farms|the region|local artisans}.",
+      "The merchant calls out {$prices|bargains|deals} to {$passersby|potential customers|the crowd}.",
+      "{$Goods|Wares|Products} are arranged in {$neat piles|attractive displays|organized rows}."
+    ],
+    "guard_post": [
+      "A {$fortified|sturdy|watchful} station where {$guards|soldiers|watchmen} {$keep vigilance|maintain order|stand ready}.",
+      "{$Armed guards|Watchmen|Soldiers} patrol from this {$strategic|central|important} location.",
+      "The {$town watch|city guard|local militia} operates from this {$well-maintained|official|imposing} post."
+    ],
+    "town_hall": [
+      "An {$impressive|official|important} building where {$town business|official matters|governance} is conducted.",
+      "The {$largest|most important|central} public building in the settlement, seat of {$local government|the mayor|authority}.",
+      "{$Notices|Proclamations|Announcements} are posted outside this {$imposing|dignified|formal} structure."
+    ],
+    "manor": [
+      "A {$grand|impressive|stately} residence belonging to {$local nobility|the wealthy|a prominent family}.",
+      "This {$elegant|well-maintained|imposing} estate is {$surrounded by gardens|built of fine stone|clearly prosperous}.",
+      "The {$finest|most impressive|largest} private residence in the settlement, home to {$the elite|nobility|wealth}."
+    ],
+    "farm": [
+      "{$Fields|Crops|Livestock} stretch around this {$hardworking|productive|well-tended} farm.",
+      "A {$rustic|practical|humble} farmstead where {$crops|animals|produce} are raised to {$feed the settlement|earn a living|supply the market}.",
+      "The smell of {$earth|animals|hay} and {$hard work|honest labor|rural life} permeates this {$modest|typical|busy} farm."
+    ],
+    "mine_entrance": [
+      "A {$dark|yawning|reinforced} opening leading down into the {$earth|depths|underground}.",
+      "{$Miners|Workers|Laborers} emerge covered in {$dust|soot|grime}, carrying {$ore|minerals|coal}.",
+      "{$Carts|Tracks|Equipment} mark this as an {$active|productive|important} mining operation."
+    ],
+    "warehouse": [
+      "A {$large|sturdy|secure} building used for {$storing goods|holding cargo|keeping supplies}.",
+      "{$Crates|Barrels|Sacks} are {$stacked high|organized neatly|loaded and unloaded} by {$workers|laborers|merchants}.",
+      "This {$important|busy|practical} storehouse serves the settlement's {$trade|commerce|logistics}."
+    ],
+    "mill": [
+      "The {$steady|rhythmic|constant} {$turning of the wheel|grinding of stone|creaking of machinery} marks this {$essential|hardworking|productive} mill.",
+      "{$Grain|Wheat|Flour} is {$ground|milled|processed} here to provide {$flour|bread|sustenance} for the community.",
+      "A {$vital|important|central} establishment powered by {$water|wind|muscle} to {$grind grain|mill flour|process crops}."
+    ],
+    "residence": [
+      "A {$simple|modest|typical} dwelling where {$a family|locals|residents} make their home.",
+      "This {$small|comfortable|well-kept} home shows signs of {$daily life|occupation|habitation}.",
+      "A {$humble|ordinary|plain} residence, one of many in the settlement."
+    ],
+    "well": [
+      "A {$stone|brick|wooden} well providing {$fresh|clean|vital} water to the {$community|settlement|neighborhood}.",
+      "The {$deep|reliable|ancient} well serves as a {$gathering place|meeting point|source of water} for {$locals|residents|neighbors}.",
+      "{$A bucket|The rope|The winch} and pulley system draws {$clear|cool|fresh} water from below."
+    ]
+  },
+  "inventories": {
+    "blacksmith": [
+      { "itemId": "iron_sword", "basePrice": 50, "restockDays": 7 },
+      { "itemId": "steel_sword", "basePrice": 60, "restockDays": 14 },
+      { "itemId": "iron_dagger", "basePrice": 45, "restockDays": 5 },
+      { "itemId": "leather_armor", "basePrice": 25, "restockDays": 10 },
+      { "itemId": "chainmail", "basePrice": 50, "restockDays": 14 },
+      { "itemId": "pickaxe", "basePrice": 15, "restockDays": 7 }
+    ],
+    "general_store": [
+      { "itemId": "torch", "basePrice": 2, "restockDays": 1 },
+      { "itemId": "health_potion", "basePrice": 20, "restockDays": 5 },
+      { "itemId": "healing_herb", "basePrice": 5, "restockDays": 2 },
+      { "itemId": "antidote", "basePrice": 12, "restockDays": 5 },
+      { "itemId": "wolf_pelt", "basePrice": 20, "restockDays": 7 }
+    ],
+    "herbalist_shop": [
+      { "itemId": "healing_herb", "basePrice": 4, "restockDays": 1 },
+      { "itemId": "antidote", "basePrice": 10, "restockDays": 3 },
+      { "itemId": "health_potion", "basePrice": 18, "restockDays": 5 },
+      { "itemId": "greater_health_potion", "basePrice": 45, "restockDays": 10 }
+    ],
+    "market_stall": [
+      { "itemId": "torch", "basePrice": 2, "restockDays": 1 },
+      { "itemId": "healing_herb", "basePrice": 6, "restockDays": 2 },
+      { "itemId": "wolf_pelt", "basePrice": 18, "restockDays": 5 }
+    ],
+    "bakery": [
+      { "itemId": "healing_herb", "basePrice": 7, "restockDays": 1 }
+    ],
+    "butcher": [
+      { "itemId": "healing_herb", "basePrice": 8, "restockDays": 1 }
+    ]
+  },
+  "services": {
+    "inn": ["rest", "food", "drink", "rumors"],
+    "tavern": ["food", "drink", "rumors", "gambling"],
+    "stable": ["horse_rest", "horse_purchase", "horse_sale"],
+    "temple": ["healing", "blessing", "donation"],
+    "herbalist_shop": ["healing", "cure_poison"],
+    "blacksmith": ["repair", "craft"],
+    "general_store": ["trade"],
+    "market_stall": ["trade"]
+  },
+  "buildingsBySize": {
+    "hamlet": ["inn", "farm"],
+    "village": ["inn", "blacksmith", "general_store", "farm", "farm", "residence", "residence"],
+    "town": ["inn", "tavern", "blacksmith", "general_store", "temple", "stable", "guard_post", "town_hall", "farm", "farm", "farm", "residence", "residence", "residence", "residence"],
+    "city": ["inn", "inn", "tavern", "tavern", "blacksmith", "blacksmith", "general_store", "general_store", "temple", "stable", "guard_post", "guard_post", "town_hall", "market_stall", "market_stall", "warehouse", "manor", "residence", "residence", "residence", "residence", "residence", "residence"]
+  },
+  "buildingsByEconomy": {
+    "farming": ["farm", "farm", "mill", "bakery"],
+    "mining": ["mine_entrance", "warehouse", "blacksmith"],
+    "trading": ["market_stall", "market_stall", "warehouse", "stable"],
+    "fishing": ["warehouse", "market_stall"],
+    "logging": ["warehouse"],
+    "crafting": ["warehouse", "market_stall"]
+  },
+  "npcRoleToBuilding": {
+    "innkeeper": "inn",
+    "blacksmith": "blacksmith",
+    "merchant": "general_store",
+    "guard": "guard_post",
+    "priest": "temple",
+    "healer": "herbalist_shop",
+    "stable_master": "stable",
+    "mayor": "town_hall",
+    "noble": "manor",
+    "baker": "bakery",
+    "farmer": "farm",
+    "tavern_keeper": "tavern",
+    "butcher": "butcher",
+    "miner": "mine_entrance"
+  }
+}
