@@ -7,8 +7,8 @@ import {
   DAMAGE_VARIANCE_MAX,
   FLEE_BASE_CHANCE,
   FLEE_SPEED_BONUS,
-  STAT_GAINS_PER_LEVEL,
-  XP_PER_LEVEL,
+  getXpForLevel,
+  getStatGains,
 } from '@verdantia/shared';
 import { createMockWorldLoader, createCombatSession, TEST_ENEMIES } from './fixtures';
 
@@ -196,7 +196,7 @@ describe('CombatSystem', () => {
 
     it('triggers level-up when XP threshold reached', () => {
       const session = createCombatSession(TEST_ENEMIES.forest_spider);
-      session.stats.xp = XP_PER_LEVEL[2]! - TEST_ENEMIES.forest_spider.xpReward; // Will reach level 2 threshold
+      session.stats.xp = getXpForLevel(2) - TEST_ENEMIES.forest_spider.xpReward; // Will reach level 2 threshold
       session.combat!.enemyHp = 1;
 
       vi.spyOn(Math, 'random').mockReturnValue(0.99); // no loot
@@ -205,10 +205,10 @@ describe('CombatSystem', () => {
       expect(session.stats.level).toBeGreaterThanOrEqual(2);
     });
 
-    it('level-up increases stats by STAT_GAINS_PER_LEVEL', () => {
+    it('level-up increases stats by scaling stat gains', () => {
       const session = createCombatSession(TEST_ENEMIES.forest_spider);
       // Set XP so that after gaining xpReward, we just reach level 2
-      session.stats.xp = XP_PER_LEVEL[2]! - TEST_ENEMIES.forest_spider.xpReward;
+      session.stats.xp = getXpForLevel(2) - TEST_ENEMIES.forest_spider.xpReward;
       const prevMaxHp = session.stats.maxHp;
       const prevAttack = session.stats.attack;
       const prevDefense = session.stats.defense;
@@ -218,20 +218,31 @@ describe('CombatSystem', () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
       combat.attack(session);
 
-      // Wait - we need to be careful. XP_PER_LEVEL[2] = 250, xpReward = 25
-      // So session.stats.xp = 250 - 25 = 225, then gains 25 => 250 >= 250 => level up
+      const expectedGains = getStatGains(2);
       if (session.stats.level >= 2) {
-        expect(session.stats.maxHp).toBe(prevMaxHp + STAT_GAINS_PER_LEVEL.maxHp);
-        expect(session.stats.attack).toBe(prevAttack + STAT_GAINS_PER_LEVEL.attack);
-        expect(session.stats.defense).toBe(prevDefense + STAT_GAINS_PER_LEVEL.defense);
-        expect(session.stats.speed).toBe(prevSpeed + STAT_GAINS_PER_LEVEL.speed);
+        expect(session.stats.maxHp).toBe(prevMaxHp + expectedGains.maxHp);
+        expect(session.stats.attack).toBe(prevAttack + expectedGains.attack);
+        expect(session.stats.defense).toBe(prevDefense + expectedGains.defense);
+        expect(session.stats.speed).toBe(prevSpeed + expectedGains.speed);
       }
+    });
+
+    it('allows leveling past level 10 (no level cap)', () => {
+      const session = createCombatSession(TEST_ENEMIES.forest_spider);
+      session.stats.level = 10;
+      session.stats.xp = getXpForLevel(11) - TEST_ENEMIES.forest_spider.xpReward;
+      session.combat!.enemyHp = 1;
+
+      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      combat.attack(session);
+
+      expect(session.stats.level).toBe(11);
     });
 
     it('full heals on level-up', () => {
       const session = createCombatSession(TEST_ENEMIES.forest_spider);
       session.stats.hp = 10; // damaged
-      session.stats.xp = XP_PER_LEVEL[2]! - TEST_ENEMIES.forest_spider.xpReward;
+      session.stats.xp = getXpForLevel(2) - TEST_ENEMIES.forest_spider.xpReward;
       session.combat!.enemyHp = 1;
 
       vi.spyOn(Math, 'random').mockReturnValue(0.99);
