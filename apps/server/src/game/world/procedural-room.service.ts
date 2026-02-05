@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import type { RoomDefinition } from '@verdantia/shared';
 import { makeRoomId } from '@verdantia/shared';
@@ -28,8 +28,11 @@ interface AdjacentRoomData {
 export class ProceduralRoomService {
   private readonly logger = new Logger(ProceduralRoomService.name);
 
+  // In-memory cache for generated rooms when no database is available
+  private roomCache = new Map<string, RoomDefinition>();
+
   constructor(
-    private readonly em: EntityManager,
+    @Optional() private readonly em: EntityManager | null,
     private readonly definitionService: DefinitionService,
     private readonly wfcService: WFCService,
   ) {}
@@ -37,23 +40,37 @@ export class ProceduralRoomService {
   async getOrGenerateRoom(x: number, y: number, z: number): Promise<RoomDefinition | undefined> {
     const roomId = makeRoomId(x, y, z);
 
-    try {
-      // Check if room exists in database
-      const existingRoom = await this.em.findOne(
-        ProceduralRoom,
-        { id: roomId },
-        { populate: ['biome'] },
-      );
+    // Check in-memory cache first
+    const cachedRoom = this.roomCache.get(roomId);
+    if (cachedRoom) {
+      return cachedRoom;
+    }
 
-      if (existingRoom) {
-        return await this.buildRoomDefinition(existingRoom);
+    // Check database if available
+    if (this.em) {
+      try {
+        const existingRoom = await this.em.findOne(
+          ProceduralRoom,
+          { id: roomId },
+          { populate: ['biome'] },
+        );
+
+        if (existingRoom) {
+          const roomDef = await this.buildRoomDefinition(existingRoom);
+          this.roomCache.set(roomId, roomDef);
+          return roomDef;
+        }
+      } catch (error) {
+        this.logger.debug(`DB lookup failed for room ${roomId}, generating new room`);
       }
-    } catch (error) {
-      this.logger.debug(`DB lookup failed for room ${roomId}, generating new room`);
     }
 
     // Generate new room
-    return await this.generateRoom(x, y, z);
+    const newRoom = await this.generateRoom(x, y, z);
+    if (newRoom) {
+      this.roomCache.set(roomId, newRoom);
+    }
+    return newRoom;
   }
 
   async generateRoom(x: number, y: number, z: number): Promise<RoomDefinition> {
@@ -89,11 +106,12 @@ export class ProceduralRoomService {
     const enemies = await this.selectEnemies(selectedBiomeId, difficulty, seed);
     const resources = await this.selectResources(selectedBiomeId, seed);
 
-    // Save to database
-    try {
-      const biomeEntity = await this.em.findOne(BiomeDefinition, { id: selectedBiomeId });
+    // Save to database (if available)
+    if (this.em) {
+      try {
+        const biomeEntity = await this.em.findOne(BiomeDefinition, { id: selectedBiomeId });
 
-      if (biomeEntity) {
+        if (biomeEntity) {
         const room = this.em.create(ProceduralRoom, {
           id: roomId,
           x,
@@ -166,10 +184,11 @@ export class ProceduralRoomService {
           }
         }
 
-        await this.em.flush();
+          await this.em.flush();
+        }
+      } catch (error) {
+        this.logger.warn(`Failed to save room ${roomId} to database: ${error}`);
       }
-    } catch (error) {
-      this.logger.warn(`Failed to save room ${roomId} to database: ${error}`);
     }
 
     // Return room definition
@@ -199,6 +218,26 @@ export class ProceduralRoomService {
     ];
 
     const adjacentRooms: AdjacentRoomData[] = [];
+
+    // Check in-memory cache first
+    for (const { dx, dy, dz } of offsets) {
+      const adjX = x + dx;
+      const adjY = y + dy;
+      const adjZ = z + dz;
+      const adjId = makeRoomId(adjX, adjY, adjZ);
+
+      const cachedRoom = this.roomCache.get(adjId);
+      if (cachedRoom) {
+        // Extract biome from cached room - we need to infer it from the room
+        // For now, we'll skip cached rooms in adjacency check since we don't store biome
+        continue;
+      }
+    }
+
+    // Check database if available
+    if (!this.em) {
+      return adjacentRooms;
+    }
 
     for (const { dx, dy, dz } of offsets) {
       const adjX = x + dx;
@@ -231,6 +270,11 @@ export class ProceduralRoomService {
   }
 
   private async selectItems(biomeId: string, difficulty: number, seed: number): Promise<string[]> {
+    if (!this.em) {
+      // No database - return empty for now
+      return [];
+    }
+
     try {
       const pool = await this.em.find(BiomeItemPool, {
         biome: { id: biomeId },
@@ -257,6 +301,11 @@ export class ProceduralRoomService {
   }
 
   private async selectEnemies(biomeId: string, difficulty: number, seed: number): Promise<string[]> {
+    if (!this.em) {
+      // No database - return empty for now
+      return [];
+    }
+
     try {
       const pool = await this.em.find(BiomeEnemyPool, {
         biome: { id: biomeId },
@@ -283,6 +332,11 @@ export class ProceduralRoomService {
   }
 
   private async selectResources(biomeId: string, seed: number): Promise<string[]> {
+    if (!this.em) {
+      // No database - return empty for now
+      return [];
+    }
+
     try {
       const pool = await this.em.find(BiomeResourcePool, {
         biome: { id: biomeId },
@@ -361,6 +415,11 @@ export class ProceduralRoomService {
   }
 
   private async buildRoomDefinition(room: ProceduralRoom): Promise<RoomDefinition> {
+    // This method is only called when em is available (from getOrGenerateRoom)
+    if (!this.em) {
+      throw new Error('EntityManager required to build room definition from database');
+    }
+
     try {
       // Load exits
       const exits = await this.em.find(ProceduralRoomExit, { room: room.id });

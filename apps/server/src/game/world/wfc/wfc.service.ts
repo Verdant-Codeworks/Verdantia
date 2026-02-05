@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { BiomeCompatibility } from '../../../entities/biome-compatibility.entity';
 import { BiomeDefinition } from '../../../entities/biome-definition.entity';
@@ -17,11 +17,21 @@ interface BiomeExit {
   description?: string;
 }
 
+// Default biomes when no database is available
+const DEFAULT_BIOMES = ['wilderness', 'caves', 'ruins'];
+
+// Default compatibility rules: wilderness is compatible with everything
+const DEFAULT_COMPATIBILITY: Record<string, string[]> = {
+  wilderness: ['wilderness', 'caves', 'ruins'],
+  caves: ['wilderness', 'caves'],
+  ruins: ['wilderness', 'ruins'],
+};
+
 @Injectable()
 export class WFCService {
   private readonly logger = new Logger(WFCService.name);
 
-  constructor(private readonly em: EntityManager) {}
+  constructor(@Optional() private readonly em: EntityManager | null) {}
 
   async getValidBiomes(
     x: number,
@@ -30,18 +40,27 @@ export class WFCService {
     adjacentRooms: AdjacentRoom[],
   ): Promise<string[]> {
     if (adjacentRooms.length === 0) {
-      // No constraints, return all biomes (should rarely happen)
+      // No constraints, return all biomes
+      if (!this.em) {
+        return DEFAULT_BIOMES;
+      }
+
       try {
         const allBiomes = await this.em.find(BiomeDefinition, {});
         return allBiomes.map(b => b.id);
       } catch (error) {
         this.logger.debug('DB lookup failed for biomes, returning defaults');
-        return ['wilderness', 'caves', 'ruins'];
+        return DEFAULT_BIOMES;
       }
     }
 
     // Get biomes that are compatible with all adjacent rooms
     const adjacentBiomeIds = adjacentRooms.map(r => r.biomeId);
+
+    // Use in-memory compatibility if no database
+    if (!this.em) {
+      return this.getValidBiomesFromDefaults(adjacentBiomeIds);
+    }
 
     try {
       // Find biomes compatible with all adjacent biomes
@@ -78,6 +97,22 @@ export class WFCService {
       // Fallback: use the most common adjacent biome
       return [adjacentBiomeIds[0]];
     }
+  }
+
+  private getValidBiomesFromDefaults(adjacentBiomeIds: string[]): string[] {
+    // Find biomes compatible with all adjacent biomes using default rules
+    const validBiomes = DEFAULT_BIOMES.filter(candidate => {
+      return adjacentBiomeIds.every(adjBiome => {
+        const compatible = DEFAULT_COMPATIBILITY[adjBiome] || [];
+        return compatible.includes(candidate);
+      });
+    });
+
+    if (validBiomes.length === 0) {
+      return [adjacentBiomeIds[0]];
+    }
+
+    return validBiomes;
   }
 
   generateExits(
