@@ -48,6 +48,12 @@ describe('leveling', () => {
         expect(getXpForLevel(level + 1)).toBeGreaterThan(getXpForLevel(level));
       }
     });
+
+    it('caps at MAX_SAFE_INTEGER for extreme levels', () => {
+      // At very high levels, XP should not exceed safe integer range
+      const extremeLevel = 1000000;
+      expect(getXpForLevel(extremeLevel)).toBeLessThanOrEqual(Number.MAX_SAFE_INTEGER);
+    });
   });
 
   describe('getXpProgress', () => {
@@ -75,6 +81,11 @@ describe('leveling', () => {
 
       // Way above next level threshold
       expect(getXpProgress(10000, 2)).toBe(100);
+    });
+
+    it('clamps negative XP to 0 progress', () => {
+      expect(getXpProgress(-10, 1)).toBe(0);
+      expect(getXpProgress(-100, 5)).toBe(0);
     });
 
     it('works for level 1', () => {

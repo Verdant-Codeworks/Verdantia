@@ -36,10 +36,13 @@ export interface StatGains {
  * - Level 5: 800 XP
  * - Level 10: 2700 XP
  * - Level 20: 8300 XP
+ *
+ * Note: Capped at MAX_SAFE_INTEGER to prevent precision loss at extreme levels.
  */
 export function getXpForLevel(level: number): number {
   if (level <= 1) return 0;
-  return Math.floor(XP_BASE * Math.pow(level - 1, XP_EXPONENT));
+  const xp = Math.floor(XP_BASE * Math.pow(level - 1, XP_EXPONENT));
+  return Math.min(xp, Number.MAX_SAFE_INTEGER);
 }
 
 /**
