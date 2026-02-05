@@ -166,7 +166,7 @@
     "description": "You stand before a massive stone archway crackling with arcane energy. The portal within swirls with colors that hurt to look at directly. Ancient runes carved into the stonework seem to shift and rearrange themselves. Through the portal to the NORTH, you catch glimpses of an endless wilderness — forests, caves, ruins, and places yet unknown. Type 'north' or 'n' to step through the portal.",
     "exits": [
       { "direction": "west", "roomId": "village_gate", "description": "The village gate is to the west." },
-      { "direction": "north", "roomId": "proc_0_0_0", "description": "Step through the shimmering portal into the unknown wilderness." }
+      { "direction": "north", "roomId": "proc_0_0_0", "description": "Step through the shimmering portal into the unknown wilderness. (UNDER DEVELOPMENT)" }
     ],
     "items": [],
     "enemies": [],
