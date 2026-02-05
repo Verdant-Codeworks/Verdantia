@@ -434,22 +434,45 @@ export class ProceduralRoomService {
     const destRoomId = makeRoomId(toX, toY, toZ);
     const cachedRoom = this.roomCache.get(destRoomId);
 
+    // Get current room to check if destination is same location
+    const currentRoomId = makeRoomId(fromX, fromY, fromZ);
+    const currentRoom = this.roomCache.get(currentRoomId);
+
     // Format direction phrase naturally (cardinal vs vertical)
+    const isVertical = direction === 'up' || direction === 'down';
     const directionPhrase = direction === 'up' ? 'above'
       : direction === 'down' ? 'below'
       : `to the ${direction}`;
+
+    // Check if destination is same location (vertical movement within same area)
+    const isSameLocation = currentRoom && cachedRoom &&
+      this.areNamesSimilar(currentRoom.name, cachedRoom.name);
 
     // Generate description based on what's actually there
     if (destIsSettlement && destSize) {
       // Generate the settlement name deterministically to preview it
       const settlementSeed = this.generateSeed(toX, toY, toZ);
       const settlementName = cachedRoom?.name || this.previewSettlementName(toX, toY, toZ, settlementSeed);
-      return direction === 'up' || direction === 'down'
+
+      // Check if it's the same settlement we're in
+      if (isVertical && currentRoom && this.areNamesSimilar(currentRoom.name, settlementName)) {
+        return direction === 'up'
+          ? 'A stairway leads to an upper level'
+          : 'A stairway descends to a lower level';
+      }
+
+      return isVertical
         ? `${settlementName}, a ${destSize}, lies ${directionPhrase}`
         : `${directionPhrase.charAt(0).toUpperCase() + directionPhrase.slice(1)} lies ${settlementName}, a ${destSize}`;
     }
 
     if (cachedRoom) {
+      // If vertical exit to same location, use contextual description
+      if (isVertical && isSameLocation) {
+        return direction === 'up'
+          ? `The ${this.getLocationTypeWord(cachedRoom.name)} continues above`
+          : `The ${this.getLocationTypeWord(cachedRoom.name)} descends further below`;
+      }
       // We've been there - show its name
       return `${cachedRoom.name} lies ${directionPhrase}`;
     }
@@ -486,6 +509,42 @@ export class ProceduralRoomService {
     }
 
     return name;
+  }
+
+  /**
+   * Check if two room names refer to the same location (e.g., "Crystal Grotto" and "Crystal Grotto").
+   * Also handles cases like "Deep Crystal Grotto" matching "Crystal Grotto".
+   */
+  private areNamesSimilar(name1: string, name2: string): boolean {
+    if (name1 === name2) return true;
+
+    // Extract the core location name (remove adjectives like "Deep", "Upper", "Lower")
+    const extractCore = (name: string) => {
+      const adjectives = ['deep', 'upper', 'lower', 'inner', 'outer', 'dark', 'ancient', 'hidden'];
+      const words = name.toLowerCase().split(' ');
+      const filtered = words.filter(w => !adjectives.includes(w));
+      return filtered.join(' ');
+    };
+
+    return extractCore(name1) === extractCore(name2);
+  }
+
+  /**
+   * Extract a generic location type word from a room name for contextual descriptions.
+   * E.g., "Crystal Grotto" -> "grotto", "Dark Cave" -> "cave"
+   */
+  private getLocationTypeWord(name: string): string {
+    const locationTypes = ['grotto', 'cave', 'cavern', 'tunnel', 'passage', 'chamber', 'pit', 'chasm', 'forest', 'woods', 'clearing'];
+    const nameLower = name.toLowerCase();
+
+    for (const type of locationTypes) {
+      if (nameLower.includes(type)) {
+        return type;
+      }
+    }
+
+    // Default to a generic term
+    return 'passage';
   }
 
   /**
@@ -527,6 +586,9 @@ export class ProceduralRoomService {
       const description = this.generateWildernessExitDescription(
         exit.direction,
         currentBiomeId,
+        x,
+        y,
+        z,
         destX,
         destY,
         destZ,
@@ -543,6 +605,9 @@ export class ProceduralRoomService {
   private generateWildernessExitDescription(
     direction: string,
     currentBiomeId: string,
+    fromX: number,
+    fromY: number,
+    fromZ: number,
     destX: number,
     destY: number,
     destZ: number,
@@ -556,21 +621,43 @@ export class ProceduralRoomService {
     const destRoomId = makeRoomId(destX, destY, destZ);
     const cachedRoom = this.roomCache.get(destRoomId);
 
+    // Get current room to check if destination is same location
+    const currentRoomId = makeRoomId(fromX, fromY, fromZ);
+    const currentRoom = this.roomCache.get(currentRoomId);
+
     // Format direction phrase naturally (cardinal vs vertical)
     const isVertical = direction === 'up' || direction === 'down';
     const directionPhrase = direction === 'up' ? 'above'
       : direction === 'down' ? 'below'
       : `to the ${direction}`;
 
+    // Check if destination is same location (vertical movement within same area)
+    const isSameLocation = currentRoom && cachedRoom &&
+      this.areNamesSimilar(currentRoom.name, cachedRoom.name);
+
     if (destIsSettlement && destSize) {
       const settlementSeed = this.generateSeed(destX, destY, destZ);
       const settlementName = cachedRoom?.name || this.previewSettlementName(destX, destY, destZ, settlementSeed);
+
+      // Check if it's the same settlement we're in
+      if (isVertical && currentRoom && this.areNamesSimilar(currentRoom.name, settlementName)) {
+        return direction === 'up'
+          ? 'A stairway leads to an upper level'
+          : 'A stairway descends to a lower level';
+      }
+
       return isVertical
         ? `${settlementName} (${destSize}) lies ${directionPhrase}`
         : `${settlementName} (${destSize}) ${directionPhrase}`;
     }
 
     if (cachedRoom) {
+      // If vertical exit to same location, use contextual description
+      if (isVertical && isSameLocation) {
+        return direction === 'up'
+          ? `The ${this.getLocationTypeWord(cachedRoom.name)} continues above`
+          : `The ${this.getLocationTypeWord(cachedRoom.name)} descends further below`;
+      }
       return isVertical
         ? `${cachedRoom.name} lies ${directionPhrase}`
         : `${cachedRoom.name} ${directionPhrase}`;
