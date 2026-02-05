@@ -434,21 +434,28 @@ export class ProceduralRoomService {
     const destRoomId = makeRoomId(toX, toY, toZ);
     const cachedRoom = this.roomCache.get(destRoomId);
 
+    // Format direction phrase naturally (cardinal vs vertical)
+    const directionPhrase = direction === 'up' ? 'above'
+      : direction === 'down' ? 'below'
+      : `to the ${direction}`;
+
     // Generate description based on what's actually there
     if (destIsSettlement && destSize) {
       // Generate the settlement name deterministically to preview it
       const settlementSeed = this.generateSeed(toX, toY, toZ);
       const settlementName = cachedRoom?.name || this.previewSettlementName(toX, toY, toZ, settlementSeed);
-      return `To the ${direction} lies ${settlementName}, a ${destSize}`;
+      return direction === 'up' || direction === 'down'
+        ? `${settlementName}, a ${destSize}, lies ${directionPhrase}`
+        : `${directionPhrase.charAt(0).toUpperCase() + directionPhrase.slice(1)} lies ${settlementName}, a ${destSize}`;
     }
 
     if (cachedRoom) {
       // We've been there - show its name
-      return `${cachedRoom.name} lies to the ${direction}`;
+      return `${cachedRoom.name} lies ${directionPhrase}`;
     }
 
     // Unknown wilderness - give a hint about the terrain
-    return `Unexplored wilderness to the ${direction}`;
+    return `Unexplored wilderness ${directionPhrase}`;
   }
 
   /**
@@ -549,17 +556,27 @@ export class ProceduralRoomService {
     const destRoomId = makeRoomId(destX, destY, destZ);
     const cachedRoom = this.roomCache.get(destRoomId);
 
+    // Format direction phrase naturally (cardinal vs vertical)
+    const isVertical = direction === 'up' || direction === 'down';
+    const directionPhrase = direction === 'up' ? 'above'
+      : direction === 'down' ? 'below'
+      : `to the ${direction}`;
+
     if (destIsSettlement && destSize) {
       const settlementSeed = this.generateSeed(destX, destY, destZ);
       const settlementName = cachedRoom?.name || this.previewSettlementName(destX, destY, destZ, settlementSeed);
-      return `${settlementName} (${destSize}) to the ${direction}`;
+      return isVertical
+        ? `${settlementName} (${destSize}) lies ${directionPhrase}`
+        : `${settlementName} (${destSize}) ${directionPhrase}`;
     }
 
     if (cachedRoom) {
-      return `${cachedRoom.name} to the ${direction}`;
+      return isVertical
+        ? `${cachedRoom.name} lies ${directionPhrase}`
+        : `${cachedRoom.name} ${directionPhrase}`;
     }
 
-    // Handle vertical exits specially
+    // Handle vertical exits specially for unknown destinations
     if (direction === 'up') {
       return 'A passage leads upward';
     }
