@@ -11,6 +11,7 @@ export function CommandInput({ onSubmit, getHistory, disabled }: CommandInputPro
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const isProcessing = useGameStore((s) => s.isProcessingCommand);
+  const addCommandEcho = useGameStore((s) => s.addCommandEcho);
 
   const isDisabled = disabled || isProcessing;
 
@@ -22,8 +23,10 @@ export function CommandInput({ onSubmit, getHistory, disabled }: CommandInputPro
 
   const handleSubmit = () => {
     if (!input.trim() || isProcessing || disabled) return;
+    const commandText = input.trim();
     const success = onSubmit(input);
     if (success) {
+      addCommandEcho(commandText);
       setInput('');
     }
   };
