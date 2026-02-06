@@ -267,4 +267,53 @@ describe('ProceduralRoomService - Adjacent Room Pre-generation', () => {
       expect(room2).toBeDefined();
     });
   });
+
+  describe('getAdjacentRooms', () => {
+    it('should return biome data for cached rooms', async () => {
+      // Generate a room so it gets cached with biome data
+      await service.getOrGenerateRoom(5, 5, 0);
+
+      // Now check adjacent rooms from (5, 6, 0) - room (5,5,0) is north
+      const adjacent = await service.getAdjacentRooms(5, 6, 0);
+
+      expect(adjacent.length).toBeGreaterThan(0);
+      const northNeighbor = adjacent.find(r => r.x === 5 && r.y === 5 && r.z === 0);
+      expect(northNeighbor).toBeDefined();
+      expect(northNeighbor?.biomeId).toBe('wilderness');
+    });
+
+    it('should return empty array when no neighbors exist', async () => {
+      // Don't generate any rooms - query an isolated location
+      const adjacent = await service.getAdjacentRooms(100, 100, 0);
+      expect(adjacent).toEqual([]);
+    });
+
+    it('should return multiple cached neighbors', async () => {
+      // Generate rooms around (10, 10, 0)
+      await service.getOrGenerateRoom(10, 9, 0);  // north
+      await service.getOrGenerateRoom(10, 11, 0); // south
+      await service.getOrGenerateRoom(11, 10, 0); // east
+
+      const adjacent = await service.getAdjacentRooms(10, 10, 0);
+      expect(adjacent.length).toBe(3);
+    });
+
+    it('should provide biome constraints to WFC during generation', async () => {
+      // Generate a room first so it's in the biome cache
+      await service.getOrGenerateRoom(0, 0, 0);
+
+      // Now generate an adjacent room - WFC should receive biome data
+      await service.getOrGenerateRoom(1, 0, 0);
+
+      // wfcService.getValidBiomes should have been called with adjacent data
+      // that includes our cached room's biome
+      const calls = (wfcService.getValidBiomes as any).mock.calls;
+      const lastCall = calls[calls.length - 1];
+      // lastCall[3] is the adjacentRooms array
+      const adjacentRoomsArg = lastCall[3] as Array<{ x: number; y: number; z: number; biomeId: string }>;
+      const westNeighbor = adjacentRoomsArg.find((r: any) => r.x === 0 && r.y === 0 && r.z === 0);
+      expect(westNeighbor).toBeDefined();
+      expect(westNeighbor?.biomeId).toBe('wilderness');
+    });
+  });
 });
