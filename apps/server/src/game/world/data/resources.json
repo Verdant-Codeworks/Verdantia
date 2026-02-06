@@ -37,5 +37,76 @@
     "lootTable": [{ "itemId": "iron_ore", "quantity": 1, "chance": 1.0 }],
     "respawnTime": 0,
     "toolRequired": "pickaxe"
+  },
+  {
+    "id": "crystal_formation",
+    "name": "Crystal Formation",
+    "description": "A cluster of luminous crystals jutting from the cave wall, pulsing with faint energy.",
+    "skill": "mining",
+    "levelRequired": 4,
+    "xpReward": 35,
+    "gatherVerb": "mine",
+    "gatherMessage": "You carefully chip crystals from the formation.",
+    "lootTable": [{ "itemId": "crystal_shard", "quantity": 1, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
+  },
+  {
+    "id": "herb_patch",
+    "name": "Herb Patch",
+    "description": "A patch of fragrant green herbs growing in the damp soil.",
+    "skill": "herbalism",
+    "levelRequired": 1,
+    "xpReward": 15,
+    "gatherVerb": "gather",
+    "gatherMessage": "You carefully pick the healing herbs.",
+    "lootTable": [{ "itemId": "healing_herb", "quantity": 1, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": null
+  },
+  {
+    "id": "rare_mushroom_cluster",
+    "name": "Rare Mushroom Cluster",
+    "description": "A cluster of bioluminescent mushrooms radiating a soft blue glow.",
+    "skill": "herbalism",
+    "levelRequired": 3,
+    "xpReward": 25,
+    "gatherVerb": "gather",
+    "gatherMessage": "You carefully harvest the glowing mushrooms.",
+    "lootTable": [{ "itemId": "mushroom", "quantity": 2, "chance": 1.0 }],
+    "respawnTime": 0,
+    "toolRequired": null
+  },
+  {
+    "id": "ancient_rubble",
+    "name": "Ancient Rubble",
+    "description": "A pile of crumbling stone and debris from collapsed ruins. Something might be buried within.",
+    "skill": "mining",
+    "levelRequired": 2,
+    "xpReward": 20,
+    "gatherVerb": "mine",
+    "gatherMessage": "You dig through the ancient rubble.",
+    "lootTable": [
+      { "itemId": "bone_shard", "quantity": 1, "chance": 1.0 },
+      { "itemId": "ancient_coin", "quantity": 1, "chance": 0.2 }
+    ],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
+  },
+  {
+    "id": "forgotten_cache",
+    "name": "Forgotten Cache",
+    "description": "A small alcove sealed behind loose stones. Something glints within the darkness.",
+    "skill": "mining",
+    "levelRequired": 1,
+    "xpReward": 10,
+    "gatherVerb": "mine",
+    "gatherMessage": "You pry open the forgotten cache.",
+    "lootTable": [
+      { "itemId": "gold_pouch", "quantity": 1, "chance": 0.6 },
+      { "itemId": "ancient_coin", "quantity": 1, "chance": 0.4 }
+    ],
+    "respawnTime": 0,
+    "toolRequired": "pickaxe"
   }
 ]

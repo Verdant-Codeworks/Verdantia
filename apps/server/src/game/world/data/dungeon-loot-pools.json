@@ -1,0 +1,81 @@
+{
+  "enemies": [
+    { "biomeId": "wilderness", "enemyId": "forest_spider", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "wilderness", "enemyId": "thorn_vine", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "wilderness", "enemyId": "wild_wolf", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "wilderness", "enemyId": "venomous_toad", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "wilderness", "enemyId": "bramble_beast", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 4 },
+    { "biomeId": "wilderness", "enemyId": "elder_treant", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 2 },
+
+    { "biomeId": "caves", "enemyId": "cave_bat", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "caves", "enemyId": "cave_spider", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "caves", "enemyId": "rock_beetle", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "caves", "enemyId": "giant_spider", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 4 },
+    { "biomeId": "caves", "enemyId": "crystal_drake", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 4 },
+    { "biomeId": "caves", "enemyId": "stone_golem", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 2 },
+    { "biomeId": "caves", "enemyId": "deep_wurm", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 2 },
+
+    { "biomeId": "ruins", "enemyId": "skeleton_warrior", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "ruins", "enemyId": "goblin", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 8 },
+    { "biomeId": "ruins", "enemyId": "cursed_spirit", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "ruins", "enemyId": "bandit", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "ruins", "enemyId": "dark_knight", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 4 },
+    { "biomeId": "ruins", "enemyId": "goblin_chief", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 4 },
+    { "biomeId": "ruins", "enemyId": "lich_remnant", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 2 }
+  ],
+  "items": [
+    { "biomeId": "wilderness", "itemId": "healing_herb", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 10 },
+    { "biomeId": "wilderness", "itemId": "mushroom", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 8 },
+    { "biomeId": "wilderness", "itemId": "antidote", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 6 },
+    { "biomeId": "wilderness", "itemId": "thorn_barb", "minDifficulty": 1, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "wilderness", "itemId": "toad_gland", "minDifficulty": 2, "maxDifficulty": 6, "spawnWeight": 5 },
+    { "biomeId": "wilderness", "itemId": "heartwood", "minDifficulty": 3, "maxDifficulty": 10, "spawnWeight": 4 },
+    { "biomeId": "wilderness", "itemId": "health_potion", "minDifficulty": 2, "maxDifficulty": 10, "spawnWeight": 6 },
+    { "biomeId": "wilderness", "itemId": "minor_mana_draught", "minDifficulty": 1, "maxDifficulty": 6, "spawnWeight": 5 },
+    { "biomeId": "wilderness", "itemId": "elixir_of_vigor", "minDifficulty": 4, "maxDifficulty": 10, "spawnWeight": 3 },
+    { "biomeId": "wilderness", "itemId": "leather_armor", "minDifficulty": 1, "maxDifficulty": 4, "spawnWeight": 2 },
+    { "biomeId": "wilderness", "itemId": "thornwood_staff", "minDifficulty": 3, "maxDifficulty": 7, "spawnWeight": 2 },
+    { "biomeId": "wilderness", "itemId": "living_bark_armor", "minDifficulty": 4, "maxDifficulty": 10, "spawnWeight": 1 },
+    { "biomeId": "wilderness", "itemId": "wolf_pelt", "minDifficulty": 2, "maxDifficulty": 6, "spawnWeight": 4 },
+
+    { "biomeId": "caves", "itemId": "mushroom", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 10 },
+    { "biomeId": "caves", "itemId": "healing_herb", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 8 },
+    { "biomeId": "caves", "itemId": "torch", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 7 },
+    { "biomeId": "caves", "itemId": "spider_fang", "minDifficulty": 1, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "caves", "itemId": "crystal_shard", "minDifficulty": 3, "maxDifficulty": 10, "spawnWeight": 5 },
+    { "biomeId": "caves", "itemId": "health_potion", "minDifficulty": 2, "maxDifficulty": 10, "spawnWeight": 6 },
+    { "biomeId": "caves", "itemId": "minor_mana_draught", "minDifficulty": 1, "maxDifficulty": 6, "spawnWeight": 5 },
+    { "biomeId": "caves", "itemId": "greater_health_potion", "minDifficulty": 4, "maxDifficulty": 10, "spawnWeight": 3 },
+    { "biomeId": "caves", "itemId": "copper_ore", "minDifficulty": 1, "maxDifficulty": 4, "spawnWeight": 5 },
+    { "biomeId": "caves", "itemId": "iron_ore", "minDifficulty": 3, "maxDifficulty": 8, "spawnWeight": 3 },
+    { "biomeId": "caves", "itemId": "bone_shield", "minDifficulty": 2, "maxDifficulty": 5, "spawnWeight": 2 },
+    { "biomeId": "caves", "itemId": "crystal_shard_blade", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 1 },
+    { "biomeId": "caves", "itemId": "wurm_scale_armor", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 1 },
+
+    { "biomeId": "ruins", "itemId": "healing_herb", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 8 },
+    { "biomeId": "ruins", "itemId": "health_potion", "minDifficulty": 2, "maxDifficulty": 10, "spawnWeight": 7 },
+    { "biomeId": "ruins", "itemId": "gold_pouch", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 6 },
+    { "biomeId": "ruins", "itemId": "bone_shard", "minDifficulty": 1, "maxDifficulty": 5, "spawnWeight": 6 },
+    { "biomeId": "ruins", "itemId": "spirit_essence", "minDifficulty": 3, "maxDifficulty": 10, "spawnWeight": 4 },
+    { "biomeId": "ruins", "itemId": "ancient_coin", "minDifficulty": 2, "maxDifficulty": 10, "spawnWeight": 5 },
+    { "biomeId": "ruins", "itemId": "minor_mana_draught", "minDifficulty": 1, "maxDifficulty": 6, "spawnWeight": 5 },
+    { "biomeId": "ruins", "itemId": "greater_health_potion", "minDifficulty": 4, "maxDifficulty": 10, "spawnWeight": 3 },
+    { "biomeId": "ruins", "itemId": "torch", "minDifficulty": 1, "maxDifficulty": 10, "spawnWeight": 6 },
+    { "biomeId": "ruins", "itemId": "rusty_sword", "minDifficulty": 1, "maxDifficulty": 3, "spawnWeight": 3 },
+    { "biomeId": "ruins", "itemId": "shadow_cloak", "minDifficulty": 4, "maxDifficulty": 10, "spawnWeight": 1 },
+    { "biomeId": "ruins", "itemId": "lich_staff", "minDifficulty": 5, "maxDifficulty": 10, "spawnWeight": 1 },
+    { "biomeId": "ruins", "itemId": "gold_pile", "minDifficulty": 3, "maxDifficulty": 10, "spawnWeight": 3 }
+  ],
+  "resources": [
+    { "biomeId": "caves", "resourceId": "copper_vein", "spawnWeight": 8 },
+    { "biomeId": "caves", "resourceId": "coal_deposit", "spawnWeight": 6 },
+    { "biomeId": "caves", "resourceId": "iron_vein", "spawnWeight": 4 },
+    { "biomeId": "caves", "resourceId": "crystal_formation", "spawnWeight": 3 },
+
+    { "biomeId": "wilderness", "resourceId": "herb_patch", "spawnWeight": 8 },
+    { "biomeId": "wilderness", "resourceId": "rare_mushroom_cluster", "spawnWeight": 4 },
+
+    { "biomeId": "ruins", "resourceId": "ancient_rubble", "spawnWeight": 6 },
+    { "biomeId": "ruins", "resourceId": "forgotten_cache", "spawnWeight": 4 }
+  ]
+}
