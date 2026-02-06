@@ -31,3 +31,31 @@ export interface FloorLayout {
   stairsDownCoord: { x: number; y: number };
   stairsUpTarget: string; // room ID for the "up" exit
 }
+
+export interface EnemyPoolEntry {
+  biomeId: string;
+  enemyId: string;
+  minDifficulty: number;
+  maxDifficulty: number;
+  spawnWeight: number;
+}
+
+export interface ItemPoolEntry {
+  biomeId: string;
+  itemId: string;
+  minDifficulty: number;
+  maxDifficulty: number;
+  spawnWeight: number;
+}
+
+export interface ResourcePoolEntry {
+  biomeId: string;
+  resourceId: string;
+  spawnWeight: number;
+}
+
+export interface DungeonLootPools {
+  enemies: EnemyPoolEntry[];
+  items: ItemPoolEntry[];
+  resources: ResourcePoolEntry[];
+}

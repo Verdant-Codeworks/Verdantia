@@ -203,5 +203,149 @@
     "equipSlot": "armor",
     "effect": { "defenseBonus": 6 },
     "value": 120
+  },
+  {
+    "id": "rusty_sword",
+    "name": "Rusty Sword",
+    "description": "A pitted, corroded blade scavenged from a fallen skeleton. Better than nothing, barely.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 1 },
+    "value": 8
+  },
+  {
+    "id": "thornwood_staff",
+    "name": "Thornwood Staff",
+    "description": "A gnarled staff carved from living thornwood. Barbs along its length make each strike vicious.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 4 },
+    "value": 40
+  },
+  {
+    "id": "crystal_shard_blade",
+    "name": "Crystal Shard Blade",
+    "description": "A sword forged around a core of resonating crystal. It hums with energy and strikes with blinding speed.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 7, "speedBonus": 2 },
+    "value": 90
+  },
+  {
+    "id": "lich_staff",
+    "name": "Lich Staff",
+    "description": "A staff of blackened bone topped with a pulsing gem. Dark whispers echo from within, granting terrible power.",
+    "type": "weapon",
+    "equipSlot": "weapon",
+    "effect": { "attackBonus": 8, "speedBonus": 1 },
+    "value": 130
+  },
+  {
+    "id": "bone_shield",
+    "name": "Bone Shield",
+    "description": "A round shield fashioned from interlocking bones. Lighter than it looks, and surprisingly durable.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 3 },
+    "value": 30
+  },
+  {
+    "id": "living_bark_armor",
+    "name": "Living Bark Armor",
+    "description": "Armor grown from enchanted bark that slowly repairs itself. Tough as iron but flexible as leather.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 5 },
+    "value": 80
+  },
+  {
+    "id": "shadow_cloak",
+    "name": "Shadow Cloak",
+    "description": "A cloak woven from the essence of restless spirits. It blurs the wearer's outline, making them harder to hit.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 3, "speedBonus": 2 },
+    "value": 95
+  },
+  {
+    "id": "wurm_scale_armor",
+    "name": "Wurm Scale Armor",
+    "description": "Heavy armor crafted from the interlocking scales of a deep wurm. Nearly impervious to blades.",
+    "type": "armor",
+    "equipSlot": "armor",
+    "effect": { "defenseBonus": 7 },
+    "value": 110
+  },
+  {
+    "id": "thorn_barb",
+    "name": "Thorn Barb",
+    "description": "A wickedly sharp barb pulled from a thorn vine. Could be useful for crafting.",
+    "type": "material",
+    "value": 4
+  },
+  {
+    "id": "toad_gland",
+    "name": "Toad Gland",
+    "description": "A slimy gland extracted from a venomous toad. Alchemists prize its toxic secretions.",
+    "type": "material",
+    "value": 6
+  },
+  {
+    "id": "spider_fang",
+    "name": "Spider Fang",
+    "description": "A hollow fang from a cave spider, still coated in venom residue.",
+    "type": "material",
+    "value": 8
+  },
+  {
+    "id": "bone_shard",
+    "name": "Bone Shard",
+    "description": "A jagged fragment of ancient bone, faintly warm to the touch.",
+    "type": "material",
+    "value": 5
+  },
+  {
+    "id": "spirit_essence",
+    "name": "Spirit Essence",
+    "description": "A shimmering vial of captured spectral energy. It glows with a cold, otherworldly light.",
+    "type": "material",
+    "value": 15
+  },
+  {
+    "id": "crystal_shard",
+    "name": "Crystal Shard",
+    "description": "A fragment of luminous cave crystal that pulses with faint energy.",
+    "type": "material",
+    "value": 20
+  },
+  {
+    "id": "heartwood",
+    "name": "Heartwood",
+    "description": "Dense, magically-infused wood from the core of an enchanted tree. Warm and faintly glowing.",
+    "type": "material",
+    "value": 12
+  },
+  {
+    "id": "ancient_coin",
+    "name": "Ancient Coin",
+    "description": "A heavy gold coin stamped with the seal of a forgotten kingdom. Collectors would pay handsomely for it.",
+    "type": "material",
+    "value": 30
+  },
+  {
+    "id": "minor_mana_draught",
+    "name": "Minor Mana Draught",
+    "description": "A small flask of shimmering blue liquid that invigorates the body and mends minor wounds.",
+    "type": "consumable",
+    "effect": { "healAmount": 15 },
+    "value": 10
+  },
+  {
+    "id": "elixir_of_vigor",
+    "name": "Elixir of Vigor",
+    "description": "A potent golden elixir that floods the body with restorative energy. Heals significant wounds.",
+    "type": "consumable",
+    "effect": { "healAmount": 40 },
+    "value": 35
   }
 ]

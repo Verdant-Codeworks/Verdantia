@@ -1,5 +1,7 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
+import * as fs from 'fs';
+import * as path from 'path';
 import type { CurrentRoomData } from '@verdantia/shared';
 import { makeRoomId } from '@verdantia/shared';
 import { ProceduralRoom } from '../../entities/procedural-room.entity';
@@ -15,10 +17,12 @@ import { ItemDefinition } from '../../entities/item-definition.entity';
 import { EnemyDefinition } from '../../entities/enemy-definition.entity';
 import { ResourceNodeDefinition } from '../../entities/resource-node-definition.entity';
 import { DungeonFloorService } from './dungeon/dungeon-floor.service';
+import type { DungeonLootPools } from './dungeon/dungeon.types';
 
 @Injectable()
 export class ProceduralRoomService {
   private readonly logger = new Logger(ProceduralRoomService.name);
+  private readonly lootPools: DungeonLootPools;
 
   // In-memory cache for generated rooms when no database is available
   private roomCache = new Map<string, CurrentRoomData>();
@@ -27,7 +31,11 @@ export class ProceduralRoomService {
   constructor(
     @Optional() private readonly em: EntityManager | null,
     private readonly dungeonFloorService: DungeonFloorService,
-  ) {}
+  ) {
+    const dataPath = path.join(__dirname, './data/dungeon-loot-pools.json');
+    const rawData = fs.readFileSync(dataPath, 'utf-8');
+    this.lootPools = JSON.parse(rawData);
+  }
 
   async getOrGenerateRoom(x: number, y: number, z: number): Promise<CurrentRoomData | undefined> {
     const roomId = makeRoomId(x, y, z);
@@ -236,8 +244,14 @@ export class ProceduralRoomService {
 
   private async selectItems(biomeId: string, difficulty: number, seed: number): Promise<string[]> {
     if (!this.em) {
-      // No database - return empty for now
-      return [];
+      const pool = this.lootPools.items.filter(
+        e => e.biomeId === biomeId && e.minDifficulty <= difficulty && e.maxDifficulty >= difficulty,
+      );
+      if (pool.length === 0) return [];
+      const rng = this.seededRandom(seed);
+      const numItems = rng() < 0.3 ? 0 : Math.floor(rng() * 3) + 1;
+      return this.weightedRandomSelect(pool, numItems, 'spawnWeight', seed + 1)
+        .map(p => p.itemId);
     }
 
     try {
@@ -267,8 +281,14 @@ export class ProceduralRoomService {
 
   private async selectEnemies(biomeId: string, difficulty: number, seed: number): Promise<string[]> {
     if (!this.em) {
-      // No database - return empty for now
-      return [];
+      const pool = this.lootPools.enemies.filter(
+        e => e.biomeId === biomeId && e.minDifficulty <= difficulty && e.maxDifficulty >= difficulty,
+      );
+      if (pool.length === 0) return [];
+      const rng = this.seededRandom(seed + 100);
+      const numEnemies = rng() < 0.5 ? 0 : Math.floor(rng() * 2) + 1;
+      return this.weightedRandomSelect(pool, numEnemies, 'spawnWeight', seed + 101)
+        .map(p => p.enemyId);
     }
 
     try {
@@ -298,8 +318,12 @@ export class ProceduralRoomService {
 
   private async selectResources(biomeId: string, seed: number): Promise<string[]> {
     if (!this.em) {
-      // No database - return empty for now
-      return [];
+      const pool = this.lootPools.resources.filter(e => e.biomeId === biomeId);
+      if (pool.length === 0) return [];
+      const rng = this.seededRandom(seed + 200);
+      const numResources = rng() < 0.6 ? 0 : Math.floor(rng() * 2) + 1;
+      return this.weightedRandomSelect(pool, numResources, 'spawnWeight', seed + 201)
+        .map(p => p.resourceId);
     }
 
     try {
