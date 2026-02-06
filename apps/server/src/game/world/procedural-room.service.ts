@@ -39,6 +39,7 @@ export class ProceduralRoomService {
 
   // In-memory cache for generated rooms when no database is available
   private roomCache = new Map<string, CurrentRoomData>();
+  private biomeCache = new Map<string, string>();
 
   constructor(
     @Optional() private readonly em: EntityManager | null,
@@ -71,6 +72,9 @@ export class ProceduralRoomService {
 
         if (existingRoom) {
           const roomDef = await this.buildRoomDefinition(existingRoom);
+          const biomeId = typeof existingRoom.biome === 'string'
+            ? existingRoom.biome : existingRoom.biome.id;
+          this.biomeCache.set(roomId, biomeId);
           this.roomCache.set(roomId, roomDef);
           return roomDef;
         }
@@ -210,6 +214,7 @@ export class ProceduralRoomService {
     // Run WFC algorithm with seeded RNG
     const validBiomes = await this.wfcService.getValidBiomes(x, y, z, adjacentRooms);
     const selectedBiomeId = this.wfcService.selectBiome(validBiomes, x, y, z, rng);
+    this.biomeCache.set(roomId, selectedBiomeId);
     const biome = await this.definitionService.getBiome(selectedBiomeId);
 
     if (!biome) {
@@ -256,7 +261,7 @@ export class ProceduralRoomService {
           createdAt: new Date(),
         });
 
-        await this.em.persistAndFlush(room);
+        await this.em.persist(room).flush();
 
         // Create exits
         for (const exit of exits) {
@@ -341,6 +346,7 @@ export class ProceduralRoomService {
   private async generateSettlementRoom(x: number, y: number, z: number): Promise<CurrentRoomData> {
     const roomId = makeRoomId(x, y, z);
     const seed = this.generateSeed(x, y, z);
+    this.biomeCache.set(roomId, 'settlement');
 
     // Get settlement size from world region service
     const size = this.worldRegionService.getSettlementSize(x, y, z);
@@ -425,6 +431,7 @@ export class ProceduralRoomService {
     toZ: number,
     direction: string,
     seed: number,
+    currentBiomeId?: string,
   ): string {
     // Check if destination is a settlement
     const destIsSettlement = this.worldRegionService.isSettlementLocation(toX, toY, toZ);
@@ -477,7 +484,24 @@ export class ProceduralRoomService {
       return `${cachedRoom.name} lies ${directionPhrase}`;
     }
 
-    // Unknown wilderness - give a hint about the terrain
+    // Handle vertical exits specially for unknown destinations
+    if (direction === 'up') {
+      return 'A passage leads upward';
+    }
+    if (direction === 'down') {
+      return 'A passage descends into darkness';
+    }
+
+    // Unknown wilderness - brief hint based on current biome
+    if (currentBiomeId) {
+      const biomeHints: Record<string, string> = {
+        wilderness: `Wilderness to the ${direction}`,
+        caves: `Dark tunnels to the ${direction}`,
+        ruins: `More ruins to the ${direction}`,
+      };
+      return biomeHints[currentBiomeId] || `Unexplored terrain to the ${direction}`;
+    }
+
     return `Unexplored wilderness ${directionPhrase}`;
   }
 
@@ -583,104 +607,22 @@ export class ProceduralRoomService {
       const destZ = z + offset.dz;
 
       // Generate contextual description
-      const description = this.generateWildernessExitDescription(
-        exit.direction,
-        currentBiomeId,
+      const description = this.generateExitDescription(
         x,
         y,
         z,
         destX,
         destY,
         destZ,
+        exit.direction,
         seed + index,
+        currentBiomeId,
       );
 
       return { ...exit, description };
     });
   }
 
-  /**
-   * Generate a description for a wilderness exit based on biome and destination.
-   */
-  private generateWildernessExitDescription(
-    direction: string,
-    currentBiomeId: string,
-    fromX: number,
-    fromY: number,
-    fromZ: number,
-    destX: number,
-    destY: number,
-    destZ: number,
-    seed: number,
-  ): string {
-    // Check if destination is a settlement
-    const destIsSettlement = this.worldRegionService.isSettlementLocation(destX, destY, destZ);
-    const destSize = destIsSettlement ? this.worldRegionService.getSettlementSize(destX, destY, destZ) : null;
-
-    // Check if destination room is already cached
-    const destRoomId = makeRoomId(destX, destY, destZ);
-    const cachedRoom = this.roomCache.get(destRoomId);
-
-    // Get current room to check if destination is same location
-    const currentRoomId = makeRoomId(fromX, fromY, fromZ);
-    const currentRoom = this.roomCache.get(currentRoomId);
-
-    // Format direction phrase naturally (cardinal vs vertical)
-    const isVertical = direction === 'up' || direction === 'down';
-    const directionPhrase = direction === 'up' ? 'above'
-      : direction === 'down' ? 'below'
-      : `to the ${direction}`;
-
-    // Check if destination is same location (vertical movement within same area)
-    const isSameLocation = currentRoom && cachedRoom &&
-      this.areNamesSimilar(currentRoom.name, cachedRoom.name);
-
-    if (destIsSettlement && destSize) {
-      const settlementSeed = this.generateSeed(destX, destY, destZ);
-      const settlementName = cachedRoom?.name || this.previewSettlementName(destX, destY, destZ, settlementSeed);
-
-      // Check if it's the same settlement we're in
-      if (isVertical && currentRoom && this.areNamesSimilar(currentRoom.name, settlementName)) {
-        return direction === 'up'
-          ? 'A stairway leads to an upper level'
-          : 'A stairway descends to a lower level';
-      }
-
-      return isVertical
-        ? `${settlementName} (${destSize}) lies ${directionPhrase}`
-        : `${settlementName} (${destSize}) ${directionPhrase}`;
-    }
-
-    if (cachedRoom) {
-      // If vertical exit to same location, use contextual description
-      if (isVertical && isSameLocation) {
-        return direction === 'up'
-          ? `The ${this.getLocationTypeWord(cachedRoom.name)} continues above`
-          : `The ${this.getLocationTypeWord(cachedRoom.name)} descends further below`;
-      }
-      return isVertical
-        ? `${cachedRoom.name} lies ${directionPhrase}`
-        : `${cachedRoom.name} ${directionPhrase}`;
-    }
-
-    // Handle vertical exits specially for unknown destinations
-    if (direction === 'up') {
-      return 'A passage leads upward';
-    }
-
-    if (direction === 'down') {
-      return 'A passage descends into darkness';
-    }
-
-    // Unknown wilderness - brief hint based on current biome
-    const biomeHints: Record<string, string> = {
-      wilderness: `Wilderness to the ${direction}`,
-      caves: `Dark tunnels to the ${direction}`,
-      ruins: `More ruins to the ${direction}`,
-    };
-
-    return biomeHints[currentBiomeId] || `Unexplored terrain to the ${direction}`;
-  }
 
   private generateSettlementDescription(
     settlement: SettlementData,
@@ -808,11 +750,9 @@ export class ProceduralRoomService {
       const adjZ = z + dz;
       const adjId = makeRoomId(adjX, adjY, adjZ);
 
-      const cachedRoom = this.roomCache.get(adjId);
-      if (cachedRoom) {
-        // Extract biome from cached room - we need to infer it from the room
-        // For now, we'll skip cached rooms in adjacency check since we don't store biome
-        continue;
+      const biomeId = this.biomeCache.get(adjId);
+      if (biomeId) {
+        adjacentRooms.push({ x: adjX, y: adjY, z: adjZ, biomeId });
       }
     }
 
@@ -826,6 +766,11 @@ export class ProceduralRoomService {
       const adjY = y + dy;
       const adjZ = z + dz;
       const adjId = makeRoomId(adjX, adjY, adjZ);
+
+      // Skip if already found in biome cache
+      if (this.biomeCache.has(adjId)) {
+        continue;
+      }
 
       try {
         const adjRoom = await this.em.findOne(
