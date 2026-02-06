@@ -1,0 +1,242 @@
+{
+  "wilderness": {
+    "roomTypes": [
+      {
+        "id": "overgrown_clearing",
+        "name": "Overgrown Clearing",
+        "description": "Dense vines hang from above, creating curtains of green that sway gently in the still air. Wildflowers push through cracks in the ancient stone floor.",
+        "weight": 10
+      },
+      {
+        "id": "mossy_tunnel",
+        "name": "Mossy Tunnel",
+        "description": "Soft moss carpets the walls and floor, muffling your footsteps. Moisture drips from the ceiling, feeding the verdant growth.",
+        "weight": 12
+      },
+      {
+        "id": "tangled_thicket",
+        "name": "Tangled Thicket",
+        "description": "Thorny brambles crisscross the passage, forming a natural barrier. Light filters through gaps in the dense foliage above.",
+        "weight": 8
+      },
+      {
+        "id": "vine_choked_passage",
+        "name": "Vine-Choked Passage",
+        "description": "Thick vines hang like curtains, obscuring what lies beyond. The air is heavy with the scent of decaying vegetation.",
+        "weight": 10
+      },
+      {
+        "id": "fungal_hollow",
+        "name": "Fungal Hollow",
+        "description": "Bioluminescent mushrooms cast an eerie blue glow across the chamber. Strange fungi of all sizes cluster on every surface.",
+        "weight": 9
+      },
+      {
+        "id": "root_cellar",
+        "name": "Root Cellar",
+        "description": "Massive tree roots breach through the ceiling and walls, creating twisted arches. The earthy smell of soil fills the air.",
+        "weight": 11
+      },
+      {
+        "id": "fern_grotto",
+        "name": "Fern Grotto",
+        "description": "Delicate ferns unfurl from every crack and crevice, creating a lush green tapestry. Dewdrops catch what little light reaches here.",
+        "weight": 10
+      },
+      {
+        "id": "bramble_corridor",
+        "name": "Bramble Corridor",
+        "description": "Sharp thorns line the narrow passage, forcing careful movement. Dead leaves crunch underfoot, breaking the otherwise oppressive silence.",
+        "weight": 8
+      },
+      {
+        "id": "sunken_garden",
+        "name": "Sunken Garden",
+        "description": "What was once a cultivated space now runs wild with untamed growth. Crumbling planter boxes overflow with invasive vines.",
+        "weight": 7
+      },
+      {
+        "id": "mushroom_den",
+        "name": "Mushroom Den",
+        "description": "Massive toadstools tower overhead, their caps forming a false ceiling. Spores drift lazily through the air.",
+        "weight": 9
+      }
+    ],
+    "entranceRoom": {
+      "name": "Verdant Threshold",
+      "description": "You descend into a chamber where nature has reclaimed civilization. Roots push through ancient stonework, and vines cascade down the walls like waterfalls of green."
+    },
+    "stairsRoom": {
+      "name": "Descending Garden",
+      "description": "Stone steps wind downward through a vertical shaft choked with vegetation. Roots create a natural handrail along the spiraling descent."
+    }
+  },
+  "caves": {
+    "roomTypes": [
+      {
+        "id": "crystal_cavern",
+        "name": "Crystal Cavern",
+        "description": "Glittering crystals jut from the walls and ceiling, refracting light into dancing rainbows. The formations sing softly as you pass.",
+        "weight": 9
+      },
+      {
+        "id": "underground_lake",
+        "name": "Underground Lake",
+        "description": "Dark water stretches into the shadows, its surface perfectly still. Echoes of dripping water create a rhythmic melody.",
+        "weight": 7
+      },
+      {
+        "id": "narrow_crevice",
+        "name": "Narrow Crevice",
+        "description": "The walls press close on either side, forcing you to turn sideways. Rough stone scrapes against your armor.",
+        "weight": 11
+      },
+      {
+        "id": "stalactite_chamber",
+        "name": "Stalactite Chamber",
+        "description": "Countless stone teeth hang from the ceiling, some meeting their stalagmite twins in twisted pillars. Water has sculpted this space over millennia.",
+        "weight": 10
+      },
+      {
+        "id": "echoing_hall",
+        "name": "Echoing Hall",
+        "description": "A vast natural cathedral stretches before you, its high ceiling lost in darkness. Every sound reverberates for seconds before fading.",
+        "weight": 8
+      },
+      {
+        "id": "sulfur_vent",
+        "name": "Sulfur Vent",
+        "description": "Yellow crystals encrust the walls near steaming fissures. The acrid smell of sulfur burns your nose.",
+        "weight": 6
+      },
+      {
+        "id": "bat_colony",
+        "name": "Bat Colony",
+        "description": "Thousands of bats cluster on the ceiling, their chittering filling the air. Guano blankets the floor beneath their roost.",
+        "weight": 8
+      },
+      {
+        "id": "flooded_passage",
+        "name": "Flooded Passage",
+        "description": "Cold water reaches knee-deep through this low tunnel. The ceiling drips constantly, adding to the shallow pool.",
+        "weight": 10
+      },
+      {
+        "id": "glowworm_grotto",
+        "name": "Glowworm Grotto",
+        "description": "Thousands of bioluminescent larvae create a starfield on the ceiling. Their gentle blue-green light illuminates damp stone walls.",
+        "weight": 9
+      },
+      {
+        "id": "obsidian_gallery",
+        "name": "Obsidian Gallery",
+        "description": "Walls of black volcanic glass reflect distorted images like dark mirrors. The stone here is sharp and treacherous.",
+        "weight": 8
+      },
+      {
+        "id": "limestone_maze",
+        "name": "Limestone Maze",
+        "description": "Weathered white stone forms a confusing network of natural passages. Ancient water flows have carved smooth, swooping curves.",
+        "weight": 10
+      },
+      {
+        "id": "mineral_deposit",
+        "name": "Mineral Deposit",
+        "description": "Veins of copper and iron streak through the stone in vivid greens and rusts. The walls sparkle with embedded ores.",
+        "weight": 7
+      }
+    ],
+    "entranceRoom": {
+      "name": "Yawning Maw",
+      "description": "The passage opens into a natural cave system, the worked stone giving way to raw geology. Stalactites hang like teeth above the entrance."
+    },
+    "stairsRoom": {
+      "name": "Spiraling Depths",
+      "description": "A natural chimney descends into darkness, its walls worn smooth by ancient waters. Carved steps spiral down the shaft."
+    }
+  },
+  "ruins": {
+    "roomTypes": [
+      {
+        "id": "crumbling_hall",
+        "name": "Crumbling Hall",
+        "description": "Once-grand pillars lean at precarious angles, some having collapsed entirely. Faded frescoes peek through layers of grime and decay.",
+        "weight": 11
+      },
+      {
+        "id": "collapsed_library",
+        "name": "Collapsed Library",
+        "description": "Rotted shelves have spilled their contents across the floor in a mulch of disintegrating pages. The smell of old paper and mold is overwhelming.",
+        "weight": 8
+      },
+      {
+        "id": "shattered_throne_room",
+        "name": "Shattered Throne Room",
+        "description": "A broken throne sits upon a raised dais, its former grandeur reduced to fragments. Tattered banners hang from rusted chains.",
+        "weight": 7
+      },
+      {
+        "id": "broken_fountain_court",
+        "name": "Broken Fountain Court",
+        "description": "A dry fountain stands at the center, its basin cracked and filled with debris. Statues around the perimeter have lost their faces to time.",
+        "weight": 9
+      },
+      {
+        "id": "dusty_archive",
+        "name": "Dusty Archive",
+        "description": "Rows of stone shelves still hold sealed vessels and scroll cases. Dust lies thick as snow over everything.",
+        "weight": 10
+      },
+      {
+        "id": "rotting_barracks",
+        "name": "Rotting Barracks",
+        "description": "Rusted weapons hang on corroded hooks above collapsed bunks. The ghosts of soldiers seem to linger in the musty air.",
+        "weight": 10
+      },
+      {
+        "id": "overgrown_chapel",
+        "name": "Overgrown Chapel",
+        "description": "Vines have pushed through the floor, wrapping around ancient pews. A cracked altar stands beneath a collapsed section of roof.",
+        "weight": 8
+      },
+      {
+        "id": "forgotten_workshop",
+        "name": "Forgotten Workshop",
+        "description": "Ancient tools rust on workbenches beside half-finished projects. The forges have been cold for centuries.",
+        "weight": 9
+      },
+      {
+        "id": "pillared_corridor",
+        "name": "Pillared Corridor",
+        "description": "A long hallway lined with columns stretches into shadow. Chunks of ceiling have fallen, creating obstacles of rubble.",
+        "weight": 11
+      },
+      {
+        "id": "sunken_vault",
+        "name": "Sunken Vault",
+        "description": "The floor has collapsed into a lower level, creating a deep pit. Empty strongboxes lie scattered among the debris below.",
+        "weight": 7
+      },
+      {
+        "id": "guard_post",
+        "name": "Guard Post",
+        "description": "Murder holes in the ceiling and arrow slits in the walls mark this as a defensive position. Rusted grates block what were once killing zones.",
+        "weight": 9
+      },
+      {
+        "id": "scribes_chamber",
+        "name": "Scribe's Chamber",
+        "description": "Stone desks still hold dried ink wells and broken quills. Illuminated manuscripts lie in tatters, their secrets lost to decay.",
+        "weight": 8
+      }
+    ],
+    "entranceRoom": {
+      "name": "Ruined Antechamber",
+      "description": "Carved stone arches frame the entrance to ancient halls. Time has worn the intricate reliefs smooth, leaving only hints of their former glory."
+    },
+    "stairsRoom": {
+      "name": "Ceremonial Descent",
+      "description": "Grand stone stairs descend between statues of long-forgotten kings. Their carved faces watch your descent with empty eyes."
+    }
+  }
+}

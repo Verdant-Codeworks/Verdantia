@@ -6,10 +6,6 @@ import type {
   RoomCoordinates,
   RoomDefinition,
   VisitedRoomSnapshot,
-  SettlementInfo,
-  NPCInfo,
-  BuildingInfo,
-  QuestInfo,
 } from './entities.js';
 import type {
   PlayerSkill,
@@ -44,12 +40,7 @@ export interface NarrativeMessage {
   timestamp: number;
 }
 
-export interface CurrentRoomData extends RoomDefinition {
-  settlement?: SettlementInfo;
-  npcs?: NPCInfo[];
-  buildings?: BuildingInfo[];
-  availableQuests?: QuestInfo[];
-}
+export type CurrentRoomData = RoomDefinition;
 
 export interface GameState {
   phase: GamePhase;

@@ -1,319 +1,348 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProceduralRoomService } from '../procedural-room.service';
-import { DefinitionService } from '../definition.service';
-import { WFCService } from '../wfc/wfc.service';
-import { WorldRegionService } from '../generation/world-region.service';
-import { SettlementGeneratorService } from '../generation/settlement-generator.service';
-import { NPCGeneratorService } from '../generation/npc-generator.service';
-import { BuildingGeneratorService } from '../generation/building-generator.service';
-import { QuestGeneratorService } from '../generation/quest-generator.service';
+import { DungeonFloorService } from '../dungeon/dungeon-floor.service';
 import { makeRoomId } from '@verdantia/shared';
+import type { FloorLayout, FloorCell } from '../dungeon/dungeon.types';
 
-describe('ProceduralRoomService - Adjacent Room Pre-generation', () => {
+function createMockFloorLayout(depth = 0): FloorLayout {
+  const cells = new Map<string, FloorCell>();
+
+  // Create a simple 4-room layout: entrance at 0,0, rooms at 1,0 and 0,1 and 1,1
+  cells.set('0,0', {
+    x: 0,
+    y: 0,
+    exits: ['east', 'south'],
+    roomTypeId: 'entrance',
+    isEntrance: true,
+    isStairsDown: false,
+    distanceFromEntrance: 0,
+  });
+  cells.set('1,0', {
+    x: 1,
+    y: 0,
+    exits: ['west', 'south'],
+    roomTypeId: 'crystal_cavern',
+    isEntrance: false,
+    isStairsDown: false,
+    distanceFromEntrance: 1,
+  });
+  cells.set('0,1', {
+    x: 0,
+    y: 1,
+    exits: ['north', 'east'],
+    roomTypeId: 'narrow_crevice',
+    isEntrance: false,
+    isStairsDown: false,
+    distanceFromEntrance: 1,
+  });
+  cells.set('1,1', {
+    x: 1,
+    y: 1,
+    exits: ['north', 'west'],
+    roomTypeId: 'stairs',
+    isEntrance: false,
+    isStairsDown: true,
+    distanceFromEntrance: 2,
+  });
+
+  return {
+    depth,
+    biomeId: 'caves',
+    difficulty: 1 + Math.abs(depth),
+    roomCount: 4,
+    seed: 12345,
+    cells,
+    stairsDownCoord: { x: 1, y: 1 },
+    stairsUpTarget: depth === 0 ? 'wilderness_portal' : `proc_1_1_${depth + 1}`,
+  };
+}
+
+describe('ProceduralRoomService - Dungeon Floor Integration', () => {
   let service: ProceduralRoomService;
-  let definitionService: DefinitionService;
-  let wfcService: WFCService;
-  let worldRegionService: WorldRegionService;
-  let settlementGenerator: SettlementGeneratorService;
-  let npcGenerator: NPCGeneratorService;
-  let buildingGenerator: BuildingGeneratorService;
-  let questGenerator: QuestGeneratorService;
+  let dungeonFloorService: DungeonFloorService;
+  let mockFloor: FloorLayout;
 
   beforeEach(() => {
-    // Create mock services
-    definitionService = {
-      getBiome: vi.fn().mockResolvedValue({
-        id: 'wilderness',
-        name: 'Wilderness',
-        nameTemplates: ['Dense Forest', 'Open Meadow', 'Rocky Outcrop'],
-        descriptionTemplates: [
-          'A wild area filled with nature.',
-          'An untamed wilderness.',
-          'Nature in its raw form.',
-        ],
-        allowedAdjacent: ['wilderness', 'caves', 'ruins'],
-        allowVerticalExits: false,
-        verticalExitChance: 0,
+    mockFloor = createMockFloorLayout(0);
+
+    // Mock DungeonFloorService
+    dungeonFloorService = {
+      getFloor: vi.fn().mockReturnValue(mockFloor),
+      getCellAt: vi.fn().mockImplementation((_depth, x, y) => mockFloor.cells.get(`${x},${y}`)),
+      isValidRoom: vi.fn().mockImplementation((_depth, x, y) => mockFloor.cells.has(`${x},${y}`)),
+      getRoomType: vi.fn().mockImplementation((_biomeId, roomTypeId) => {
+        if (roomTypeId === 'entrance') {
+          return { name: 'Dungeon Entrance', description: 'The entrance to the dungeon.' };
+        }
+        if (roomTypeId === 'stairs') {
+          return { name: 'Deep Stairwell', description: 'A stairwell descending deeper.' };
+        }
+        if (roomTypeId === 'crystal_cavern') {
+          return {
+            id: 'crystal_cavern',
+            name: 'Crystal Cavern',
+            description: 'A cavern filled with gleaming crystals.',
+            weight: 2,
+          };
+        }
+        if (roomTypeId === 'narrow_crevice') {
+          return {
+            id: 'narrow_crevice',
+            name: 'Narrow Crevice',
+            description: 'A tight passage between rock walls.',
+            weight: 1,
+          };
+        }
+        return { name: 'Unknown Chamber', description: 'A mysterious chamber.' };
       }),
     } as any;
-
-    wfcService = {
-      getValidBiomes: vi.fn().mockResolvedValue(['wilderness']),
-      selectBiome: vi.fn().mockReturnValue('wilderness'),
-      calculateDifficulty: vi.fn().mockReturnValue(1),
-      generateExits: vi.fn().mockImplementation((x, y, z) => {
-        // Generate basic 4-directional exits
-        return [
-          { direction: 'north', destinationRoomId: makeRoomId(x, y - 1, z) },
-          { direction: 'south', destinationRoomId: makeRoomId(x, y + 1, z) },
-          { direction: 'east', destinationRoomId: makeRoomId(x + 1, y, z) },
-          { direction: 'west', destinationRoomId: makeRoomId(x - 1, y, z) },
-        ];
-      }),
-    } as any;
-
-    worldRegionService = {
-      getRegionType: vi.fn().mockReturnValue('wilderness'),
-      isSettlementLocation: vi.fn().mockReturnValue(false),
-      getSettlementSize: vi.fn().mockReturnValue(null),
-    } as any;
-
-    settlementGenerator = {} as any;
-    npcGenerator = {} as any;
-    buildingGenerator = {} as any;
-    questGenerator = {} as any;
 
     service = new ProceduralRoomService(
-      null, // no EntityManager for tests
-      definitionService,
-      wfcService,
-      worldRegionService,
-      settlementGenerator,
-      npcGenerator,
-      buildingGenerator,
-      questGenerator,
+      null, // no EntityManager
+      dungeonFloorService,
     );
   });
 
-  describe('preGenerateAdjacentRooms', () => {
-    it('should generate all 6 adjacent rooms (N, S, E, W, up, down)', async () => {
-      await service.preGenerateAdjacentRooms(0, 0, 0);
+  describe('room generation respects floor boundaries', () => {
+    it('should generate room for valid coordinates', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
 
-      // Verify 6 rooms were generated and cached
-      const expectedRooms = [
-        makeRoomId(0, -1, 0), // north
-        makeRoomId(0, 1, 0),  // south
-        makeRoomId(1, 0, 0),  // east
-        makeRoomId(-1, 0, 0), // west
-        makeRoomId(0, 0, 1),  // up
-        makeRoomId(0, 0, -1), // down
-      ];
-
-      // Check that all rooms can be retrieved from cache
-      for (const roomId of expectedRooms) {
-        const coords = roomId.split('_').slice(1).map(Number);
-        const room = await service.getOrGenerateRoom(coords[0], coords[1], coords[2]);
-        expect(room).toBeDefined();
-        expect(room?.id).toBe(roomId);
-      }
+      expect(room).toBeDefined();
+      expect(room?.id).toBe(makeRoomId(0, 0, 0));
+      expect(room?.name).toBe('Dungeon Entrance');
     });
 
-    it('should not cause infinite recursion', async () => {
-      // Pre-generating adjacent rooms at (0,0,0) should not recursively
-      // pre-generate neighbors of those rooms
-      await service.preGenerateAdjacentRooms(0, 0, 0);
+    it('should return undefined for out-of-bounds coordinates', async () => {
+      const room = await service.getOrGenerateRoom(10, 10, 0);
 
-      // The method should complete without hanging or stack overflow
-      expect(true).toBe(true);
+      expect(room).toBeUndefined();
+      expect(dungeonFloorService.isValidRoom).toHaveBeenCalledWith(0, 10, 10);
+    });
+
+    it('should handle negative coordinates that are valid', async () => {
+      // Update mock to have a valid room at negative coords
+      mockFloor.cells.set('-1,0', {
+        x: -1,
+        y: 0,
+        exits: ['east'],
+        roomTypeId: 'crystal_cavern',
+        isEntrance: false,
+        isStairsDown: false,
+        distanceFromEntrance: 1,
+      });
+
+      const room = await service.getOrGenerateRoom(-1, 0, 0);
+
+      expect(room).toBeDefined();
+      expect(room?.id).toBe(makeRoomId(-1, 0, 0));
     });
   });
 
-  describe('getOrGenerateRoomWithAdjacent', () => {
-    it('should generate current room and all 6 adjacent rooms', async () => {
-      const room = await service.getOrGenerateRoomWithAdjacent(7, 0, 0);
+  describe('room exits match floor layout', () => {
+    it('should create exits from floor cell exit list', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
 
       expect(room).toBeDefined();
-      expect(room?.id).toBe(makeRoomId(7, 0, 0));
-
-      // Verify all adjacent rooms are also cached
-      const adjacentCoords = [
-        { x: 7, y: -1, z: 0 }, // north
-        { x: 7, y: 1, z: 0 },  // south
-        { x: 8, y: 0, z: 0 },  // east
-        { x: 6, y: 0, z: 0 },  // west
-        { x: 7, y: 0, z: 1 },  // up
-        { x: 7, y: 0, z: -1 }, // down
-      ];
-
-      for (const coords of adjacentCoords) {
-        const adjRoom = await service.getOrGenerateRoom(coords.x, coords.y, coords.z);
-        expect(adjRoom).toBeDefined();
-      }
+      const cardinalExits = room?.exits.filter(e => ['north', 'south', 'east', 'west'].includes(e.direction));
+      expect(cardinalExits?.length).toBe(2); // east and south from mock
+      expect(cardinalExits?.some(e => e.direction === 'east')).toBe(true);
+      expect(cardinalExits?.some(e => e.direction === 'south')).toBe(true);
     });
 
-    it('should populate exit descriptions with actual room names', async () => {
-      const room = await service.getOrGenerateRoomWithAdjacent(10, 10, 0);
+    it('should include correct destination room IDs for cardinal exits', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
 
       expect(room).toBeDefined();
-      expect(room?.exits.length).toBeGreaterThan(0);
-
-      // Check that exit descriptions are not generic "Unexplored wilderness"
-      for (const exit of room?.exits || []) {
-        expect(exit.description).toBeDefined();
-        expect(exit.description?.length).toBeGreaterThan(0);
-
-        // Since adjacent rooms are pre-generated, descriptions should reference
-        // actual room names or settlement info, not "Unexplored wilderness"
-        // (unless it's truly unexplored, but with pre-generation it shouldn't be)
-        if (exit.description?.includes('Unexplored wilderness')) {
-          // This is acceptable if no adjacent room was generated
-          // But with pre-generation, we expect better descriptions
-          expect(exit.description).not.toContain('Unexplored wilderness');
-        }
-      }
-    });
-
-    it('should update exit descriptions if room was already cached', async () => {
-      // First, generate room without adjacents (simulating old behavior)
-      const room1 = await service.getOrGenerateRoom(5, 5, 0);
-      expect(room1).toBeDefined();
-
-      // Get a reference to the original exit descriptions
-      const originalExits = room1?.exits.map(e => e.description);
-
-      // Now call getOrGenerateRoomWithAdjacent which should update exits
-      const room2 = await service.getOrGenerateRoomWithAdjacent(5, 5, 0);
-
-      expect(room2).toBeDefined();
-      expect(room2?.id).toBe(room1?.id);
-
-      // Exit descriptions should have been updated
-      const updatedExits = room2?.exits.map(e => e.description);
-
-      // Since adjacent rooms are now cached, descriptions may have changed
-      // At minimum, they should be defined
-      expect(updatedExits).toBeDefined();
-      expect(updatedExits?.length).toBe(originalExits?.length);
-    });
-  });
-
-  describe('exit descriptions with adjacent rooms', () => {
-    it('should reference cached room names in exit descriptions', async () => {
-      // Generate a room with adjacents
-      const centerRoom = await service.getOrGenerateRoomWithAdjacent(20, 20, 0);
-
-      expect(centerRoom).toBeDefined();
-
-      // Get one of the adjacent rooms
-      const northRoom = await service.getOrGenerateRoom(20, 19, 0);
-      expect(northRoom).toBeDefined();
-
-      // The center room's north exit should now reference the north room's name
-      const northExit = centerRoom?.exits.find(e => e.direction === 'north');
-      expect(northExit).toBeDefined();
-
-      // The exit description should contain the room name or be more specific than generic
-      if (northRoom?.name) {
-        // The description might contain the room name
-        expect(northExit?.description).toBeDefined();
-      }
-    });
-
-    it('should handle settlement destinations in exit descriptions', async () => {
-      // Mock a settlement at (7, 0, 0)
-      worldRegionService.isSettlementLocation = vi.fn().mockImplementation((x, y, z) => {
-        return x === 7 && y === 0 && z === 0;
-      });
-      worldRegionService.getSettlementSize = vi.fn().mockImplementation((x, y, z) => {
-        return x === 7 && y === 0 && z === 0 ? 'village' : null;
-      });
-
-      // Generate room at (6, 0, 0) which should have an east exit to the settlement
-      const room = await service.getOrGenerateRoomWithAdjacent(6, 0, 0);
-
-      expect(room).toBeDefined();
-
-      // Find the east exit (pointing to settlement)
       const eastExit = room?.exits.find(e => e.direction === 'east');
-      expect(eastExit).toBeDefined();
+      expect(eastExit?.roomId).toBe(makeRoomId(1, 0, 0));
 
-      // Exit description should mention the settlement
-      if (eastExit?.description) {
-        expect(eastExit.description).toContain('village');
-      }
+      const southExit = room?.exits.find(e => e.direction === 'south');
+      expect(southExit?.roomId).toBe(makeRoomId(0, 1, 0));
+    });
+
+    it('should add exit descriptions referencing adjacent room names', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
+
+      expect(room).toBeDefined();
+      const eastExit = room?.exits.find(e => e.direction === 'east');
+      expect(eastExit?.description).toContain('Crystal Cavern');
+      expect(eastExit?.description).toContain('east');
     });
   });
 
-  describe('cache behavior', () => {
-    it('should use cache for repeated room requests', async () => {
-      const room1 = await service.getOrGenerateRoomWithAdjacent(0, 0, 0);
-      const room2 = await service.getOrGenerateRoomWithAdjacent(0, 0, 0);
+  describe('stair rooms', () => {
+    it('should add up exit for entrance room', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
 
-      expect(room1).toBe(room2); // Should be exact same object from cache
+      expect(room).toBeDefined();
+      const upExit = room?.exits.find(e => e.direction === 'up');
+      expect(upExit).toBeDefined();
+      expect(upExit?.roomId).toBe('wilderness_portal');
+      expect(upExit?.description).toContain('Stairs lead back to the upper level');
     });
 
-    it('should maintain cache consistency across operations', async () => {
-      // Generate room at origin
-      await service.getOrGenerateRoomWithAdjacent(0, 0, 0);
+    it('should add down exit for stairs room', async () => {
+      const room = await service.getOrGenerateRoom(1, 1, 0);
 
-      // Generate adjacent room
-      const northRoom = await service.getOrGenerateRoomWithAdjacent(0, -1, 0);
+      expect(room).toBeDefined();
+      const downExit = room?.exits.find(e => e.direction === 'down');
+      expect(downExit).toBeDefined();
+      expect(downExit?.roomId).toBe(makeRoomId(0, 0, -1)); // entrance of next floor
+      expect(downExit?.description).toContain('descends deeper');
+    });
 
-      // Original room should be in north room's south exit
-      const southExit = northRoom?.exits.find(e => e.direction === 'south');
-      expect(southExit?.roomId).toBe(makeRoomId(0, 0, 0));
+    it('should use correct stairsUpTarget for deeper floors', async () => {
+      mockFloor = createMockFloorLayout(-1);
+      dungeonFloorService.getFloor = vi.fn().mockReturnValue(mockFloor);
+
+      const room = await service.getOrGenerateRoom(0, 0, -1);
+
+      expect(room).toBeDefined();
+      const upExit = room?.exits.find(e => e.direction === 'up');
+      expect(upExit?.roomId).toBe('proc_1_1_0'); // stairs of floor above
+    });
+
+    it('should not have up exit for non-entrance rooms', async () => {
+      const room = await service.getOrGenerateRoom(1, 0, 0);
+
+      expect(room).toBeDefined();
+      const upExit = room?.exits.find(e => e.direction === 'up');
+      expect(upExit).toBeUndefined();
+    });
+
+    it('should not have down exit for non-stairs rooms', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
+
+      expect(room).toBeDefined();
+      const downExit = room?.exits.find(e => e.direction === 'down');
+      expect(downExit).toBeUndefined();
+    });
+  });
+
+  describe('biome uniformity', () => {
+    it('should use floor biome for all rooms', async () => {
+      const room1 = await service.getOrGenerateRoom(0, 0, 0);
+      const room2 = await service.getOrGenerateRoom(1, 0, 0);
+
+      expect(room1).toBeDefined();
+      expect(room2).toBeDefined();
+
+      // Both rooms should use caves biome
+      expect(dungeonFloorService.getRoomType).toHaveBeenCalledWith('caves', expect.any(String));
+    });
+
+    it('should cache biome for generated rooms', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
+
+      expect(room).toBeDefined();
+      // Biome should be cached (can't directly test private cache, but second call won't regenerate)
+      const room2 = await service.getOrGenerateRoom(0, 0, 0);
+      expect(room2).toBe(room); // Same instance from cache
+    });
+  });
+
+  describe('caching behavior', () => {
+    it('should return cached room on subsequent requests', async () => {
+      const room1 = await service.getOrGenerateRoom(0, 0, 0);
+      const room2 = await service.getOrGenerateRoom(0, 0, 0);
+
+      expect(room1).toBe(room2); // Exact same object
+    });
+
+    it('should use cache for multiple different rooms', async () => {
+      const room1 = await service.getOrGenerateRoom(0, 0, 0);
+      const room2 = await service.getOrGenerateRoom(1, 0, 0);
+      const room3 = await service.getOrGenerateRoom(0, 1, 0);
+
+      expect(room1).toBeDefined();
+      expect(room2).toBeDefined();
+      expect(room3).toBeDefined();
+      expect(room1?.id).not.toBe(room2?.id);
+      expect(room2?.id).not.toBe(room3?.id);
+
+      // Second request should hit cache
+      const room1Again = await service.getOrGenerateRoom(0, 0, 0);
+      expect(room1Again).toBe(room1);
     });
   });
 
   describe('deterministic generation', () => {
-    it('should produce identical results for same coordinates', async () => {
-      const room1 = await service.getOrGenerateRoomWithAdjacent(15, 15, 0);
-      const room2 = await service.getOrGenerateRoomWithAdjacent(15, 15, 0);
+    it('should produce identical rooms for same coordinates', async () => {
+      const room1 = await service.getOrGenerateRoom(0, 0, 0);
 
-      expect(room1).toEqual(room2);
+      // Clear cache to force regeneration
+      await (service as any).roomCache.clear();
+
+      const room2 = await service.getOrGenerateRoom(0, 0, 0);
+
       expect(room1?.name).toBe(room2?.name);
       expect(room1?.description).toBe(room2?.description);
       expect(room1?.exits.length).toBe(room2?.exits.length);
     });
 
-    it('should produce different results for different coordinates', async () => {
-      const room1 = await service.getOrGenerateRoomWithAdjacent(0, 0, 0);
-      const room2 = await service.getOrGenerateRoomWithAdjacent(10, 10, 0);
+    it('should produce different seeds for different coordinates', async () => {
+      const room1 = await service.getOrGenerateRoom(0, 0, 0);
+      const room2 = await service.getOrGenerateRoom(1, 1, 0);
 
       expect(room1?.id).not.toBe(room2?.id);
-      // Names might differ based on random selection
-      // But both should be valid rooms
-      expect(room1).toBeDefined();
-      expect(room2).toBeDefined();
+      expect(room1?.name).not.toBe(room2?.name); // Different room types
     });
   });
 
-  describe('getAdjacentRooms', () => {
-    it('should return biome data for cached rooms', async () => {
-      // Generate a room so it gets cached with biome data
-      await service.getOrGenerateRoom(5, 5, 0);
+  describe('multiple floors', () => {
+    it('should handle different depths correctly', async () => {
+      // Floor 0
+      const room0 = await service.getOrGenerateRoom(0, 0, 0);
+      expect(room0).toBeDefined();
 
-      // Now check adjacent rooms from (5, 6, 0) - room (5,5,0) is north
-      const adjacent = await service.getAdjacentRooms(5, 6, 0);
+      // Floor -1
+      mockFloor = createMockFloorLayout(-1);
+      dungeonFloorService.getFloor = vi.fn().mockReturnValue(mockFloor);
+      dungeonFloorService.isValidRoom = vi.fn().mockImplementation((_depth, x, y) => mockFloor.cells.has(`${x},${y}`));
 
-      expect(adjacent.length).toBeGreaterThan(0);
-      const northNeighbor = adjacent.find(r => r.x === 5 && r.y === 5 && r.z === 0);
-      expect(northNeighbor).toBeDefined();
-      expect(northNeighbor?.biomeId).toBe('wilderness');
+      const roomNeg1 = await service.getOrGenerateRoom(0, 0, -1);
+      expect(roomNeg1).toBeDefined();
+      expect(roomNeg1?.id).toBe(makeRoomId(0, 0, -1));
     });
 
-    it('should return empty array when no neighbors exist', async () => {
-      // Don't generate any rooms - query an isolated location
-      const adjacent = await service.getAdjacentRooms(100, 100, 0);
-      expect(adjacent).toEqual([]);
-    });
+    it('should calculate difficulty based on depth', async () => {
+      // Floor 0 - difficulty 1
+      mockFloor = createMockFloorLayout(0);
+      dungeonFloorService.getFloor = vi.fn().mockReturnValue(mockFloor);
 
-    it('should return multiple cached neighbors', async () => {
-      // Generate rooms around (10, 10, 0)
-      await service.getOrGenerateRoom(10, 9, 0);  // north
-      await service.getOrGenerateRoom(10, 11, 0); // south
-      await service.getOrGenerateRoom(11, 10, 0); // east
-
-      const adjacent = await service.getAdjacentRooms(10, 10, 0);
-      expect(adjacent.length).toBe(3);
-    });
-
-    it('should provide biome constraints to WFC during generation', async () => {
-      // Generate a room first so it's in the biome cache
       await service.getOrGenerateRoom(0, 0, 0);
+      expect(mockFloor.difficulty).toBe(1);
 
-      // Now generate an adjacent room - WFC should receive biome data
-      await service.getOrGenerateRoom(1, 0, 0);
+      // Floor -2 - difficulty 3
+      mockFloor = createMockFloorLayout(-2);
+      dungeonFloorService.getFloor = vi.fn().mockReturnValue(mockFloor);
+      dungeonFloorService.isValidRoom = vi.fn().mockImplementation((_depth, x, y) => mockFloor.cells.has(`${x},${y}`));
 
-      // wfcService.getValidBiomes should have been called with adjacent data
-      // that includes our cached room's biome
-      const calls = (wfcService.getValidBiomes as any).mock.calls;
-      const lastCall = calls[calls.length - 1];
-      // lastCall[3] is the adjacentRooms array
-      const adjacentRoomsArg = lastCall[3] as Array<{ x: number; y: number; z: number; biomeId: string }>;
-      const westNeighbor = adjacentRoomsArg.find((r: any) => r.x === 0 && r.y === 0 && r.z === 0);
-      expect(westNeighbor).toBeDefined();
-      expect(westNeighbor?.biomeId).toBe('wilderness');
+      await service.getOrGenerateRoom(0, 0, -2);
+      expect(mockFloor.difficulty).toBe(3);
+    });
+  });
+
+  describe('room type assignment', () => {
+    it('should use entrance room type for entrance cell', async () => {
+      const room = await service.getOrGenerateRoom(0, 0, 0);
+
+      expect(room?.name).toBe('Dungeon Entrance');
+      expect(room?.description).toBe('The entrance to the dungeon.');
+    });
+
+    it('should use stairs room type for stairs cell', async () => {
+      const room = await service.getOrGenerateRoom(1, 1, 0);
+
+      expect(room?.name).toBe('Deep Stairwell');
+      expect(room?.description).toBe('A stairwell descending deeper.');
+    });
+
+    it('should use biome room types for normal cells', async () => {
+      const room = await service.getOrGenerateRoom(1, 0, 0);
+
+      expect(room?.name).toBe('Crystal Cavern');
+      expect(room?.description).toBe('A cavern filled with gleaming crystals.');
     });
   });
 });
