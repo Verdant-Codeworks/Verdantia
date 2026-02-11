@@ -113,11 +113,19 @@ export class CombatSystem {
     for (const loot of enemyDef.lootTable) {
       if (Math.random() < loot.chance) {
         const itemDef = this.worldLoader.getItem(loot.itemId);
-        session.addToInventory(loot.itemId);
-        session.addMessage(
-          `The ${enemyDef.name} dropped: ${itemDef?.name || loot.itemId}`,
-          'loot',
-        );
+        if (itemDef?.type === 'misc' && itemDef.value && !itemDef.effect) {
+          session.gold += itemDef.value;
+          session.addMessage(
+            `The ${enemyDef.name} dropped: ${itemDef.name}. (+${itemDef.value} gold)`,
+            'loot',
+          );
+        } else {
+          session.addToInventory(loot.itemId);
+          session.addMessage(
+            `The ${enemyDef.name} dropped: ${itemDef?.name || loot.itemId}`,
+            'loot',
+          );
+        }
       }
     }
 

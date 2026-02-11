@@ -120,6 +120,13 @@ export const TEST_ITEMS: Record<string, ItemDefinition> = {
     type: 'misc',
     value: 40,
   },
+  gold_pouch: {
+    id: 'gold_pouch',
+    name: 'Pouch of Gold',
+    description: 'A small leather pouch jingling with gold coins.',
+    type: 'misc',
+    value: 50,
+  },
   wolf_pelt: {
     id: 'wolf_pelt',
     name: 'Wolf Pelt',
