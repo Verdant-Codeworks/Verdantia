@@ -10,6 +10,7 @@ import {
   getXpForLevel,
   getStatGains,
 } from '@verdantia/shared';
+import type { EnemyDefinition } from '@verdantia/shared';
 import { createMockWorldLoader, createCombatSession, TEST_ENEMIES } from './fixtures';
 
 describe('CombatSystem', () => {
@@ -250,6 +251,60 @@ describe('CombatSystem', () => {
 
       // After level-up, hp should equal the new maxHp
       expect(session.stats.hp).toBe(session.stats.maxHp);
+    });
+
+    it('should convert misc loot to gold instead of adding to inventory', () => {
+      const enemyWithGoldPouch: EnemyDefinition = {
+        id: 'test_goblin',
+        name: 'Test Goblin',
+        description: 'A goblin carrying gold.',
+        stats: { maxHp: 10, hp: 10, attack: 3, defense: 1, speed: 3 },
+        xpReward: 20,
+        lootTable: [{ itemId: 'gold_pouch', chance: 1.0 }],
+      };
+      mockWorldLoader.getEnemy.mockReturnValue(enemyWithGoldPouch);
+
+      const session = createCombatSession(enemyWithGoldPouch);
+      session.combat!.enemyHp = 1;
+      const goldBefore = session.gold;
+
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0.5) // damage variance
+        .mockReturnValueOnce(0.0); // loot roll: guaranteed drop
+
+      combat.attack(session);
+
+      expect(session.gold).toBe(goldBefore + 50);
+      expect(session.hasItem('gold_pouch')).toBe(false);
+
+      const state = session.toGameState({} as any, {});
+      const texts = state.messages.map((m) => m.text);
+      expect(texts.some((t) => t.includes('+50 gold'))).toBe(true);
+    });
+
+    it('should add non-misc loot to inventory normally', () => {
+      const enemyWithHerb: EnemyDefinition = {
+        id: 'test_spider',
+        name: 'Test Spider',
+        description: 'A spider carrying herbs.',
+        stats: { maxHp: 10, hp: 10, attack: 3, defense: 1, speed: 3 },
+        xpReward: 20,
+        lootTable: [{ itemId: 'healing_herb', chance: 1.0 }],
+      };
+      mockWorldLoader.getEnemy.mockReturnValue(enemyWithHerb);
+
+      const session = createCombatSession(enemyWithHerb);
+      session.combat!.enemyHp = 1;
+      const goldBefore = session.gold;
+
+      vi.spyOn(Math, 'random')
+        .mockReturnValueOnce(0.5) // damage variance
+        .mockReturnValueOnce(0.0); // loot roll: guaranteed drop
+
+      combat.attack(session);
+
+      expect(session.hasItem('healing_herb')).toBe(true);
+      expect(session.gold).toBe(goldBefore);
     });
 
     it('returns to EXPLORATION after victory', () => {
